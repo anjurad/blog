@@ -1,6 +1,6 @@
 baseurl = "https://nifty-villani-ceb1bc.netlify.com"
 DefaultContentLanguage = "en"
-title = "anjurad"
+title = "Gerhard Groenewald"
 theme = "beautifulhugo"
 metaDataFormat = "yaml"
 pygmentsStyle = "trac"
