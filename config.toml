@@ -1,4 +1,4 @@
-baseurl = "https://github.com/anjurad/blog"
+baseurl = "https://nifty-villani-ceb1bc.netlify.com"
 DefaultContentLanguage = "en"
 title = "anjurad"
 theme = "beautifulhugo"
