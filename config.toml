@@ -1,4 +1,4 @@
-baseurl = "https://anjurad.github.io"
+baseurl = "https://github.com/anjurad/blog"
 DefaultContentLanguage = "en"
 title = "anjurad"
 theme = "beautifulhugo"
