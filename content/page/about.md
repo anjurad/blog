@@ -1,6 +1,6 @@
 ---
 title: About me
-subtitle: always learning
+subtitle: management consultant & data scientist
 comments: false
 ---
 
