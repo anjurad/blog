@@ -4,4 +4,6 @@ subtitle: management consultant & data scientist
 comments: false
 ---
 
-My name is **Gerhard Groenewald**.  I am a management consultant specialising in data science working on the telecommunications industry in the UK.
+My name is **Gerhard Groenewald**.  
+
+I am a management consultant in the UK telecommunications industry, specialising in data science.
