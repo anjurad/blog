@@ -2,13 +2,13 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on Gerhard Groenewald</title>
-    <link>/www.gerhardgroenewald.co.uk/tags/</link>
+    <link>https://nifty-villani-ceb1bc.netlify.com/tags/</link>
     <description>Recent content in Tags on Gerhard Groenewald</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>gerhard@anjurad.com (Gerhard Groenewald)</managingEditor>
     <webMaster>gerhard@anjurad.com (Gerhard Groenewald)</webMaster>
     
-	<atom:link href="/www.gerhardgroenewald.co.uk/tags/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://nifty-villani-ceb1bc.netlify.com/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>
