@@ -1,5 +1,5 @@
-baseurl = "https://nifty-villani-ceb1bc.netlify.com"
-#baseurl = "www.gerhardgroenewald.co.uk"
+#baseurl = "https://nifty-villani-ceb1bc.netlify.com"
+baseurl = "https://www.gerhardgroenewald.co.uk"
 DefaultContentLanguage = "en"
 title = "Gerhard Groenewald"
 theme = "beautifulhugo"
