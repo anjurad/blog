@@ -3,6 +3,7 @@ layout: post
 title: Hello World
 date: 2018-08-01
 tags: ["website"]
+comments: true
 bigimg: [{src: "/img/hello_world.png", desc: "Hello"}]
 ---
 
