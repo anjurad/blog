@@ -32,7 +32,7 @@ Data science and its tools have grown exponentially during the last decade.  The
 **Giving back** <br>
   I have benefited tremendously from [Open Source](https://en.wikipedia.org/wiki/Open-source_software) software, using programming languages like [R](https://www.r-project.org) and [Python](https://www.python.org), in particular *the* [Tidyverse](https://www.tidyverse.org) compendium of libraries lead by [Hadley Wikham](http://hadley.nz) and [Pandas](https://pandas.pydata.org) by [Wes McKinney](http://wesmckinney.com). <br><br>
   Additionally, there are many altruistic engineers that continue to build on this collaboration, providing free advice through [Stack Overflow](https://stackoverflow.com) for example,  or free quality education, like Kevin Markham of [dataschool](https://www.dataschool.io/about/) in his [YouTube](https://www.youtube.com/channel/UCnVzApLJE2ljPZSeQylSEyg) series of data science tutorials.<br><br>
-  This website will allow me to pay it forward.
+  This website allows me to pay it forward.
   
 <hr>
 #### Some technical blurb about the website
