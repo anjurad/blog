@@ -10,7 +10,7 @@ Last year [Louis Columbus](https://www.forbes.com/sites/louiscolumbus/#7a3e7ef53
 
 Data science in the UK is still emerging, whereas in the US it appears to have taken off in a big way.  
 
-It is encouraging to [read about mainstream adoption in the UK](https://www.ft.com/content/d9b3511c-90da-11e8-b639-7680cedcc421), even if still early days. The imminent [5G](https://5g.co.uk/guides/what-is-5g/ ) mobile data revolution will fuel the [Internet of Things](https://en.wikipedia.org/wiki/Internet_of_things), and will no doubt accelerate and result in a step-change in the sources, volume, and variety of data, catapulting data science and associated disciplines into the stratosphere.
+It is encouraging to [read about mainstream adoption in the UK](https://www.ft.com/content/d9b3511c-90da-11e8-b639-7680cedcc421), even if still early days. The imminent [5G](https://5g.co.uk/guides/what-is-5g/ ) mobile data revolution will fuel the [Internet of Things](https://en.wikipedia.org/wiki/Internet_of_things), and will no doubt accelerate and result in a step-change in sources, volume, and variety of data, catapulting data science and associated disciplines into the stratosphere.
 
 It raises exciting prospects.  I am thrilled to be part of this and decided to get more involved.  I realise though that, in order to achieve this, I need to participate and contribute more to the ongoing discussion.  Thus, I am going to do a lot more online, starting with this website.
 
