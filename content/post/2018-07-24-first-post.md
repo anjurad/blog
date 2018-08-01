@@ -13,7 +13,7 @@ Data science in the UK is still emerging, whereas in the US it appears to have t
 
 It is encouraging to [read about mainstream adoption in the UK](https://www.ft.com/content/d9b3511c-90da-11e8-b639-7680cedcc421), even if still early days. The imminent [5G](https://5g.co.uk/guides/what-is-5g/ ) mobile data revolution will fuel the [Internet of Things](https://en.wikipedia.org/wiki/Internet_of_things), and will no doubt accelerate and result in a step-change in sources, volume, and variety of data, catapulting data science and associated disciplines into the stratosphere.
 
-It raises exciting prospects.  I am thrilled to be part of this and decided to get more involved.  I realise though that, in order to achieve this, I need to participate and contribute more to the ongoing discussion.  Thus, I am going to do a lot more online, starting with this website.
+It raises exciting prospects.  I am thrilled to be part of this and have decided to get more involved.  I realise though that, in order to achieve this, I need to participate and contribute more to the ongoing discussion.  Thus, I am going to do a lot more online, starting with this website.
 
 I've been meaning to create a website for a while now, and recently and unexpectedly got some time to do it.  The intention is not to create the world's best blogging site, but to get a fit-for-purpose web presence as quickly and efficiently as possible.
 
@@ -28,7 +28,7 @@ Publish my insights on extracts and highlights from my work in a single and cont
   > [The more I learn, the more I realise how much I don't know](https://en.wikiquote.org/wiki/Albert_Einstein).  I will **never** stop learning.  
 
 Data science and its tools have grown exponentially during the last decade.  There is a lot of information available today, and much of it is unoriginal, inaccurate, incomplete, out-of-date or badly written or explained.  Also, there are many approaches and tools to accomplish a task, and often it is difficult to choose a way forward. <br><br>
-    I have however found many tried, tested and current sources that I continue to draw on, and which I would like to share and comment on.
+    I have however found many tried, tested and current sources that I continue to draw upon, and which I would like to share and comment on.
 
 **Giving back** <br>
   I have benefited tremendously from [Open Source](https://en.wikipedia.org/wiki/Open-source_software) software, using programming languages like [R](https://www.r-project.org) and [Python](https://www.python.org), in particular *the* [Tidyverse](https://www.tidyverse.org) compendium of libraries lead by [Hadley Wikham](http://hadley.nz) and [Pandas](https://pandas.pydata.org) by [Wes McKinney](http://wesmckinney.com). <br><br>
