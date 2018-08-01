@@ -38,6 +38,6 @@ Data science and its tools have grown exponentially during the last decade.  The
 #### Some technical blurb about the website
 After some research, I have decided to follow the [blogdown](https://bookdown.org/yihui/blogdown/installation.html) approach, provided and explained by [Yihui Xie](https://yihui.name).  It's taken me a day to cover basic training and setup and I am really chuffed with the result.
 
-The static website is using the [Hugo](https://gohugo.io) framework and [Beautiful Hugo](https://github.com/halogenica/beautifulhugo) theme.  The source code is pushed to a [GitHub](https://github.com) repository.  The website is hosted on [netlify](https://www.netlify.com).  Netlify automatically pulls the code from GitHub and builds the website.  Easy and seamsless.
+The static website is using the [Hugo](https://gohugo.io) framework and [Beautiful Hugo](https://github.com/halogenica/beautifulhugo) theme.  The source code is pushed to a [GitHub](https://github.com) repository.  The website is hosted on [netlify](https://www.netlify.com).  Netlify automatically pulls the code from GitHub and builds the website.  Easy and seamless.
 
 So, hello world!  Here it starts with more to follow...
