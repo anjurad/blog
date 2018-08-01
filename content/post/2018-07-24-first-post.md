@@ -16,7 +16,7 @@ It raises exciting prospects.  I am thrilled to be part of this and decided to g
 
 I've been meaning to create a website for a while now, and recently and unexpectedly got some time to do it.  The intention is not to create the world's best blogging site, but to get a fit-for-purpose web presence as quickly and efficiently as possible.
 
-This website helps me to achieve a few things in particular:
+#### This website helps me to achieve a few things in particular:
 
 **Showcasing** <br>
 Publish my insights on extracts and highlights from my work in a single and controlled environment.
@@ -34,7 +34,7 @@ Data science and its tools have grown exponentially during the last decade.  The
   This website will allow me to pay it forward.
   
 <hr>
-
+#### Some technical blurb about the website
 After some research, I have decided to follow the [blogdown](https://bookdown.org/yihui/blogdown/installation.html) approach, provided and explained by [Yihui Xie](https://yihui.name).  It's taken me a day to cover basic training and setup and I am really chuffed with the result.
 
 The static website is using the [Hugo](https://gohugo.io) framework and [Beautiful Hugo](https://github.com/halogenica/beautifulhugo) theme.  The source code is pushed to a [GitHub](https://github.com) repository.  The website is hosted on [netlify](https://www.netlify.com).  Netlify automatically pulls the code from GitHub and builds the website.  Easy and seamsless.

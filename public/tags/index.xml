@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on Gerhard Groenewald</title>
-    <link>/tags/</link>
+    <link>https://www.gerhardgroenewald.co.uk/tags/</link>
     <description>Recent content in Tags on Gerhard Groenewald</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>gerhard@anjurad.com (Gerhard Groenewald)</managingEditor>
     <webMaster>gerhard@anjurad.com (Gerhard Groenewald)</webMaster>
     
-	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://www.gerhardgroenewald.co.uk/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Website</title>
-      <link>/tags/website/</link>
+      <link>https://www.gerhardgroenewald.co.uk/tags/website/</link>
       <pubDate>Wed, 01 Aug 2018 00:00:00 +0000</pubDate>
       <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
-      <guid>/tags/website/</guid>
+      <guid>https://www.gerhardgroenewald.co.uk/tags/website/</guid>
       <description></description>
     </item>
     
