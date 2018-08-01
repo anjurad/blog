@@ -16,6 +16,7 @@ It raises exciting prospects.  I am thrilled to be part of this and decided to g
 
 I've been meaning to create a website for a while now, and recently and unexpectedly got some time to do it.  The intention is not to create the world's best blogging site, but to get a fit-for-purpose web presence as quickly and efficiently as possible.
 
+<hr>
 #### This website helps me to achieve a few things in particular:
 
 **Showcasing** <br>
