@@ -1,0 +1,200 @@
+---
+title: Resources
+subtitle: Links to and information about data science references, training and news
+author: "Gerhard Groenewald"
+date: "26/08/2018"
+output: html_document
+comments: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I have a 'go-to' list of quality and up-to-date sources of information that I continuously draw upon either as *reference*, for *training*, *detecting patterns and trends*, or to *aid in comparison and evaluation*.
+
+I have mapped the list to the data science process, and the skills and knowledge supporting it.  I hope that it will save you time and help focus on relevant and key aspects using quality, vetted information.
+
+The following graph provides an outline of the data science process and skills and knowledge required to practice it.<br><br>
+
+![The data science process and tools, skills & knowledge that support it](/page/resources_files/datascience_process_skills.png)
+
+The `process` section of the graph is an extract from [R for Data Science](http://r4ds.had.co.nz/explore-intro.html) by [Hadley Wickham](http://hadley.nz) and [Garrett Grolemund](https://www.linkedin.com/in/garrett-grolemund-49328411/).<br><br>
+
+## Summary of the data-science process
+> [Data analysis is the **process** by which data becomes understanding, knowledge and insight.](https://www.londonr.org/wp-content/uploads/sites/2/presentations/LondonR_-_BigR_Data_-_Hadley_Wickham_-_20130716.pdf) Hadley Wickham, July 2013
+
+### Extract, Transform & Load
+The first, and probably the most labour intensive part of the data science process is to prepare and structure datasets to facilitate analysis, specifically **importing**, **tidying** and **cleaning** data.  Hadley Wickham wrote about it in [The Journal of Statistical Software, vol. 59, 2014](http://vita.had.co.nz/papers/tidy-data.html).<br><br>
+
+#### Tidy Data
+*Tidying data[^1]* aims to achieve the following:<br>
+
+* Each *variable[^2]* forms a column and contains *values[^3]*
+* Each *observation[^4]* forms a row.
+* Each type of observational unit forms a table.<br>
+
+It attempts to deal with 'messy data', including the following issues:<br>
+
+* Column headers are values, not variable names.
+* Multiple variables are stored in one column.
+* Variables are stored in both rows and columns.
+* Multiple types of observational units are stored in the same table.
+* A single observational unit is stored in multiple tables.<br><br>
+
+#### Null Values/ Missing Data
+Most models are typically unable to support data with missing values.  The data science process will, therefore, include steps to detect and populate missing data.
+
+It can occur anywhere between the *importing* and *transforming* stages.  *Models* can be used to guess values for more complex treatments, whereas a simpler approach could use aggregation during *transformation*.<br><br>
+
+### Transform
+The result of the `transform` step in the data science process is to:
+
+* reshape data, which could be used to produce tidy data,
+* transform data, like *rescaling[^5]* of numeric values, or reducing dimensions of categorical values using [Principle Component Analysis](#pca)
+* create new features, also known as 'Feature Engineering',
+* or a combination of the above that typically results in aggregation.<br><br>
+
+#### Split, Apply, Combine
+A common analytical pattern is to:
+
+* split, group or nest data into pieces,
+* apply some function to each piece,
+* and to combine the results back together again.
+
+It is also useful approach when modelling.  Read more about it in [Hadley Wickham's paper: 'The Split-Apply-Combine Strategy for Data Analysis'](https://www.jstatsoft.org/article/view/v040i01).<br><br>
+
+### Visualisation & Modelling
+In Feburary 2013 Hadley Wickham gave a talk where he described the interaction between visualisation and modelling very well.  
+
+> Visualization can surprise you, but it doesn’t scale well. Modeling scales well, but it can’t surprise you.<br><br>  Visualization can show you something in your data that you didn’t expect. But some things are hard to see, and visualization is a slow, human process.<br><br>
+Modeling might tell you something slightly unexpected, but your choice of model restricts what you’re going to find once you’ve fit it.<br><br>
+So you iterate. Visualization suggests a model, and then you use your model to factor out some feature of the data. Then you visualize again.
+
+[^1]: <sub>Described in [R for Data Science: Exploratory Data Analysis](http://r4ds.had.co.nz/exploratory-data-analysis.html)</sub>
+[^2]: <sub>A *variable* is a quantity, quality, or property that you can measure. *Height, weight, sex, etc.*</sub>
+[^3]: <sub>A *value* is the state of a variable when you measure it. The value of a variable may change from measurement to measurement. *152 cm, 80 kg, female, etc.*</sub>
+[^4]: <sub>An *observation*, or data point, is a set of measurements made under similar conditions (you usually make all of the measurements in an observation at the same time and on the same object).  An observation will contain several values, each associated with a different variable. *Each person.*</sub>
+[^5]: <sub>[*Standardisation*](https://en.wikipedia.org/wiki/Standard_score), *Normalisation* & [*Box-Cox transformations*](https://en.wikipedia.org/wiki/Power_transform) for example</sub>
+
+
+<h2>Table of resources in relation to Data Science</h2>
+```{r tables, echo=FALSE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(readxl)
+library(tibble)
+library(stringr)
+library(purrr)
+library(tidyr)
+
+# Function ----
+func_create_author_weblink <-
+  function(param_input) {
+    param_input %>%
+      as_data_frame() %>%
+      rename(Author = value) %>%
+      left_join(author_weblink,
+                by = "Author") %>%
+      transmute(author = if_else(
+        !is.na(Author_Weblink),
+        paste("[", Author, "](", Author_Weblink, ")"),
+        Author
+      )) %>%
+      return()
+  }
+
+# IO: In ----
+# quos
+quos_select_fields <-
+  dplyr::quos(
+              Process_or_Skill,
+              Area,
+              Language,
+              Source,
+              row_id,
+              Title,
+              Author)
+
+author_weblink <-
+  read_excel("../../Resources.xlsx", sheet = "Authors")
+  
+df_resources <-
+  read_excel("../../Resources.xlsx") %>%
+  select(-Library) %>% 
+  mutate(row_id = row_number())
+
+# FE ----
+df_resources_grouped <-
+  df_resources %>%
+  mutate(row_id = row_number()) %>%
+  group_by(row_id) %>%
+  mutate(Title = paste("[", Title, "](", Location, ")")) %>%
+  mutate_at(
+    "Author",
+    ~ str_split(., pattern = ",") %>%
+      map(., str_trim) %>%
+      map(., func_create_author_weblink) %>%
+      unlist(.) %>%
+      paste(., sep = '', collapse = ', ')
+  ) %>%
+  ungroup() %>%
+  mutate_at("Process_or_Skill",
+            ~ str_split(., pattern = ",") %>%
+              map(., str_trim)) %>%
+  unnest() %>%
+  select(!!!quos_select_fields) %>%
+  group_by(Process_or_Skill) %>%
+  arrange(Process_or_Skill, Area, Language, Source) %>% 
+  rename(`#` = row_id) %>%
+  mutate_if(is.character, ~ coalesce(., "")) %>%
+  nest() %>% 
+  mutate(Section = case_when(
+    Process_or_Skill %in% c("Programming", "Visualisation", "Model") ~ "Process",
+    Process_or_Skill %in% c("Probability", "Statistics") ~ "Statistics",
+    Process_or_Skill %in% c("Linear Algebra", "Calculus", "PCA") ~ "Mathematics",
+    TRUE ~ "Other"
+  )) %>% 
+  mutate_at("Section", factor, ordered = TRUE, levels = c("Process", "Statistics", "Mathematics")) %>% 
+  mutate_at("Process_or_Skill", factor, ordered = TRUE, levels = c("Programming", "Visualisation", "Model", "Probability", "Statistics", "Linear Algebra", "Calculus", "PCA")) %>% 
+  arrange(Section, Process_or_Skill)
+
+df_resources_grouped_sections <-
+  df_resources_grouped %>%
+  distinct(Section)
+  
+func_df_resources_grouped_section <-
+  function(param_Process_or_Skill) {
+    cat(paste0("<h4>", param_Process_or_Skill, "</h4>"))
+  
+    df_resources_grouped %>%
+      select(-Section) %>% 
+      filter(Process_or_Skill == param_Process_or_Skill) %>%
+      unnest() %>%
+      ungroup() %>%
+      select(-Process_or_Skill) %>%
+      mutate(`#` = row_number()) %>%
+      kable() %>%
+      kable_styling(bootstrap_options = c("hover", "condensed"),
+                    font_size = 12) %>%
+      collapse_rows(columns = 1:4, valign = "middle") %>%
+      return()
+  }
+  
+# Print ----
+for (i in seq_along(df_resources_grouped_sections$Section))  {
+  df_resources_grouped_filtered <-
+    df_resources_grouped %>%
+    filter(Section == df_resources_grouped_sections$Section[[i]]) %>% 
+    pull(Process_or_Skill)
+  
+  cat(paste0("<h3>", df_resources_grouped_sections$Section[[i]], "</h3>"))
+  
+  for (i in seq_along(df_resources_grouped_filtered))  {
+    func_df_resources_grouped_section(df_resources_grouped_filtered[[i]]) %>%
+      print()
+  }
+}
+
+```
