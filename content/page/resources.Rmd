@@ -27,6 +27,8 @@ The `process` section of the graph is an extract from [R for Data Science](http:
 ### Extract, Transform & Load
 The first, and probably the most labour intensive part of the data science process is to prepare and structure datasets to facilitate analysis, specifically **importing**, **tidying** and **cleaning** data.  Hadley Wickham wrote about it in [The Journal of Statistical Software, vol. 59, 2014](http://vita.had.co.nz/papers/tidy-data.html).<br><br>
 
+<a id="tidy"></a>
+
 #### Tidy Data
 *Tidying data[^1]* aims to achieve the following:<br>
 
