@@ -9,6 +9,7 @@ layout: post
 tags:
 - tutorial
 - advanced
+- R
 comments: yes
 ---
 
@@ -195,9 +196,9 @@ param_date_start <- ymd("2018-03-01")
 # into a tibble
 param_days <- 
   
-  # 2018 data
   tibble(
     Date = c(
+      # 2018 data
       seq.Date(
         from = param_date_start,
         by = "day",
@@ -645,7 +646,7 @@ files_expanded %>%
 ```
 
 ### Visualise Imported Data
-Now create a couple of visualisations.  The first is the number of records per csv file or per Excel tab after removing entries with missing or zero volume.
+Now create a couple of visualisations.  The first is the number of records per CSV file or per Excel tab after removing entries with missing or zero volume.
 
 ```{r vis_import_row_counts}
 # Visualise the imported file data

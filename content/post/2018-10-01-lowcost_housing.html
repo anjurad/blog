@@ -1,0 +1,2718 @@
+---
+title: "Low-cost housing in South Africa"
+subtitle: "Reporting state changes of large-scale programmes over time"
+author: "Gerhard Groenewald"
+date: '2018-10-29'
+output:
+  html_document: default
+  pdf_document: default
+layout: post
+tags:
+- tutorial
+- advanced
+- R
+comments: yes
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p><strong>Please note that references to real companies or initiatives are purely coincidental.</strong></p>
+<p>The scenario for this tutorial is a large-scale South African initiative providing low-cost housing in selected <a href="https://en.wikipedia.org/wiki/Township_(South_Africa)">townships</a>, a local term for informal settlements.</p>
+<p>The purpose of this tutorial is to demonstrate some techniques to transform data and create features to gain insight into <em>state changes</em> of <em>large-scale programmes over time</em>.</p>
+<p>A <em>state change</em> in this context infers the change to the statuses of multiple activities performed in the delivery of a project, the project forming part of a larger body programme of works (collective portfolio of project activities).</p>
+<p>Let’s set up the environment, import and have a look at the data.</p>
+</div>
+<div id="setup" class="section level2">
+<h2>Setup</h2>
+<div id="library" class="section level3">
+<h3>Library</h3>
+<pre class="r"><code>package_list &lt;- c(&quot;tidyverse&quot;, &quot;lubridate&quot;, &quot;readxl&quot;, &quot;knitr&quot;, &quot;ggrepel&quot;)
+
+invisible(
+  suppressPackageStartupMessages(
+    lapply(package_list,
+           library,
+           character.only = TRUE)
+  )
+)
+
+rm(package_list)</code></pre>
+</div>
+<div id="parameters-configuration" class="section level3">
+<h3>Parameters &amp; Configuration</h3>
+<p>The next code block sets up parameters and configures options used throughout the workbook.</p>
+<pre class="r"><code># Setting option for digit accuracy
+options(digits = 9)
+
+# Specify the location where source files are located
+directory_path &lt;- &quot;../../resources/lowcost_housing/&quot;</code></pre>
+</div>
+<div id="general-functions" class="section level3">
+<h3>General Functions</h3>
+<pre class="r"><code>func_remove_spaces &lt;-
+  function(.) {
+    
+    # transform character fields by replacing underscores with spaces - useful
+    # when presenting data
+    str_replace_all(string = .,
+                    pattern = &quot;_&quot;,
+                    replacement = &quot; &quot;) %&gt;%
+      return()
+  }
+
+func_general_date_conversion &lt;-
+  function(param_date) {
+    
+    # adaptive function to detect the format of a character and coerce data to
+    # the correct date/ time
+    case_when(
+      is.na(param_date) ~ ymd(param_date, quiet = TRUE),
+      grepl(&quot;\\d{2}\\/\\d{2}\\/\\d{4}&quot;, param_date, ignore.case = TRUE) ~ dmy(param_date, quiet = TRUE),
+      grepl(&quot;\\d{5}&quot;, param_date, ignore.case = TRUE) ~ as.Date(suppressWarnings(as.numeric(param_date)), origin = &quot;1899-12-30&quot;),
+      TRUE ~ ymd(param_date)
+    )
+  }</code></pre>
+</div>
+</div>
+<div id="import" class="section level2">
+<h2>Import</h2>
+<p>Here we import the data and change the <code>POSIXct</code> data class to a normal date using the <code>lubridate::ymd</code> function to simplify further analysis.</p>
+<pre class="r"><code>df &lt;- 
+  read_excel(
+    path = paste0(directory_path, &quot;south_african_lowcost_housing_initiative.xlsx&quot;)
+    ) %&gt;%  
+  
+  # Simplify datetime values to date only
+  mutate_if(is.POSIXct, ymd)</code></pre>
+</div>
+<div id="explore" class="section level2">
+<h2>Explore</h2>
+<div id="where" class="section level3">
+<h3>Where</h3>
+<p><strong>Map</strong><br>
+The following code block maps out geographically where the projects have taken place.</p>
+<p>A polygon from the <a href="https://cran.r-project.org/web/packages/mapdata/index.html">mapdata</a> package plots the outline of South Africa. Township point locations are overlayed onto the polygon, the size of each reflecting the relative volume of houses compared with the entire programme.</p>
+<pre class="r"><code>library(mapdata)
+
+# Import the South African polygon from the mapdata package
+polygon_zar &lt;-
+  map_data(&quot;world2Hires&quot;) %&gt;% 
+  filter(grepl(&quot;south africa&quot;, region, ignore.case = TRUE)) %&gt;% 
+  filter(is.na(subregion))
+
+df %&gt;% 
+  filter_at(&quot;Report&quot;, all_vars(. == max(.))) %&gt;% 
+  
+  # group by Township and create a tally/ volume of jobs for each
+  group_by(Township) %&gt;% 
+  summarise(n = n_distinct(Job_Number)) %&gt;% 
+  inner_join(
+    
+    # separate tibble providing a lookup of the lat/ long of the selected
+    # townships
+    tribble( 
+      ~ Township, ~ long, ~ lat,
+      &quot;Soweto&quot;, 27.85849, -26.26781,
+      &quot;Khayelitsha&quot;, 18.666667,-34.05,
+      &quot;Umlazi&quot;, 30.8833298, -29.9666628
+    )
+  ) %&gt;% 
+  ggplot(aes(x = long,
+             y = lat,
+             col = Township)) +
+  coord_fixed(1.3) +
+  
+  # plot the polygon
+  geom_polygon(
+    data = polygon_zar,
+    mapping = aes(x = long, y = lat, group = group),
+    color = &quot;grey&quot;,
+    fill = NA
+  ) +
+  
+  # plot each township, adjusting the size of the point/ shape based on the
+  # relative volume of underlying projects
+  geom_point(aes(size = n),
+             show.legend = FALSE) +
+  geom_text(aes(label = Township), size = 5, nudge_y = 0.5,
+            show.legend = FALSE) +
+  scale_colour_viridis_d() +
+  theme_classic() +
+  
+  # remove plot axes to improve visualisation
+  theme(
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    axis.text = element_blank()
+  )</code></pre>
+<p><img src="/post/2018-10-01-lowcost_housing_files/lowcost_housing_map.png" /></p>
+<p>Low-cost housing was delivered in 3 Townships, spread throughout South Africa, located near major cities, including Johannesburg, Durban and Cape Town.</p>
+<p><a id="process"></a></p>
+</div>
+<div id="how" class="section level3">
+<h3>How</h3>
+<p><strong>Process</strong><br></p>
+<div class="figure">
+<img src="/post/2018-10-01-lowcost_housing_files/lowcost_housing_milestone_process.png" alt="South African low-cost housing Project workflow by major milestones" />
+<p class="caption">South African low-cost housing Project workflow by major milestones</p>
+</div>
+<p>The process is initiated by a Statement of Works <code>SOW</code> document, committing the delivery of a low-cost house. This leads to a contract being drawn up with the house manufactured and installed once legal rights are obtained.</p>
+</div>
+<div id="data" class="section level3">
+<h3>Data</h3>
+<p>Let’s look at the structure of the data.</p>
+<pre class="r"><code>df %&gt;% 
+  # filter report field by returning records with the max date only
+  filter_at(&quot;Report&quot;, all_vars(. == max(.))) %&gt;% 
+  
+  # coerce character fields as factors
+  mutate_if(is.character, factor) %&gt;% 
+  
+  # return the first 6 observations only
+  head() %&gt;% 
+  
+  # show the structure of the table
+  str()</code></pre>
+<pre><code>## Classes &#39;tbl_df&#39;, &#39;tbl&#39; and &#39;data.frame&#39;:    6 obs. of  12 variables:
+##  $ Report               : Date, format: &quot;2010-12-01&quot; &quot;2010-12-01&quot; ...
+##  $ Job_Number           : num  5e+05 5e+05 5e+05 5e+05 5e+05 ...
+##  $ Township             : Factor w/ 3 levels &quot;Khayelitsha&quot;,..: 2 3 1 2 1 1
+##  $ Contract_Supplier    : Factor w/ 3 levels &quot;Default&quot;,&quot;Internal&quot;,..: 3 3 3 3 3 3
+##  $ Installation_Supplier: Factor w/ 5 levels &quot;Fairground &amp; Co&quot;,..: 1 5 1 1 4 4
+##  $ Contract_Forecast    : Date, format: &quot;2013-06-13&quot; NA ...
+##  $ Contract_Actual      : Date, format: NA &quot;2005-12-21&quot; ...
+##  $ Manufacture_Forecast : Date, format: NA NA ...
+##  $ Manufacture_Actual   : Date, format: &quot;2008-11-22&quot; &quot;2007-04-13&quot; ...
+##  $ Installation_Forecast: Date, format: NA NA ...
+##  $ Installation_Actual  : Date, format: NA &quot;2006-10-23&quot; ...
+##  $ SOW                  : Date, format: &quot;2010-11-29&quot; &quot;2010-11-29&quot; ...</code></pre>
+<p>The structure reveals:</p>
+<ul>
+<li><strong><code>Report</code></strong> Date when the report was sampled for each month in 2010.</li>
+<li><strong><code>Job_Number</code></strong> Unique reference used to identify the low-cost house being delivered</li>
+<li><strong><code>Township</code></strong> The location where the installation takes place</li>
+<li><strong><code>Contract_Supplier</code> : <code>Installation_Supplier</code></strong> Name of the suppliers used to deliver aspects of the project</li>
+<li><strong><code>Contract_Forecast</code> : <code>Installation_Actual</code></strong> Forecast and Actual dates for each of the major Milestones/activity workstreams delivering the project</li>
+</ul>
+<hr>
+<p>The data is consolidated snapshot reports of the project state, taken at the date of the report - sampled from each month during 2010.</p>
+<p>Each report below contains a nested tibble.</p>
+<pre class="r"><code>df %&gt;% 
+  group_by(Report) %&gt;% 
+  nest()</code></pre>
+<pre><code>## # A tibble: 12 x 2
+##    Report     data                 
+##    &lt;date&gt;     &lt;list&gt;               
+##  1 2010-01-10 &lt;tibble [5,034 × 11]&gt;
+##  2 2010-02-10 &lt;tibble [5,031 × 11]&gt;
+##  3 2010-03-11 &lt;tibble [5,027 × 11]&gt;
+##  4 2010-04-12 &lt;tibble [5,019 × 11]&gt;
+##  5 2010-05-12 &lt;tibble [5,017 × 11]&gt;
+##  6 2010-06-10 &lt;tibble [5,016 × 11]&gt;
+##  7 2010-07-13 &lt;tibble [5,013 × 11]&gt;
+##  8 2010-08-10 &lt;tibble [5,010 × 11]&gt;
+##  9 2010-09-08 &lt;tibble [5,008 × 11]&gt;
+## 10 2010-10-10 &lt;tibble [5,008 × 11]&gt;
+## 11 2010-11-09 &lt;tibble [5,004 × 11]&gt;
+## 12 2010-12-01 &lt;tibble [5,004 × 11]&gt;</code></pre>
+<p>The structure above reveals 4 major milestones in the delivery of a low-cost house. We are interested in last 3 Milestones, namely <code>Contract</code>, <code>Manufacturing</code> and <code>Installation</code>, as per the process described in the <em><a href="#process">How</a></em> section.</p>
+<p>The following code chunk extracts metadata about the Milestones from the source data, including attributes and associated data types.</p>
+<pre class="r"><code>df %&gt;%
+  
+  # return the first observation only
+  head(1) %&gt;% 
+  
+  # map each field&#39;s data class
+  mutate_all(map, class) %&gt;% 
+  unnest() %&gt;% 
+  
+  # return the latest report only
+  filter_at(&quot;Report&quot;, all_vars(. == max(.))) %&gt;%
+  
+  # select all fields containing the regex shown below, namely all fields to do
+  # with the major project milestones
+  select(names(.) %&gt;%
+           as_tibble() %&gt;%
+           filter(grepl(
+             &quot;contract|install|man&quot;, value, ignore.case = TRUE
+           )) %&gt;%
+           pull()) %&gt;% 
+  
+  # gather all fields into a single column
+  gather(Milestone, datatype) %&gt;%
+  
+  # separate the Milestone value into two distinct fields
+  separate(Milestone, into = c(&quot;Milestone&quot;, &quot;values&quot;)) %&gt;% 
+  
+  # group by the Milestone and its datatype
+  group_by(Milestone, datatype) %&gt;% 
+  
+  # create a comma delim list of the values, in this case the field variants
+  # (suffix) of the Milestone
+  summarise_at(&quot;values&quot;, toString) %&gt;% 
+  
+  # set presentation options when outputting as table
+  kable(format = &quot;html&quot;) %&gt;% 
+  kableExtra::kable_styling(full_width = FALSE, font_size = 12) %&gt;% 
+  kableExtra::collapse_rows(columns = 1, valign = &quot;top&quot;)</code></pre>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Milestone
+</th>
+<th style="text-align:left;">
+datatype
+</th>
+<th style="text-align:left;">
+values
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;vertical-align: top !important;" rowspan="2">
+Contract
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+Supplier
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Date
+</td>
+<td style="text-align:left;">
+Forecast, Actual
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: top !important;" rowspan="2">
+Installation
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+Supplier
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Date
+</td>
+<td style="text-align:left;">
+Forecast, Actual
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Manufacture
+</td>
+<td style="text-align:left;">
+Date
+</td>
+<td style="text-align:left;">
+Forecast, Actual
+</td>
+</tr>
+</tbody>
+</table>
+<p>All 3 milestones have <code>Forecast</code> and <code>Actual</code> dates, with fields capturing the <code>Contract</code> and <code>Supplier</code> names responsible for performing each activity.</p>
+<p>The <code>Forecast</code> date is when the activity is planned to be delivered by, whereas <code>Actual</code> is when the activity had been completed.</p>
+<p>The <code>Milestone Status</code> is derived from these values, including:</p>
+<ul>
+<li><code>Actual</code> The activity is completed and claimed Actual</li>
+<li><code>Forecast</code> The activity is planned/ forecasted to occur in the future</li>
+<li><code>DIP</code> ‘Date in the Past’ is a planned activity which has lapsed</li>
+<li><code>No Forecast</code> There is no planned date for delivery of the activity</li>
+</ul>
+<p>These values are returned by the <code>Milestone Status</code> field, described and calculated within the <em><a href="#fe">Feature Engineering</a></em> section below.</p>
+<hr>
+<p><a id="fe"></a></p>
+</div>
+</div>
+<div id="feature-engineering" class="section level2">
+<h2>Feature Engineering</h2>
+<p>This section instantiates functions used to transform data and create new features.</p>
+<p>These functions will be explained in the following section.</p>
+<div id="functions-to-create-features" class="section level3">
+<h3>Functions to create Features</h3>
+<pre class="r"><code>func_set_milestone_levels &lt;-
+  function(.) {
+    factor(
+      x = .,
+      levels = c(&quot;Contract&quot;, &quot;Manufacture&quot;, &quot;Installation&quot;),
+      ordered = TRUE
+    ) %&gt;%
+      return()
+  }
+
+func_add_milestone_matrix &lt;-
+  function(df) {
+    df %&gt;%
+      names() %&gt;%
+      as_data_frame() %&gt;%
+      filter(grepl(&quot;_Forecast$|_Actual$&quot;, value, ignore.case = TRUE)) %&gt;%
+      mutate(Milestone = str_remove(
+        string = value,
+        pattern = &quot;_Forecast$|_Actual$&quot;
+      )) %&gt;%
+      mutate(Status = case_when(
+        grepl(&quot;_Forecast&quot;, value, ignore.case = TRUE) ~ &quot;Forecast&quot;,
+        grepl(&quot;_Actual&quot;, value, ignore.case = TRUE) ~ &quot;Actual&quot;,
+        TRUE ~ &quot;Other&quot;
+      )) %&gt;%
+      group_by(Milestone) %&gt;%
+      mutate(instances = n_distinct(value)) %&gt;%
+      spread(Status, value)
+  }
+
+func_add_ms_long &lt;-
+  function(Report, milestone_matrix, df) {
+    fun_create_status &lt;-
+      function(milestone_date) {
+        df %&gt;%
+          select_(&quot;row_id&quot;, Milestone_Date = milestone_date) %&gt;%
+          mutate_at(&quot;Milestone_Date&quot;, func_general_date_conversion) %&gt;%
+          return()
+      }
+    
+    milestone_matrix %&gt;%
+      gather(Milestone_Status, Milestone_Status_Field, Actual:Forecast) %&gt;%
+      filter(!is.na(Milestone_Status_Field)) %&gt;%
+      mutate(data = map(Milestone_Status_Field, fun_create_status)) %&gt;%
+      select(-Milestone_Status_Field) %&gt;%
+      unnest() %&gt;%
+      spread(Milestone_Status, Milestone_Date) %&gt;%
+      mutate(
+        Milestone_Status = case_when(
+          !is.na(Actual) ~ &quot;Actual&quot;,
+          !is.na(Forecast) &amp; Forecast &gt;= Report ~ &quot;Forecast&quot;,
+          !is.na(Forecast) ~ &quot;DIP&quot;,
+          is.na(Forecast) ~ &quot;No Forecast&quot;,
+          TRUE ~ &quot;Other&quot;
+        )
+      ) %&gt;%
+      mutate(
+        Milestone_Date = coalesce(Actual, Forecast),
+        Milestone_Completed = !is.na(Actual)
+      ) %&gt;%
+      return()
+  }
+
+func_add_ms_wide &lt;-
+  function(ms_long) {
+    create_milestone_attribute &lt;-
+      function(milestone_attribute) {
+        milestone_attribute_sub_name &lt;-
+          sub(&quot;\\w+\\_(\\w+)&quot;,
+              &quot;\\1&quot;,
+              rlang::quo_text(milestone_attribute))
+        
+        ms_long %&gt;%
+          ungroup() %&gt;%
+          select(Milestone, row_id,!!milestone_attribute) %&gt;%
+          mutate_at(&quot;Milestone&quot;,
+                    ~ paste(., milestone_attribute_sub_name, sep = &quot;_&quot;)) %&gt;%
+          spread(Milestone,!!milestone_attribute) %&gt;%
+          return()
+      }
+    
+    tibble(Milestone_Attribute = list(
+      quo(Milestone_Date),
+      quo(Milestone_Status),
+      quo(Milestone_Completed)
+    )) %&gt;%
+      mutate(data = pmap(
+        list(milestone_attribute = Milestone_Attribute),
+        create_milestone_attribute
+      )) %&gt;%
+      pull(data) %&gt;%
+      reduce(inner_join, by = &quot;row_id&quot;) %&gt;%
+      return()
+  }</code></pre>
+</div>
+<div id="create-features" class="section level3">
+<h3>Create Features</h3>
+<p>The source data is passed through the functions listed above, resulting in the creation of 3 new tables for each report, each a derivative of the project state snapshot.</p>
+<pre class="r"><code>df_enhanced &lt;-
+  df %&gt;% 
+  
+  # create a row identifyer for each observation
+  mutate(row_id = row_number()) %&gt;% 
+  
+  # group by Report and nest associated data within the file column
+  group_by(Report) %&gt;% 
+  nest(.key = file) %&gt;% 
+  
+  # map the file tibble for each report to the func_add_milestone_matrix
+  # function to extract Milestones and associated fields
+  mutate(milestone_matrix = map(file, func_add_milestone_matrix)) %&gt;%
+  
+  # map newly created milestone matrix to the file and extract new milestone
+  # features for each milestone
+  mutate(ms_long = pmap(list(Report, milestone_matrix, file), func_add_ms_long)) %&gt;%
+  
+  # transform elongated ms_long to ms_wide
+  mutate(ms_wide = map(ms_long, func_add_ms_wide))</code></pre>
+</div>
+<div id="explore-features" class="section level3">
+<h3>Explore Features</h3>
+<p>The section below explores each one of the three newly created tables described above.</p>
+<p><a id="milestone_matrix"></a></p>
+<div id="milestone-matrix" class="section level4">
+<h4>Milestone Matrix</h4>
+<p>The <code>Milestone Matrix</code> is an automatic extract of each of the milestones contained within the source data. The <code>func_add_milestone_matrix</code> function returns all fields that end with <code>Forecast</code> and/ or <code>Actual</code>, isolating the <code>Milestone</code> name and listing the fields required to provide the <code>Forecast</code> and <code>Actual</code> dates respectively. These fields will be used contextually to create Milestone related features.</p>
+<pre class="r"><code>df_enhanced %&gt;% 
+  
+  # return first observation only
+  head(1) %&gt;% 
+  
+  # select and unnest the milestone_matrix
+  select(milestone_matrix) %&gt;% 
+  unnest() %&gt;% 
+  
+  # set presentation options for the table
+  kable(format = &quot;html&quot;) %&gt;% 
+  kableExtra::kable_styling(full_width = FALSE, font_size = 11)</code></pre>
+<table class="table" style="font-size: 11px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Milestone
+</th>
+<th style="text-align:right;">
+instances
+</th>
+<th style="text-align:left;">
+Actual
+</th>
+<th style="text-align:left;">
+Forecast
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Contract
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+Contract_Actual
+</td>
+<td style="text-align:left;">
+Contract_Forecast
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Installation
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+Installation_Actual
+</td>
+<td style="text-align:left;">
+Installation_Forecast
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Manufacture
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+Manufacture_Actual
+</td>
+<td style="text-align:left;">
+Manufacture_Forecast
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="milestone-long" class="section level4">
+<h4>Milestone Long</h4>
+<p><code>Milestone Long</code> creates a long format of the data, providing <a href="/page/resources/#tidy">tidy data</a> and simplified features better suited for further analysis.</p>
+<p>The following flow diagram captures the sequence of steps performed by the <code>func_add_ms_long</code> function.</p>
+<div class="figure">
+<img src="/post/2018-10-01-lowcost_housing_files/lowcost_housing_milestone_long.png" alt="Milestone Long Process" />
+<p class="caption">Milestone Long Process</p>
+</div>
+<p>Describing the <code>Milestone Long Process</code> diagram:</p>
+<p><strong>Step 1</strong><br>
+The <code>func_add_ms_long</code> function takes as input the tibble generated by the <code>func_add_milestone_matrix</code> function, as described in the <em><a href="#milestone_matrix">Milestone Matrix</a></em> section.</p>
+<p><strong>Step 2</strong><br>
+The <code>Forecast</code> and <code>Actual</code> field names are gathered into one field, representing a list of all date fields to be collected for each combination of <code>Job_Number</code>/ <code>row_id</code> and <code>Milestone</code>.</p>
+<p><strong>Step 3</strong><br>
+Step 3 creates containers for each of the date fields, querying values from the source data and populating the containers with all relevant records as nested tibbles.</p>
+<p><strong>Step 4</strong><br>
+Collected data in the nested tibbles are unnested, exposing values to be consumed by functions generating new milestone-related features.</p>
+<p><strong>Step 5</strong><br>
+<code>Forecast</code> and <code>Actual</code> values for each <code>row_id</code> and <code>Milestone</code> are <code>spread</code> into a single observation. New fields, namely <code>Milestone_Status</code>, <code>Milestone_Date</code> and <code>Milestone_Completed</code> are calculated, using the <code>Forecast</code>, <code>Actual</code> and <code>Report</code> dates as input.</p>
+<p>The following code chunk returns the <code>head</code> of the of the unnested <code>ms_long</code> tibble.</p>
+<pre class="r"><code>df_enhanced %&gt;% 
+  
+  # select the first nested tibble
+  head(1) %&gt;% 
+  
+  # select and unnest the ms_long tibble
+  select(ms_long) %&gt;% 
+  unnest() %&gt;% 
+  
+  # return the head of the unnested tibble
+  head() %&gt;% 
+  
+  # rename the fields for presentation purposes
+  rename_all(func_remove_spaces) %&gt;% 
+  
+  # configure the table formatting output
+  kable(format = &quot;html&quot;) %&gt;% 
+  kableExtra::kable_styling(full_width = FALSE, font_size = 11) %&gt;% 
+  kableExtra::column_spec(1:2, bold = TRUE) %&gt;% 
+  kableExtra::collapse_rows(columns = 1:2, valign = &quot;top&quot;)</code></pre>
+<table class="table" style="font-size: 11px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Milestone
+</th>
+<th style="text-align:right;">
+instances
+</th>
+<th style="text-align:right;">
+row id
+</th>
+<th style="text-align:left;">
+Actual
+</th>
+<th style="text-align:left;">
+Forecast
+</th>
+<th style="text-align:left;">
+Milestone Status
+</th>
+<th style="text-align:left;">
+Milestone Date
+</th>
+<th style="text-align:left;">
+Milestone Completed
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;vertical-align: top !important;" rowspan="6">
+Contract
+</td>
+<td style="text-align:right;font-weight: bold;vertical-align: top !important;" rowspan="6">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+2010-02-14
+</td>
+<td style="text-align:left;">
+Forecast
+</td>
+<td style="text-align:left;">
+2010-02-14
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+2005-12-21
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+2005-12-21
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+2008-09-29
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+2008-09-29
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+2007-07-31
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+2007-07-31
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+2010-01-10
+</td>
+<td style="text-align:left;">
+Forecast
+</td>
+<td style="text-align:left;">
+2010-01-10
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+2007-08-26
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+2007-08-26
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="milestone-wide" class="section level4">
+<h4>Milestone Wide</h4>
+<p>The <code>func_add_ms_wide</code> takes the product of the <code>func_add_ms_long</code> function as input.</p>
+<p>The purpose of the function is to widen the elongated table, taking the <code>ms_long</code> tibble for each <code>row_id</code> and transforming it into a single observation per <code>Job_Number</code> or <code>row_id</code>, the milestone-related data spread across it.</p>
+<pre class="r"><code>func_order_by_ms &lt;-
+  function(df) {
+    
+    # ensures Milestone related fields are grouped by sequential milestones
+    tmp &lt;-
+      df %&gt;%
+      names() %&gt;%
+      as_tibble() %&gt;%
+      mutate(field = value) %&gt;%
+      mutate_at(&quot;value&quot;, str_remove, pattern = &quot;_Status|_Completed|_Date&quot;) %&gt;%
+      mutate_at(&quot;value&quot;, func_set_milestone_levels) %&gt;%
+      arrange(value) %&gt;%
+      pull(field) %&gt;%
+      return()
+    
+    df %&gt;%
+      select(row_id, tmp) %&gt;%
+      return()
+  }
+
+# return the table head, grouping features for each Milestone
+df_enhanced %&gt;%
+  head(1) %&gt;%
+  select(ms_wide) %&gt;%
+  unnest() %&gt;%
+  head() %&gt;%
+  
+  # pass df through function to ensure that fields are ordered by Milestone
+  func_order_by_ms() %&gt;%
+  
+  # rename fields and configure table presentation options
+  rename_all(func_remove_spaces) %&gt;%
+  kable(format = &quot;html&quot;) %&gt;%
+  kableExtra::kable_styling(full_width = FALSE, font_size = 9) %&gt;%
+  kableExtra::add_header_above(c(
+  &quot;&quot;,
+  &quot;Contract&quot; = 3,
+  &quot;Manufacture&quot; = 3,
+  &quot;Installation&quot; = 3
+  )) %&gt;% 
+  kableExtra::scroll_box(width = &quot;100%&quot;, height = &quot;200px&quot;)</code></pre>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:200px; overflow-x: scroll; width:100%; ">
+<table class="table" style="font-size: 9px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="border-bottom:hidden" colspan="1">
+</th>
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+Contract
+</div>
+</th>
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+Manufacture
+</div>
+</th>
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+Installation
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:right;">
+row id
+</th>
+<th style="text-align:left;">
+Contract Date
+</th>
+<th style="text-align:left;">
+Contract Status
+</th>
+<th style="text-align:left;">
+Contract Completed
+</th>
+<th style="text-align:left;">
+Manufacture Date
+</th>
+<th style="text-align:left;">
+Manufacture Status
+</th>
+<th style="text-align:left;">
+Manufacture Completed
+</th>
+<th style="text-align:left;">
+Installation Date
+</th>
+<th style="text-align:left;">
+Installation Status
+</th>
+<th style="text-align:left;">
+Installation Completed
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+2010-02-14
+</td>
+<td style="text-align:left;">
+Forecast
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2008-11-22
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+No Forecast
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+2005-12-21
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+2007-04-13
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+2006-10-23
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+2008-09-29
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+2010-03-16
+</td>
+<td style="text-align:left;">
+Forecast
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+No Forecast
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+2007-07-31
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+2009-03-05
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+2009-05-21
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+2010-01-10
+</td>
+<td style="text-align:left;">
+Forecast
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2006-06-26
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+No Forecast
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+2007-08-26
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+2009-01-18
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+2008-02-05
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><em>The table above is a simplified and formatted extract of the unnested <code>ms_wide</code> tibble.</em></p>
+<hr>
+</div>
+</div>
+<div id="exploratory-data-analysis" class="section level3">
+<h3>Exploratory Data Analysis</h3>
+<p>In this section, we will dive into the detail and reveal aspects of the content.</p>
+<p>The next code block gets this going by creating a very simple tally of completed Milestones by snapshot report. It uses the newly created <code>Milestone_Completed</code> boolean value contained within the <code>ms_long</code> tibble, coercing it as an integer when summarised by <code>sum</code>.</p>
+<pre class="r"><code>df_enhanced %&gt;% 
+  unnest(ms_long) %&gt;%
+  
+  # coerce Milestone to factor to ensure the reported order follows the process
+  mutate_at(
+    &quot;Milestone&quot;,
+    factor,
+    levels = c(&quot;Contract&quot;, &quot;Manufacture&quot;, &quot;Installation&quot;),
+    ordered = TRUE
+  ) %&gt;% 
+  
+  # group by Milestone and Report
+  group_by(Milestone, Report) %&gt;%
+  
+  # create a tally of the completed activities
+  summarise_at(&quot;Milestone_Completed&quot;, sum) %&gt;%
+  
+  # spread the Milestone complete count
+  spread(Milestone, Milestone_Completed) %&gt;% 
+  
+  # return the head of the result
+  head() %&gt;% 
+  
+  # set presentation options
+  rename_all(func_remove_spaces) %&gt;% 
+  kable(format = &quot;html&quot;) %&gt;% 
+  kableExtra::kable_styling(full_width = FALSE, font_size = 12)</code></pre>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Report
+</th>
+<th style="text-align:right;">
+Contract
+</th>
+<th style="text-align:right;">
+Manufacture
+</th>
+<th style="text-align:right;">
+Installation
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2010-01-10
+</td>
+<td style="text-align:right;">
+4843
+</td>
+<td style="text-align:right;">
+4363
+</td>
+<td style="text-align:right;">
+4108
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2010-02-10
+</td>
+<td style="text-align:right;">
+4858
+</td>
+<td style="text-align:right;">
+4415
+</td>
+<td style="text-align:right;">
+4205
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2010-03-11
+</td>
+<td style="text-align:right;">
+4881
+</td>
+<td style="text-align:right;">
+4452
+</td>
+<td style="text-align:right;">
+4242
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2010-04-12
+</td>
+<td style="text-align:right;">
+4898
+</td>
+<td style="text-align:right;">
+4500
+</td>
+<td style="text-align:right;">
+4317
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2010-05-12
+</td>
+<td style="text-align:right;">
+4900
+</td>
+<td style="text-align:right;">
+4564
+</td>
+<td style="text-align:right;">
+4382
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2010-06-10
+</td>
+<td style="text-align:right;">
+4907
+</td>
+<td style="text-align:right;">
+4613
+</td>
+<td style="text-align:right;">
+4455
+</td>
+</tr>
+</tbody>
+</table>
+<p>The above table serves as a great example of why many find it difficult to digest <em>tabular data</em>. Spotting <em>trends, patterns, change and differences</em> are more obvious when the data is visualised. Let’s try again, this time visualising the data.</p>
+<p>The following graph is generated from a compilation of reports, sampled within each month of 2010. It provides excellent source data to demonstrate <strong>state changes</strong> in various activities between consecutive report versions.</p>
+<p>The next code block transforms the data making it suitable for graphing.</p>
+<pre class="r"><code>plot_data &lt;-
+  df_enhanced %&gt;% 
+  
+  # unnest the ms_long tibble for each report
+  unnest(ms_long) %&gt;%
+  
+  # coerce the Milestones as factors to ensure order 
+  mutate_at(
+    &quot;Milestone&quot;,
+    factor,
+    levels = c(&quot;Contract&quot;, &quot;Manufacture&quot;, &quot;Installation&quot;),
+    ordered = TRUE
+  ) %&gt;% 
+  
+  # create a tally for each Milestone/ Report, automatically coercing the
+  # boolean `Milestone_Completed` value to numeric
+  group_by(Milestone, Report) %&gt;% 
+  summarise_at(&quot;Milestone_Completed&quot;, sum) %&gt;% 
+  
+  # extract the lagged value of the Milestone Completed
+  mutate_if(is.numeric, funs(lag = lag)) %&gt;% 
+  
+  # calculate tally change from one report to the next
+  mutate(Change = Milestone_Completed - lag) %&gt;% 
+  select(-lag) %&gt;% 
+  
+  # remove all observations if any field has NA values
+  filter_all(all_vars(! is.na(.))) %&gt;% 
+  
+  # rename field for reporting purposes
+  rename(Completed = Milestone_Completed) %&gt;% 
+  
+  # gather the newly created values into a single column 
+  gather(Metric, value, Completed:Change) %&gt;% 
+  
+  # order the newly created Metric values by coercing as factor
+  mutate_at(&quot;Metric&quot;, factor, levels = c(&quot;Completed&quot;, &quot;Change&quot;), ordered = TRUE)</code></pre>
+<p>The following section consumes <code>plot_data</code> and plots a visualisation.</p>
+<pre class="r"><code>plot_data %&gt;%
+  filter(Metric == &quot;Completed&quot;) %&gt;%
+  ggplot(aes(
+    x = Report,
+    y = value,
+    label = value,
+    col = Milestone
+  )) +
+  geom_line(size = 1,
+            show.legend = TRUE) +
+  geom_label(
+    data = plot_data %&gt;%
+      filter(Metric == &quot;Completed&quot;) %&gt;%
+      group_by(Milestone) %&gt;%
+      
+      # showing cumulative tally for the last values only
+      filter(Report == max(Report)),
+    aes(fill = Milestone),
+    col = &quot;white&quot;,
+    size = 3.5, 
+    show.legend = FALSE
+  ) +
+  geom_col(data = plot_data %&gt;%
+             filter(Metric == &quot;Change&quot;),
+           aes(fill = Milestone),
+           
+           # Dodge puts the columns next to each other for each date rather than
+           # stacking, which is the default
+           position = &quot;dodge&quot;,
+           show.legend = TRUE) +
+  
+  # geom_label_repel taken from ggrepel package, spacing labels to avoid overlap
+  geom_label_repel(
+    data = plot_data %&gt;%
+      filter(Metric == &quot;Change&quot;),
+    aes(label = value),
+    size = 2.5,
+    show.legend = FALSE
+  ) +
+  scale_x_date(date_breaks = &quot;3 month&quot;, date_labels = &quot;%b-%y&quot;) +
+  
+  # facet Metrics in order to create two sections, one for net and the other for
+  # cumulative tally for each milestone
+  facet_grid(Metric ~ ., scales = &quot;free&quot;) +
+  theme_classic() +
+  theme(legend.position = &quot;bottom&quot;, 
+        legend.key.size = unit(0.5, &quot;cm&quot;)) +
+  labs(title = &quot;South African low-cost housing Project&quot;,
+       subtitle = &quot;Major Milestones state changes for reports in 2010&quot;,
+       y = &quot;Units Completed&quot;)</code></pre>
+<p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/state_plot_output-1.png" width="672" /></p>
+<div id="commentary" class="section level4">
+<h4>Commentary</h4>
+<p>Notes about the rate of change as gleaned from the slope of the line graphs:</p>
+<ul>
+<li><strong>Rate Increase</strong>: <em>Positive slope<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></em></li>
+<li><strong>Rate Decrease</strong>: Negative slope</li>
+<li>The steeper the angle, the higher the rate of change</li>
+</ul>
+<p>The slope of the upper-most curve suggests that the <code>Contract</code> activity rate of delivery has flattened out during 2010. The other two activities are catching up, largely running in parallel, consuming the pot of <em>Contract not Installed</em>.</p>
+<p>The <em>Manufactured not Installed</em> pot is also getting smaller, suggesting that there is not much of a lag between <code>Manufacture</code> and <code>Installation</code> activities.</p>
+<p>Some milestones have been removed (negative net change values) after July. This is because of quality issues, symptomatic of an aggressive push to achieve volume targets without scaling resource to meet demand - resulting in corners being cut. Milestones are subsequently removed until work is completed to specification, as it may otherwise trigger payments and/ or allow the project to proceed without the necessary quality in place.</p>
+<p>Let’s look at the same data, now taken from the latest version of the report, and focus on milestone delivery between 2006 and 2010.</p>
+<pre class="r"><code>plot_data &lt;-
+  df_enhanced %&gt;%
+  unnest(ms_long) %&gt;%
+  mutate_at(
+    &quot;Milestone&quot;,
+    factor,
+    levels = c(&quot;Contract&quot;, &quot;Manufacture&quot;, &quot;Installation&quot;),
+    ordered = TRUE
+  ) %&gt;%
+  
+  # filter to include data from the latest Report only
+  filter_at(&quot;Report&quot;, all_vars(. == max(.))) %&gt;%
+  
+  # filter where milestones had been claimed as Actual
+  filter(Milestone_Completed) %&gt;%
+  select(Milestone, Milestone_Date, row_id) %&gt;%
+  
+  # transform dates to the start of the week
+  mutate_at(&quot;Milestone_Date&quot;,
+            floor_date,
+            unit = &quot;week&quot;,
+            
+            # Monday set as the first day of the week
+            week_start = 1) %&gt;%
+  
+  # group by Milestone and Week and summarise a distinct count of Jobs
+  group_by(Milestone, Milestone_Date) %&gt;%
+  summarise(Jobs = n_distinct(row_id)) %&gt;%
+  arrange(Milestone_Date) %&gt;%
+  mutate_at(&quot;Jobs&quot;, cumsum) %&gt;%
+  
+  # filter to keep Jobs delivered after 2005 only 
+  filter(year(Milestone_Date) &gt; 2005) %&gt;%
+  
+  # calculate the change in tally from one report to the next
+  mutate(Change = Jobs - lag(Jobs)) %&gt;%
+  
+  # calculate the rolling mean, spread over 4 weeks
+  mutate_at(
+    &quot;Change&quot;,
+    funs(Change_rm4 = zoo::rollmean),
+    k = 4,
+    align = &quot;right&quot;,
+    fill = NA
+  ) %&gt;%
+  
+  # create a variable to represent the scaled tally
+  mutate_if(is.numeric, funs(scale = scale)) %&gt;%
+  
+  # filter to retain rows where all columns are populated
+  filter_if(is.numeric, all_vars(! is.na(.)))
+
+plot_data %&gt;% 
+  mutate(Aspect = &quot;Rate of Change [Scaled]&quot;) %&gt;% 
+  ggplot(
+    aes(
+      x = Milestone_Date,
+      y = Change_rm4_scale,
+      group = Milestone,
+      col = Milestone,
+      fill = Milestone
+    )
+  ) +
+  geom_line(
+    data = plot_data %&gt;% 
+      mutate(Aspect = &quot;Cumulative Units Completed&quot;),
+    aes(y = Jobs),
+    size = 1.5
+  ) +
+  
+  # plot the rate of change, using loess smoothing
+  geom_smooth(
+    method = &#39;loess&#39;,
+    size = 1,
+    lty = 3
+  ) +
+  scale_colour_viridis_d() +
+  
+  # facet the aspects, including change and cumulative completed
+  facet_grid(Aspect ~ ., scales = &quot;free&quot;, switch = &quot;y&quot;) +
+  
+  # change the x-axis values to show year breaks
+  scale_x_date(date_breaks = &quot;year&quot;, date_labels = &quot;%Y&quot;) +
+  theme_classic() +
+  theme(legend.position = &quot;bottom&quot;,
+        strip.placement = &quot;outside&quot;,
+        strip.background = element_blank()) +
+  labs(title = &quot;South African low-cost housing Project&quot;,
+       subtitle = &quot;Major Milestones cumulative progress &amp; rate-of-change to date from 2006 onwards&quot;,
+       x = &quot;Year&quot;,
+       y = &quot;&quot;)</code></pre>
+<p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/programme_plot-1.png" width="672" /></p>
+</div>
+<div id="commentary-continued" class="section level4">
+<h4>Commentary Continued</h4>
+<p>The cumulative delivery of manufactured housing overtook <code>Contracts</code> during 2007. It is most likely that <code>Manufacturing</code> built up a large pot in anticipation of contracts being completed. However, this investment was never converted as <code>Installation</code> did not show a corresponding step change during or after this period of increased activity. This indicates that it was not possible to install the newly manufactured houses without completed contracts. The <code>Contract</code> team would have been under pressure to increase output.</p>
+<p>The rate of delivery in <code>Contracts</code> however increased in the 2 years following this event. I suspect that it had achieved critical mass after accruing latent potential during the previous 3 years of activity, subsequently yielding a greater and sustained throughput.</p>
+<p>The above graph reveals that <code>Manufacturing</code> was throttled after peaking prematurely, and that the <code>Installation</code> peak followed within 6 months of that of <code>Contracts</code>.</p>
+<hr>
+</div>
+</div>
+<div id="join" class="section level3">
+<h3>Join</h3>
+<p>The following code chunk creates <code>df_enhanced_long</code>, a joined dataset between the original <code>file</code> import and the newly created milestone specific extract, <code>ms_long</code>.</p>
+<p>Creating this streamlines subsequent analysis.</p>
+<pre class="r"><code>df_enhanced_long &lt;-
+  df_enhanced %&gt;% 
+  
+  # unnest file
+  unnest(file) %&gt;% 
+  
+  # join unnested ms_long
+  inner_join(
+    df_enhanced %&gt;% 
+      unnest(ms_long),
+    by = c(&quot;Report&quot;, &quot;row_id&quot;)
+  ) %&gt;% 
+  
+  # create new feature to map supplier to relevant Milestone
+  mutate(Milestone_Supplier = case_when(
+    Milestone == &quot;Contract&quot; ~ Contract_Supplier,
+    Milestone == &quot;Installation&quot; ~ Installation_Supplier,
+    TRUE ~ &quot;Internal&quot;
+  ) %&gt;% 
+    
+    # make missing Milestone_Supplier explicit
+    coalesce(., &quot;Unknown&quot;))</code></pre>
+</div>
+<div id="functions-to-create-features-1" class="section level3">
+<h3>Functions to create Features</h3>
+<p>In the following block of code, we create parameters and functions to reuse in Supplier reporting, ensuring continuity in the use of colours between graphs.</p>
+<pre class="r"><code>param_supplier_viridis &lt;-
+  tibble(
+    Supplier =
+      df_enhanced_long %&gt;%
+      filter(!is.na(Milestone_Supplier)) %&gt;%
+      distinct(Supplier = Milestone_Supplier) %&gt;%
+      add_case(Supplier = &quot;All Installation&quot;) %&gt;%
+      arrange(Supplier) %&gt;% 
+      pull(),
+    col = viridis::cividis(n = 9)
+  )
+
+plot_data_viridis &lt;-
+  function() {
+    plot_data %&gt;%
+      distinct(Supplier) %&gt;%
+      mutate_all(as.character) %&gt;%
+      nest() %&gt;%
+      summarise_at(&quot;data&quot;, map,   function(df) {
+        df %&gt;%
+          left_join(param_supplier_viridis, by = &quot;Supplier&quot;) %&gt;%
+          return()
+      }) %&gt;%
+      unnest() %&gt;%
+      mutate_at(&quot;Supplier&quot;, fct_inorder)
+  }</code></pre>
+</div>
+</div>
+<div id="exception-reporting" class="section level2">
+<h2>Exception Reporting</h2>
+<div id="milestones-claimed-pulled" class="section level3">
+<h3>Milestones Claimed &amp; Pulled</h3>
+<p>This code block teases out the milestones that have been <em>claimed</em> or <em>removed</em> (aka <em>pulled</em>).</p>
+<p>This is achieved by comparing sequential versions of reports, each with detail about underlying jobs and milestones, and extracting and categorising differences between these.</p>
+<pre class="r"><code>plot_data &lt;-
+  df_enhanced_long %&gt;%
+  select(Job_Number, Report, Milestone, Status_Current = Milestone_Completed) %&gt;%
+  mutate_at(
+    &quot;Milestone&quot;,
+    factor,
+    levels = c(&quot;Contract&quot;, &quot;Manufacture&quot;, &quot;Installation&quot;),
+    ordered = TRUE
+  ) %&gt;% 
+  
+  # group by Job and Milestone
+  group_by(Job_Number, Milestone) %&gt;%
+  
+  # create a new feature showing the lagged status
+  mutate(Status_Previous = lag(Status_Current, order_by = Report)) %&gt;%
+  
+  # filter out where the status is different between versions of the report
+  filter(Status_Current != Status_Previous) %&gt;%
+  
+  # create a new feature to categorise change scenarios, discarding other
+  # variables
+  transmute(
+    Scenario = case_when(
+      Status_Current ~ &quot;Milestone_Claimed&quot;,
+      Status_Previous ~ &quot;Milestone_Pulled&quot;,
+      TRUE ~ &quot;Other&quot;
+    ),
+    Report = Report
+  ) %&gt;%
+  ungroup()
+
+plot_data %&gt;%
+  mutate_at(&quot;Scenario&quot;, str_remove, pattern = &quot;Milestone_&quot;) %&gt;%
+  group_by(Report, Milestone, Scenario, Report) %&gt;%
+  summarise(n = n_distinct(Job_Number)) %&gt;%
+  group_by(Scenario) %&gt;%
+  
+  # create variable nn to change the scale of reporting between Scenarios to
+  # improve visualisation
+  mutate(nn = map(n, function(n) {
+    (n - min(n)) / (max(n) - min(n))
+  }) %&gt;% unlist()) %&gt;%
+  mutate(nn = if_else(Scenario == &quot;Pulled&quot;, (nn * -1) + 0.1, nn + 0.1)) %&gt;%
+  
+  ggplot(aes(x = Report, y = nn, fill = Scenario)) +
+  geom_col() +
+  geom_label_repel(aes(label = n, col = Scenario),
+                   fill = &quot;white&quot;,
+                   size = 3, 
+                   show.legend = FALSE) +
+  
+  # formatting options below
+  scale_x_date(date_breaks = &quot;1 month&quot;, date_labels = &quot;%b-%y&quot;) +
+  scale_fill_viridis_d() +
+  scale_colour_viridis_d() +
+  theme_classic() +
+  facet_grid(Milestone ~ ., scales = &quot;free&quot;, switch = &quot;y&quot;) +
+  theme(
+    axis.line.y = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    legend.position = &quot;bottom&quot;
+  ) +
+  
+  # labelling
+  labs(
+    title = &quot;South African low-cost housing Project&quot;,
+    subtitle = &quot;Milestones Claimed/ Removed by Report&quot;,
+    fill = &quot;Event&quot;
+  )</code></pre>
+<p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/exception:%20milestone_change_remove-1.png" width="672" /></p>
+</div>
+<div id="jobs-removed-from-project" class="section level3">
+<h3>Jobs removed from Project</h3>
+<p>Here we identify jobs that are removed from delivery, using the approach described above.</p>
+<pre class="r"><code>plot_data &lt;-
+  df_enhanced_long %&gt;%
+  
+  # select job_numnber and report
+  select(Job_Number, Report) %&gt;%
+  
+  # create new features showing the first and last report
+  mutate_at(&quot;Report&quot;, funs(
+    Report_first = first(., order_by = .),
+    Report_last = last(., order_by = .)
+  )) %&gt;%
+  
+  # group by job_number
+  group_by(Job_Number) %&gt;%
+  
+  # now create features showing the first and last report for each job_number
+  mutate_at(&quot;Report&quot;,
+            funs(
+              Job_Report_first = first(., order_by = .),
+              Job_Report_last = last(., order_by = .)
+            )) %&gt;%
+  ungroup() %&gt;%
+  
+  # filter job_numbers that aren&#39;t in the last report
+  filter(Job_Report_last != Report_last) %&gt;%
+  distinct(Job_Report_last, Job_Number) %&gt;%
+  
+  # group by Reports
+  group_by(Report = Job_Report_last) %&gt;%
+  
+  # create a tally of removed jobs by Report
+  summarise(n = n_distinct(Job_Number))
+
+plot_data %&gt;%
+  ggplot(aes(x = Report, y = n, fill = n)) +
+  geom_col() +
+  geom_label_repel(aes(label = n),
+                   fill = &quot;white&quot;,
+                   size = 3,
+                   show.legend = FALSE) +
+  scale_x_date(date_breaks = &quot;1 month&quot;, date_labels = &quot;%b-%y&quot;) +
+  scale_fill_viridis_c(direction = -1) +
+  theme_classic() +
+  theme(legend.position = &quot;bottom&quot;) +
+  labs(
+    x = &quot;Report&quot;,
+    y = &quot;Jobs Removed&quot;,
+    title = &quot;South African low-cost housing Project&quot;,
+    subtitle = &quot;Jobs removed from delivery by Report&quot;,
+    fill = &quot;Jobs Removed&quot;
+  )</code></pre>
+<p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/exception:%20jobs_removed-1.png" width="672" /></p>
+</div>
+<div id="current-progress-forecast" class="section level3">
+<h3>Current Progress &amp; Forecast</h3>
+<p>The next section explores the progress to date and the forecast for each milestone as it was at the end of 2010 when the last snapshot report was sampled.</p>
+<pre class="r"><code>plot_data &lt;-
+  df_enhanced_long %&gt;% 
+  
+  # filter to retain data from the last report only
+  filter(Report == max(Report)) %&gt;%
+  
+  # filter to retain forecast and actual Milestone Statussus only
+  filter(Milestone_Status %in% c(&quot;Forecast&quot;, &quot;Actual&quot;)) %&gt;% 
+  select(Report, Job_Number, Milestone, Milestone_Status, Milestone_Date) %&gt;%
+  
+  # create a hard floor and ceiling for the dates outside the reporting range
+  mutate_at(&quot;Milestone_Date&quot;,
+            ~ case_when(
+              . &lt; ymd(&quot;2009-01-01&quot;) ~ ymd(&quot;2009-01-01&quot;),
+              . &gt; ymd(&quot;2011-12-31&quot;) ~ ymd(&quot;2011-12-31&quot;),
+              TRUE ~ .
+            )) %&gt;% 
+  
+  # transform dates to the start of a month
+  mutate_at(&quot;Milestone_Date&quot;, floor_date, week_start = 1, unit = &quot;month&quot;) %&gt;% 
+  
+  # calculate a tally for groups of Milestone, Status and Month
+  group_by(Report, Milestone, Milestone_Status, Milestone_Date) %&gt;% 
+  summarise(net = n_distinct(Job_Number)) %&gt;%
+  
+  # nest the data by group
+  group_by(Report, Milestone, Milestone_Date) %&gt;% 
+  nest() %&gt;% 
+  
+  # pass the nested data to the function and combine forecast and actual to
+  # create a starting tally for forecasted observations to follow on where
+  # actuals had completed
+  mutate_at(&quot;data&quot;, map, function(df) {
+    df %&gt;% 
+      filter(Milestone_Status == &quot;Actual&quot;) %&gt;%
+      union_all(
+        df %&gt;%
+          mutate(Milestone_Status = &quot;Forecast&quot;) %&gt;% 
+          group_by(Milestone_Status) %&gt;% 
+          summarise_if(is.numeric, sum, na.rm = TRUE)
+      ) %&gt;%
+      return()
+  }) %&gt;% 
+  unnest() %&gt;% 
+  
+  # group and create a cumulative tally of net
+  group_by(Milestone, Milestone_Status) %&gt;% 
+  mutate_at(&quot;net&quot;, funs(cum = cumsum)) %&gt;% 
+  
+  # filter data to start at a year&#39;s worth of data before the last report
+  filter(Milestone_Date &gt; Report - years(1)) %&gt;% 
+  
+  # gather net and cum into one column, making it easier to visualise
+  gather(Metric, Value, net:cum) %&gt;% 
+  ungroup() %&gt;% 
+  mutate_at(
+    &quot;Milestone&quot;,
+    factor,
+    levels = c(&quot;Contract&quot;, &quot;Manufacture&quot;, &quot;Installation&quot;),
+    ordered = TRUE
+  )</code></pre>
+<p>Now plot the data.</p>
+<pre class="r"><code>plot_data %&gt;%
+  filter(Metric == &quot;net&quot;) %&gt;%
+  ggplot(aes(x = Milestone_Date, y = Value, fill = Milestone)) +
+  geom_col(position = &quot;dodge&quot;) +
+  geom_line(
+    data = plot_data %&gt;%
+      filter(Metric == &quot;cum&quot;),
+    aes(y = Value, col = Milestone, lty = Milestone_Status),
+    size = 1, 
+    show.legend = TRUE
+  ) +
+  
+  # Label Actual
+  geom_label_repel(
+    data = plot_data %&gt;%
+      filter(Milestone_Status == &quot;Actual&quot;) %&gt;% 
+      filter(Metric == &quot;cum&quot;) %&gt;% 
+      group_by(Milestone) %&gt;% 
+      filter_at(&quot;Milestone_Date&quot;, all_vars(. == max(.))),
+    aes(
+      y = Value,
+      label = Value
+      ),
+    col = &quot;white&quot;,
+    size = 3.5, 
+    show.legend = FALSE
+  ) +
+  
+  # Label Forecast
+  geom_label_repel(
+    data = plot_data %&gt;%
+      filter(Milestone_Status == &quot;Forecast&quot;) %&gt;% 
+      filter(Metric == &quot;cum&quot;) %&gt;% 
+      group_by(Milestone) %&gt;% 
+      filter_at(&quot;Milestone_Date&quot;, all_vars(. == max(.))),
+    aes(
+      y = Value,
+      label = Value,
+      col = Milestone
+      ),
+    fill = &quot;white&quot;, 
+    size = 3.5,
+    show.legend = FALSE
+  ) +
+  scale_x_date(date_breaks = &quot;3 month&quot;, date_labels = &quot;%b-%y&quot;) +
+  facet_grid(Metric ~ ., scales = &quot;free_y&quot;) +
+  scale_colour_viridis_d() +
+  scale_fill_viridis_d() +
+  theme_classic() +
+  labs(
+    x = &quot;Month&quot;,
+    y = &quot;Units Completed&quot;,
+    lty = &quot;Status&quot;,
+    title = &quot;South African low-cost housing Project&quot;,
+    subtitle = &quot;Major Milestones by Progress + Forecast&quot;
+    )</code></pre>
+<p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/prognosis_plot-1.png" width="672" /></p>
+<p>The <code>cum</code> (cumulative) facet shows the cumulative progress to date, punctuated by the solid label. The <code>Forecast</code> plotlines extend the current progress to date for each milestone to show cumulative forecast, punctuated by a clear label with the forecasted tally.</p>
+<p>The <code>net</code> facet show the new volume per Milestone per month. The large bars at the end of 2011 largely represent activities forecasted beyond 2011.</p>
+<hr>
+<p><a id="supplier_tenure"></a></p>
+</div>
+<div id="supplier-tenure" class="section level3">
+<h3>Supplier Tenure</h3>
+<p>Supplier tenure shows when <code>Installation</code> suppliers started and were last active on the programme. Line ends are punctuated by the start and end dates respectively</p>
+<p>This view provides valuable insights into the performance of suppliers, as explored in the <em><a href="#duration">Evaluating Performance - Duration</a></em> section.</p>
+<pre class="r"><code>plot_data &lt;-
+  df_enhanced_long %&gt;%
+  
+  # rename Installation_Supplier to Supplier so simplify the plot
+  rename(Supplier = Installation_Supplier) %&gt;%
+  
+  # code missing Supplier with `unknown`
+  mutate_at(&quot;Supplier&quot;, ~ coalesce(., &quot;Unknown&quot;)) %&gt;% 
+  
+  # filter to keep latest report, completed Manufacture milestone
+  filter_at(&quot;Report&quot;, all_vars(. == max(.))) %&gt;%
+  filter(Milestone == &quot;Manufacture&quot;,
+         Milestone_Completed) %&gt;%
+  select(Milestone_Date, row_id, Supplier) %&gt;%
+  
+  # transform the date to the start of a quarter
+  mutate_at(&quot;Milestone_Date&quot;,
+            funs(floor_date),
+            week_start = 1,
+            unit = &quot;quarter&quot;) %&gt;%
+  
+  # count the combinations of a quarter and supplier
+  count(Milestone_Date, Supplier) %&gt;% 
+  
+  # scale the count
+  mutate_at(&quot;n&quot;, scale) %&gt;% 
+  
+  # order the suppliers
+  mutate_at(&quot;Supplier&quot;, fct_inorder)
+
+plot_data %&gt;%
+  ggplot(aes(x = Milestone_Date, y = n, col = Supplier)) +
+  geom_freqpoly(stat = &quot;identity&quot;,
+                size = 1.5) +
+  geom_label(
+    data =
+      plot_data %&gt;%
+      group_by(Supplier) %&gt;%
+      summarise_at(&quot;Milestone_Date&quot;, funs(min, max)) %&gt;%
+      gather(Approach, Milestone_Date, -Supplier),
+    aes(label = format(Milestone_Date, &quot;%b-%y&quot;), y = 0, fill = Supplier),
+    col = &quot;white&quot;,
+    size = 3, 
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data =
+      plot_data %&gt;%
+      
+      # group by Supplier and summarise the minimum, median and maximum dates
+      # for each
+      group_by(Supplier) %&gt;%
+      summarise_at(&quot;Milestone_Date&quot;, funs(min, median, max)) %&gt;%
+      
+      # calculate the duration in weeks between the min and max dates
+      mutate(Interval = difftime(
+        time1 = max,
+        time2 = min,
+        units = &quot;weeks&quot;
+      ) %&gt;%
+        round() %&gt;% 
+        as.integer()),
+    aes(label = paste(&quot;&lt;&quot;, Interval, &quot;weeks &gt;&quot;), y = 0, x = median),
+    size = 3, 
+    show.legend = FALSE
+  ) +
+  
+  # facet by supplier
+  facet_grid(Supplier ~ ., scales = &quot;free_x&quot;) +
+  
+  # expand the y axis
+  scale_y_continuous(expand = c(1, 1)) +
+  
+  # set presentation options
+  scale_colour_manual(values = plot_data_viridis()$col) +
+  scale_fill_manual(values = plot_data_viridis()$col) +
+  theme_classic() +
+  theme(
+    axis.line.y = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    strip.text = element_blank(),
+    strip.background = element_blank(),
+    legend.position = &quot;bottom&quot;
+  ) +
+  
+  # labelling
+  labs(
+    x = &quot;Year&quot;,
+    title = &quot;South African low-cost housing Project&quot;,
+    subtitle = &quot;Period of activity by Installation Supplier&quot;,
+    col = &quot;Supplier&quot;
+  )</code></pre>
+<p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/Installation%20Supplier%20Start%20&%20Stop-1.png" width="672" /></p>
+<p><a id="duration"></a></p>
+</div>
+<div id="evaluating-performance---duration" class="section level3">
+<h3>Evaluating Performance - Duration</h3>
+<p>Now let’s create features to understand duration data, providing metrics on how long it took a supplier to deliver an activity once it became available to complete.</p>
+<div id="create-features-1" class="section level4">
+<h4>Create Features</h4>
+<p>We are creating the <code>df_duration</code> dataframe in the code block, teasing out the length of delivery/ <code>Duration</code> of completed activities.</p>
+<pre class="r"><code>df_duration &lt;-
+  df_enhanced_long %&gt;%
+  
+  # filter to keep completed milestones for the last report only
+  filter_at(&quot;Report&quot;, all_vars(. == max(.))) %&gt;% 
+  filter(Milestone_Completed) %&gt;%
+  select(row_id, Milestone, Milestone_Date) %&gt;%
+  
+  # set milestone levels to preserve ordering for reporting
+  mutate_at(&quot;Milestone&quot;, func_set_milestone_levels) %&gt;%
+  
+  # spread the milestone dates for each Job/ row_id and calculate the difference
+  # in start and end in days - for both Installation and Manufacture
+  spread(Milestone, Milestone_Date) %&gt;%
+  transmute(
+    row_id = row_id,
+    Installation = difftime(
+      time1 = Installation,
+      time2 = Manufacture,
+      units = &quot;day&quot;
+    ),
+    Manufacture = difftime(
+      time1 = Manufacture,
+      time2 = Contract,
+      units = &quot;day&quot;
+    )
+  ) %&gt;% 
+  
+  # gather the newly calculated durations for each of the Milestones in one
+  # column
+  gather(Milestone, Duration, -row_id) %&gt;% 
+  
+  # filter to keep durations that are not negative, ignoring where there are
+  # issues with the quality of the data
+  filter_at(&quot;Duration&quot;, all_vars(. &gt; -1)) %&gt;% 
+  
+  # join the Supplier name to allow further analysis
+  left_join(
+    df_enhanced_long %&gt;% 
+      select(row_id, Milestone, Supplier = Milestone_Supplier),
+    by = c(&quot;row_id&quot;, &quot;Milestone&quot;)
+  )</code></pre>
+</div>
+<div id="summary-statistics" class="section level4">
+<h4>Summary Statistics</h4>
+<p>Let’s look into the extracted durations and review summary statistics by subsets and at different levels.</p>
+<p>The <code>df_duration_stat_summary</code> function takes as argument the <code>grouping</code> variable(s), and returns a summarised and named transformation of the <code>df_duration</code> data by the passed <code>grouping</code> value.</p>
+<p>The tibble in the second section of the code block contains a list of all the groups.</p>
+<pre class="r"><code>library(psych)               
+
+df_duration_stat_summary &lt;-
+  function(grouping) {
+    grouping_name &lt;- 
+      grouping %&gt;% 
+      rlang::quos_auto_name() %&gt;% 
+      as.character() %&gt;%
+      paste(collapse = &quot; &quot;) %&gt;% 
+      str_remove_all(pattern = &quot;~&quot;)
+    
+    df_duration %&gt;%
+      mutate_at(&quot;Duration&quot;, as.integer) %&gt;%
+      select(!!!grouping, Duration) %&gt;%
+      mutate(Group = grouping_name) %&gt;%
+      mutate_at(&quot;Group&quot;, ~na_if(., &quot;&quot;)) %&gt;%
+      group_by(Group, !!!grouping) %&gt;%
+      
+      # apply the psych::describe function to create summary statistics by group
+      do(Description = describe(.$Duration)) %&gt;%
+      
+      # unnest the output produced by iteration
+      unnest()
+  }
+
+# the tibble contains a list of the grouping variables that will iteratively
+# result in a different summary of the df_duration dataframe
+tribble(
+  ~ grouping,
+  quos(Milestone, Supplier),
+  quos(Milestone),
+  quos()
+) %&gt;%
+  
+  # take the grouping variable and map it to the df_duration_stat_summary
+  # function
+  mutate_at(&quot;grouping&quot;, map, df_duration_stat_summary) %&gt;% 
+  unnest() %&gt;% 
+  
+  # coalesce and NA values to All, specifically where we did not pass any
+  # grouping values but still wanted summary statistics
+  mutate_if(is.character, ~ coalesce(., &quot;All&quot;)) %&gt;% 
+  mutate_if(is.numeric, round, digits = 2) %&gt;% 
+  select(-vars) %&gt;% 
+  
+  # order by the grouping
+  arrange(Group) %&gt;% 
+  
+  # setting naming and presentation options
+  rename(`Grouped by` = Group) %&gt;% 
+  kable(format = &quot;html&quot;) %&gt;% 
+  kableExtra::kable_styling(full_width = FALSE, font_size = 10) %&gt;% 
+  kableExtra::column_spec(1:3, bold = TRUE) %&gt;% 
+  kableExtra::collapse_rows(columns = 1:3, valign = &quot;top&quot;) %&gt;% 
+  kableExtra::add_header_above(c(
+    &quot; &quot; = 1,
+    &quot;Grouping Variables&quot; = 2,
+    &quot;Summary Statistics&quot; = 12
+  ))</code></pre>
+<table class="table" style="font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="border-bottom:hidden" colspan=" 1">
+</th>
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan=" 2">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+Grouping Variables
+</div>
+</th>
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="12">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+Summary Statistics
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+Grouped by
+</th>
+<th style="text-align:left;">
+Milestone
+</th>
+<th style="text-align:left;">
+Supplier
+</th>
+<th style="text-align:right;">
+n
+</th>
+<th style="text-align:right;">
+mean
+</th>
+<th style="text-align:right;">
+sd
+</th>
+<th style="text-align:right;">
+median
+</th>
+<th style="text-align:right;">
+trimmed
+</th>
+<th style="text-align:right;">
+mad
+</th>
+<th style="text-align:right;">
+min
+</th>
+<th style="text-align:right;">
+max
+</th>
+<th style="text-align:right;">
+range
+</th>
+<th style="text-align:right;">
+skew
+</th>
+<th style="text-align:right;">
+kurtosis
+</th>
+<th style="text-align:right;">
+se
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+All
+</td>
+<td style="text-align:left;font-weight: bold;">
+All
+</td>
+<td style="text-align:left;font-weight: bold;vertical-align: top !important;" rowspan="3">
+All
+</td>
+<td style="text-align:right;">
+7475
+</td>
+<td style="text-align:right;">
+321.62
+</td>
+<td style="text-align:right;">
+308.74
+</td>
+<td style="text-align:right;">
+218
+</td>
+<td style="text-align:right;">
+274.62
+</td>
+<td style="text-align:right;">
+241.66
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2076
+</td>
+<td style="text-align:right;">
+2076
+</td>
+<td style="text-align:right;">
+1.33
+</td>
+<td style="text-align:right;">
+1.60
+</td>
+<td style="text-align:right;">
+3.57
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;vertical-align: top !important;" rowspan="2">
+Milestone
+</td>
+<td style="text-align:left;font-weight: bold;">
+Installation
+</td>
+<td style="text-align:right;">
+4144
+</td>
+<td style="text-align:right;">
+259.39
+</td>
+<td style="text-align:right;">
+297.32
+</td>
+<td style="text-align:right;">
+132
+</td>
+<td style="text-align:right;">
+204.05
+</td>
+<td style="text-align:right;">
+157.16
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2076
+</td>
+<td style="text-align:right;">
+2076
+</td>
+<td style="text-align:right;">
+1.74
+</td>
+<td style="text-align:right;">
+3.12
+</td>
+<td style="text-align:right;">
+4.62
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Manufacture
+</td>
+<td style="text-align:right;">
+3331
+</td>
+<td style="text-align:right;">
+399.04
+</td>
+<td style="text-align:right;">
+305.19
+</td>
+<td style="text-align:right;">
+331
+</td>
+<td style="text-align:right;">
+362.75
+</td>
+<td style="text-align:right;">
+284.66
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1806
+</td>
+<td style="text-align:right;">
+1806
+</td>
+<td style="text-align:right;">
+1.05
+</td>
+<td style="text-align:right;">
+0.83
+</td>
+<td style="text-align:right;">
+5.29
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;vertical-align: top !important;" rowspan="7">
+Milestone Supplier
+</td>
+<td style="text-align:left;font-weight: bold;vertical-align: top !important;" rowspan="6">
+Installation
+</td>
+<td style="text-align:left;font-weight: bold;">
+Fairground &amp; Co
+</td>
+<td style="text-align:right;">
+2450
+</td>
+<td style="text-align:right;">
+225.35
+</td>
+<td style="text-align:right;">
+268.14
+</td>
+<td style="text-align:right;">
+126
+</td>
+<td style="text-align:right;">
+171.06
+</td>
+<td style="text-align:right;">
+137.88
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2076
+</td>
+<td style="text-align:right;">
+2076
+</td>
+<td style="text-align:right;">
+2.36
+</td>
+<td style="text-align:right;">
+6.90
+</td>
+<td style="text-align:right;">
+5.42
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Independents
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:right;">
+152.78
+</td>
+<td style="text-align:right;">
+296.33
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+79.54
+</td>
+<td style="text-align:right;">
+17.79
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1274
+</td>
+<td style="text-align:right;">
+1274
+</td>
+<td style="text-align:right;">
+2.29
+</td>
+<td style="text-align:right;">
+4.77
+</td>
+<td style="text-align:right;">
+52.38
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Internal
+</td>
+<td style="text-align:right;">
+546
+</td>
+<td style="text-align:right;">
+210.09
+</td>
+<td style="text-align:right;">
+279.93
+</td>
+<td style="text-align:right;">
+97
+</td>
+<td style="text-align:right;">
+146.61
+</td>
+<td style="text-align:right;">
+108.23
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1807
+</td>
+<td style="text-align:right;">
+1807
+</td>
+<td style="text-align:right;">
+2.18
+</td>
+<td style="text-align:right;">
+4.89
+</td>
+<td style="text-align:right;">
+11.98
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+JG Holdings
+</td>
+<td style="text-align:right;">
+467
+</td>
+<td style="text-align:right;">
+485.56
+</td>
+<td style="text-align:right;">
+308.73
+</td>
+<td style="text-align:right;">
+536
+</td>
+<td style="text-align:right;">
+480.80
+</td>
+<td style="text-align:right;">
+305.42
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1370
+</td>
+<td style="text-align:right;">
+1370
+</td>
+<td style="text-align:right;">
+-0.06
+</td>
+<td style="text-align:right;">
+-0.93
+</td>
+<td style="text-align:right;">
+14.29
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Unicorn Ltd
+</td>
+<td style="text-align:right;">
+642
+</td>
+<td style="text-align:right;">
+269.62
+</td>
+<td style="text-align:right;">
+331.14
+</td>
+<td style="text-align:right;">
+106
+</td>
+<td style="text-align:right;">
+203.86
+</td>
+<td style="text-align:right;">
+129.73
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1637
+</td>
+<td style="text-align:right;">
+1637
+</td>
+<td style="text-align:right;">
+1.62
+</td>
+<td style="text-align:right;">
+1.95
+</td>
+<td style="text-align:right;">
+13.07
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Unknown
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+478.29
+</td>
+<td style="text-align:right;">
+449.69
+</td>
+<td style="text-align:right;">
+320
+</td>
+<td style="text-align:right;">
+478.29
+</td>
+<td style="text-align:right;">
+458.12
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+1179
+</td>
+<td style="text-align:right;">
+1168
+</td>
+<td style="text-align:right;">
+0.34
+</td>
+<td style="text-align:right;">
+-1.69
+</td>
+<td style="text-align:right;">
+169.97
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Manufacture
+</td>
+<td style="text-align:left;font-weight: bold;">
+Internal
+</td>
+<td style="text-align:right;">
+3331
+</td>
+<td style="text-align:right;">
+399.04
+</td>
+<td style="text-align:right;">
+305.19
+</td>
+<td style="text-align:right;">
+331
+</td>
+<td style="text-align:right;">
+362.75
+</td>
+<td style="text-align:right;">
+284.66
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1806
+</td>
+<td style="text-align:right;">
+1806
+</td>
+<td style="text-align:right;">
+1.05
+</td>
+<td style="text-align:right;">
+0.83
+</td>
+<td style="text-align:right;">
+5.29
+</td>
+</tr>
+</tbody>
+</table>
+<p>Starting at the top and working our way down the table reveals summary statistics for increasingly granular subsets of the <em><a href="#duration">duration</a></em> data. This was achieved by passing a tibble of different grouping variables and combining the summarised results back into a single table, as presented.</p>
+<p>The extreme <a href="https://en.wikipedia.org/wiki/Kurtosis"><code>kurtosis</code></a> and <a href="https://en.wikipedia.org/wiki/Skewness"><code>skewness</code></a> values for the <code>Installation</code> subset means that we are unable to perform <a href="https://en.wikipedia.org/wiki/Parametric_statistics">parametric tests</a> without transforming scales.</p>
+<hr>
+</div>
+<div id="visualising-statistics" class="section level4">
+<h4>Visualising Statistics</h4>
+<p><a href="https://ggplot2.tidyverse.org/reference/geom_violin.html">Violin plots</a> makes it a lot easier to see the <code>kurtosis</code> and <code>skewness</code> by installation supplier. The <a href="https://en.wikipedia.org/wiki/Five-number_summary"><code>fivenum</code></a> summary better describes the distribution of the underlying data, in this case, allowing for a more robust comparison between the various suppliers.</p>
+<pre class="r"><code>plot_data &lt;-
+  df_duration %&gt;%
+  
+  # filter to exclude unknown suppliers
+  filter(Supplier != &quot;Unknown&quot;) %&gt;% 
+  
+  # coerce duration data-type to integer
+  mutate_at(&quot;Duration&quot;, parse_integer) %&gt;% 
+  
+  # nest data and pass to function, creating a tally for all installation
+  # suppliers in addition to each supplier
+  nest() %&gt;% 
+  mutate_at(&quot;data&quot;, map, function(df) {
+    df %&gt;%
+      union_all(
+        df %&gt;%
+          filter(Milestone == &quot;Installation&quot;) %&gt;% 
+          mutate(Supplier = &quot;All Installation&quot;)
+      ) %&gt;% 
+      group_by(Supplier, Milestone) %&gt;% 
+      mutate_at(&quot;Duration&quot;, funs(median = median)) %&gt;% 
+      arrange(Milestone, median) %&gt;% 
+      ungroup() %&gt;% 
+      mutate_at(&quot;Supplier&quot;, fct_inorder) %&gt;% 
+      return()
+  }) %&gt;% 
+  unnest()
+
+plot_data_text &lt;-
+  plot_data %&gt;% 
+  group_by(Milestone, Supplier) %&gt;% 
+  select(-row_id) %&gt;% 
+  
+  # apply the summary function to extract the fivenum statistics
+  do(fivenum = summary(.$Duration)) %&gt;% 
+  head(10) %&gt;%
+  
+  # tidy the output
+  mutate_at(&quot;fivenum&quot;, map, broom::tidy) %&gt;%
+  
+  # gather the results
+  mutate_at(&quot;fivenum&quot;, map, gather) %&gt;% 
+  unnest() %&gt;% 
+  
+  # retain inter quartile range values/ boundaries only
+  filter(key %in% c(&quot;q1&quot;, &quot;median&quot;,&quot;q3&quot;)) %&gt;% 
+  rename(Measure = key, Duration = value)
+
+plot_data %&gt;%
+  ggplot(aes(
+    x = interaction(Milestone, Supplier),
+    y = Duration,
+    label = Duration,
+    col = Supplier
+  )) +
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75), 
+              scale = &quot;width&quot;,
+              trim = TRUE) +
+  
+  # plot the Q1 &amp; Q3 stats
+  geom_label(
+    data = plot_data_text %&gt;% 
+      filter(Measure != &quot;median&quot;) %&gt;% 
+      mutate_if(is.numeric, round), 
+    size = 2.5, 
+    nudge_x = 0.30,
+    show.legend = FALSE) +
+  
+  # plot the median and reverse colour to accentuate
+  geom_label(
+    data = plot_data_text %&gt;%
+      filter(Measure == &quot;median&quot;) %&gt;%
+      mutate_if(is.numeric, round),
+    aes(fill = Supplier),
+    col = &quot;white&quot;,
+    size = 2.5, 
+    nudge_x = -0.30,
+    show.legend = FALSE) +
+  
+  # plot the volume by supplier for each supplier at the base of the violin plot
+  geom_text(
+    data = plot_data %&gt;% count(Milestone, Supplier),
+    aes(y = 0, label = paste(&quot;n =&quot;, n)), 
+    nudge_y = -50, 
+    size = 3, 
+    fontface = &quot;bold&quot;,
+    show.legend = FALSE
+  ) +
+  
+  # facet by Milestone
+  facet_grid(. ~ Milestone,
+             scales = &quot;free&quot;,
+             space = &quot;free&quot;,
+             switch = &quot;x&quot;) +
+  
+  # set the presentation options
+  scale_colour_manual(values = plot_data_viridis()$col) +
+  scale_fill_manual(values = plot_data_viridis()$col) +
+  coord_cartesian(ylim = c(-50, 1000)) +
+  theme_classic() +
+  theme(
+    axis.line.x = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(), 
+    legend.position = &quot;bottom&quot;,
+    plot.caption =  element_text(size = rel(0.5), face = &quot;italic&quot;)
+  ) +
+  
+  # labelling
+  labs(
+    y = &quot;Duration [days]&quot;,
+    title = &quot;South African low-cost housing Project&quot;,
+    subtitle = &quot;Fivenumber summary of delivery duration by Supplier&quot;,
+    col = &quot;Supplier&quot;,
+    caption = &quot;Please note: Upper limit of boxplot truncated\n
+    Median in solid label whereas 1st and 3rd quartile reversed&quot;
+  )</code></pre>
+<p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/duration_plot-1.png" width="672" /></p>
+</div>
+<div id="confirming-differences" class="section level4">
+<h4>Confirming differences</h4>
+<p>In the next code block we are calculating <a href="https://en.wikipedia.org/wiki/Confidence_interval">confidence intervals</a> for medians using the <a href="https://www.uvm.edu/~dhowell/StatPages/Randomization%20Tests/BootstMedians/bootstrapping_medians.html">percentile</a> <a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)">bootstrap</a> method. This allows us to compare the median duration of the suppliers, and to establish whether these <em>typical</em> durations are different enough to be statistically significant or not.</p>
+<pre class="r"><code>model_data &lt;-
+  df_duration %&gt;%
+  filter(Supplier != &quot;Unknown&quot;) %&gt;% 
+  mutate_at(&quot;Duration&quot;, parse_integer) %&gt;% 
+  nest() %&gt;% 
+  mutate_at(&quot;data&quot;, map, function(df) {
+    df %&gt;%
+      
+      # create a union of all installation suppliers &amp; milestones to calculate
+      # and present the overall confidence interval along with the supplier
+      # specific ones
+      union_all(
+        df %&gt;%
+          filter(Milestone == &quot;Installation&quot;) %&gt;% 
+          mutate(Supplier = &quot;All Installation&quot;)
+      ) %&gt;% 
+      group_by(Supplier, Milestone) %&gt;% 
+      
+      # return the median per Supplier and for all Installation suppliers
+      mutate_at(&quot;Duration&quot;, funs(median = median)) %&gt;% 
+      arrange(Milestone, median) %&gt;% 
+      ungroup() %&gt;% 
+      
+      # order Suppliers by the ranked median
+      mutate_at(&quot;Supplier&quot;, fct_inorder) %&gt;% 
+      return()
+  }) %&gt;% 
+  unnest()
+
+library(rcompanion)
+
+df_duration_groupwise_median_ci &lt;-
+  
+  # calculate the bootstrapped median and confidence interval for Duration,
+  # grouped by Supplier and Milestone combinations
+  groupwiseMedian(
+    Duration ~ Supplier + Milestone,
+    data = model_data,
+    
+    # 95% confidence
+    conf = 0.95,
+    
+    # 5000 bootstrap iterations with resampling
+    R = 5e3,
+    digits = 3,
+    percentile = TRUE,
+    bca = FALSE
+  )</code></pre>
+<pre class="r"><code>plot_data &lt;-
+  df_duration_groupwise_median_ci %&gt;%
+  
+  # filter to retain the Installation milestone only
+  filter(Milestone == &quot;Installation&quot;) %&gt;%
+  
+  # arrange by median, ascending order
+  arrange(Median) %&gt;%
+  mutate_at(&quot;Supplier&quot;, fct_inorder, ordered = TRUE) %&gt;%
+  filter(Supplier != &quot;Unknown&quot;)
+
+plot_data %&gt;% 
+  ggplot(aes(x = Supplier, col = Supplier)) +
+  
+  # plot error bar with the lower and upper percentile values showing the
+  # confidence interval range
+  geom_errorbar(
+    aes(ymin = Percentile.lower, ymax = Percentile.upper),
+    size = 1.5,
+    show.legend = TRUE
+  ) +
+  
+  # plot the values for the upper and lower percentile values
+  geom_label_repel(
+    data = 
+      plot_data %&gt;%
+      select(Supplier, Milestone, starts_with(&quot;Percentile&quot;)) %&gt;%
+      gather(key, value, 3:4),
+    aes(y = value, label = value),
+    size = 2.5, 
+    segment.alpha = 0.5,
+    nudge_x = 0.5, 
+    show.legend = FALSE
+  ) +
+  geom_point(aes(y = Median),
+             size = 2,
+             col = &quot;red&quot;,
+             show.legend = FALSE) +
+  geom_label(
+    aes(y = Median, label = Median, fill = Supplier),
+    nudge_x = -0.2,
+    size = 2.5,
+    col = &quot;white&quot;,
+    show.legend = FALSE
+  ) +
+  
+  # set presentation options
+  scale_colour_manual(values = plot_data_viridis()$col) +
+  scale_fill_manual(values = plot_data_viridis()$col) +
+  theme_classic() +
+  theme(legend.position = &quot;bottom&quot;) +
+  
+  # labelling
+  labs(
+    x = &quot;Supplier&quot;,
+    y = &quot;Duration [days]&quot;,
+    title = &quot;South African low-cost housing Project&quot;,
+    subtitle = &quot;Median 95% Percentile Confidence Interval of delivery duration by Installation Supplier&quot;,
+    col = &quot;Supplier&quot;
+  )</code></pre>
+<p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/duration_median_ci_plot-1.png" width="672" /></p>
+<p><em>Independents</em> and <em>JG Holdings</em> median durations are significantly different from the other <em>Installation suppliers</em>.</p>
+<p>The <em><a href="#supplier_tenure">Supplier Tenure</a></em> section provides some interesting insights that explain the difference. <em>Independents</em> and <em>JG Holdings</em> had started much later in the programme, hence why the volume of delivery is significantly lower comparatively, all things being equal.</p>
+<p>Projects delivered later in the programme are likely to be <em>more problematic</em>, a possible explanation why <em>JG Holdings</em> took longer to complete activities. Worth investigating this hypothesis in the future.</p>
+<p><em>Independents</em>, on the other hand, are made up of small outfits, making them lean and agile compared with larger suppliers, who in turn are able to scale significantly more.</p>
+<hr>
+</div>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>The analysis demonstrated in this tutorial is not comprehensive and exhaustive but provides an overview of useful functions to analyse and report state changes of large-scale programmes over time.</p>
+<hr>
+</div>
+<div id="session-info" class="section level2">
+<h2>Session Info</h2>
+<pre><code>## R version 3.5.1 (2018-07-02)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS  10.14
+## 
+## Matrix products: default
+## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] psych_1.8.4     bindrcpp_0.2.2  ggrepel_0.8.0   knitr_1.20     
+##  [5] readxl_1.1.0    lubridate_1.7.4 forcats_0.3.0   stringr_1.3.1  
+##  [9] dplyr_0.7.7     purrr_0.2.5     readr_1.1.1     tidyr_0.8.2    
+## [13] tibble_1.4.2    ggplot2_3.1.0   tidyverse_1.2.1
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_0.12.19      lattice_0.20-35   zoo_1.8-4        
+##  [4] assertthat_0.2.0  rprojroot_1.3-2   digest_0.6.18    
+##  [7] utf8_1.1.4        R6_2.3.0          cellranger_1.1.0 
+## [10] plyr_1.8.4        backports_1.1.2   evaluate_0.12    
+## [13] httr_1.3.1        highr_0.7         blogdown_0.9     
+## [16] pillar_1.3.0      rlang_0.3.0.1     lazyeval_0.2.1   
+## [19] rstudioapi_0.8    rmarkdown_1.10    labeling_0.3     
+## [22] selectr_0.4-1     foreign_0.8-71    munsell_0.5.0    
+## [25] broom_0.5.0       compiler_3.5.1    modelr_0.1.2     
+## [28] xfun_0.4          pkgconfig_2.0.2   mnormt_1.5-5     
+## [31] htmltools_0.3.6   tidyselect_0.2.5  gridExtra_2.3    
+## [34] bookdown_0.7      fansi_0.4.0       viridisLite_0.3.0
+## [37] crayon_1.3.4      withr_2.1.2       grid_3.5.1       
+## [40] nlme_3.1-137      jsonlite_1.5      gtable_0.2.0     
+## [43] magrittr_1.5      scales_1.0.0      cli_1.0.1        
+## [46] stringi_1.2.4     reshape2_1.4.3    viridis_0.5.1    
+## [49] xml2_1.2.0        kableExtra_0.9.0  tools_3.5.1      
+## [52] glue_1.3.0        hms_0.4.2         parallel_3.5.1   
+## [55] yaml_2.2.0        colorspace_1.3-2  rvest_0.3.2      
+## [58] bindr_0.1.1       haven_1.1.2</code></pre>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><sub>y always increases when x increases and y always decreases when x decreases</sub><a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
