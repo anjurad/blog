@@ -226,7 +226,7 @@ df_files</code></pre>
 ## 7 olist_products_dataset            &lt;tibble [32,951 × 9]&gt;   
 ## 8 olist_sellers_dataset             &lt;tibble [3,095 × 4]&gt;    
 ## 9 product_category_name_translation &lt;tibble [71 × 2]&gt;</code></pre>
-<p>This confirms 9 tables imported, specifying the rows <code>nrow</code> and columns <code>ncol</code> of each nested tibble.</p>
+<p>This confirms 9 files imported, specifying the rows <code>nrow</code> and columns <code>ncol</code> of each nested tibble.</p>
 </div>
 <div id="inspect-data" class="section level3">
 <h3>Inspect Data</h3>
@@ -1048,9 +1048,10 @@ func_output_group_item_table_iterator &lt;-
                          pull()))  {
       func_output_group_item_table(param_group, param_group_selector) %&gt;% print()
     }
-  }
-
-# input the grouping parameter to output sectioned item tables
+  }</code></pre>
+<div id="by-credit-card" class="section level4">
+<h4>By Credit Card</h4>
+<pre class="r"><code># input the grouping parameter to output sectioned item tables
 func_output_group_item_table_iterator(quo(Credit_Card))</code></pre>
 <h4>
 Credit Card
@@ -1274,6 +1275,320 @@ $3,466,788
 </tr>
 </tbody>
 </table>
+</div>
+<div id="by-customer-state" class="section level4">
+<h4>By Customer State</h4>
+<pre class="r"><code># input the grouping parameter to output sectioned item tables
+func_output_group_item_table_iterator(quo(customer_state))</code></pre>
+<h4>
+MG
+</h4>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Credit Card
+</th>
+<th style="text-align:right;">
+2016
+</th>
+<th style="text-align:right;">
+2017
+</th>
+<th style="text-align:right;">
+2018
+</th>
+<th style="text-align:right;">
+Total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+Credit Card
+</td>
+<td style="text-align:right;">
+$4,832
+</td>
+<td style="text-align:right;">
+$668,567
+</td>
+<td style="text-align:right;">
+$798,576
+</td>
+<td style="text-align:right;">
+$1,471,975
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Not Credit Card
+</td>
+<td style="text-align:right;">
+$811
+</td>
+<td style="text-align:right;">
+$186,324
+</td>
+<td style="text-align:right;">
+$213,146
+</td>
+<td style="text-align:right;">
+$400,282
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Total
+</td>
+<td style="text-align:right;">
+$5,643
+</td>
+<td style="text-align:right;">
+$854,892
+</td>
+<td style="text-align:right;">
+$1,011,723
+</td>
+<td style="text-align:right;">
+$1,872,257
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+RJ
+</h4>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Credit Card
+</th>
+<th style="text-align:right;">
+2016
+</th>
+<th style="text-align:right;">
+2017
+</th>
+<th style="text-align:right;">
+2018
+</th>
+<th style="text-align:right;">
+Total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+Credit Card
+</td>
+<td style="text-align:right;">
+$10,137
+</td>
+<td style="text-align:right;">
+$849,698
+</td>
+<td style="text-align:right;">
+$870,506
+</td>
+<td style="text-align:right;">
+$1,730,341
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Not Credit Card
+</td>
+<td style="text-align:right;">
+$3,271
+</td>
+<td style="text-align:right;">
+$206,256
+</td>
+<td style="text-align:right;">
+$204,512
+</td>
+<td style="text-align:right;">
+$414,039
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Total
+</td>
+<td style="text-align:right;">
+$13,408
+</td>
+<td style="text-align:right;">
+$1,055,954
+</td>
+<td style="text-align:right;">
+$1,075,018
+</td>
+<td style="text-align:right;">
+$2,144,380
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+SP
+</h4>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Credit Card
+</th>
+<th style="text-align:right;">
+2016
+</th>
+<th style="text-align:right;">
+2017
+</th>
+<th style="text-align:right;">
+2018
+</th>
+<th style="text-align:right;">
+Total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+Credit Card
+</td>
+<td style="text-align:right;">
+$13,886
+</td>
+<td style="text-align:right;">
+$1,972,256
+</td>
+<td style="text-align:right;">
+$2,690,520
+</td>
+<td style="text-align:right;">
+$4,676,662
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Not Credit Card
+</td>
+<td style="text-align:right;">
+$2,999
+</td>
+<td style="text-align:right;">
+$589,607
+</td>
+<td style="text-align:right;">
+$728,958
+</td>
+<td style="text-align:right;">
+$1,321,565
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Total
+</td>
+<td style="text-align:right;">
+$16,886
+</td>
+<td style="text-align:right;">
+$2,561,863
+</td>
+<td style="text-align:right;">
+$3,419,479
+</td>
+<td style="text-align:right;">
+$5,998,227
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+Other
+</h4>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Credit Card
+</th>
+<th style="text-align:right;">
+2016
+</th>
+<th style="text-align:right;">
+2017
+</th>
+<th style="text-align:right;">
+2018
+</th>
+<th style="text-align:right;">
+Total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+Credit Card
+</td>
+<td style="text-align:right;">
+$19,708
+</td>
+<td style="text-align:right;">
+$2,146,853
+</td>
+<td style="text-align:right;">
+$2,496,545
+</td>
+<td style="text-align:right;">
+$4,663,106
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Not Credit Card
+</td>
+<td style="text-align:right;">
+$3,718
+</td>
+<td style="text-align:right;">
+$630,185
+</td>
+<td style="text-align:right;">
+$696,999
+</td>
+<td style="text-align:right;">
+$1,330,902
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Total
+</td>
+<td style="text-align:right;">
+$23,426
+</td>
+<td style="text-align:right;">
+$2,777,038
+</td>
+<td style="text-align:right;">
+$3,193,544
+</td>
+<td style="text-align:right;">
+$5,994,008
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <div id="summary" class="section level2">

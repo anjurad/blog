@@ -232,7 +232,7 @@ df_files
 
 ```
 
-This confirms 9 tables imported, specifying the rows `nrow` and columns `ncol` of each nested tibble.
+This confirms 9 files imported, specifying the rows `nrow` and columns `ncol` of each nested tibble.
 
 
 ### Inspect Data
@@ -476,11 +476,21 @@ func_output_group_item_table_iterator <-
     }
   }
 
+```
+
+#### By Credit Card
+```{r , echo=TRUE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
 # input the grouping parameter to output sectioned item tables
 func_output_group_item_table_iterator(quo(Credit_Card))
 
 ```
 
+#### By Customer State
+```{r , echo=TRUE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
+# input the grouping parameter to output sectioned item tables
+func_output_group_item_table_iterator(quo(customer_state))
+
+```
 
 ## Summary
 The demonstrated functions are invaluable in my workflow, without which the result would not be as effective nor consistent.  
