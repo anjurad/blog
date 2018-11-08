@@ -17,6 +17,8 @@ I have mapped the list to the data science process, and the skills and knowledge
 
 The following graph provides an outline of the data science process and skills and knowledge required to practice it.<br><br>
 
+<a id="data_science_process_map"></a>
+
 ![The data science process and tools, skills & knowledge that support it](/page/resources_files/datascience_process_skills.png)
 
 The `process` section of the graph is an extract from [R for Data Science](http://r4ds.had.co.nz/explore-intro.html) by [Hadley Wickham](http://hadley.nz) and [Garrett Grolemund](https://www.linkedin.com/in/garrett-grolemund-49328411/).<br><br>

@@ -1,0 +1,503 @@
+---
+title: "Summarising tables"
+subtitle: "Approach to streamline workflow when summarising tables"
+author: "Gerhard Groenewald"
+date: '2018-11-08'
+output:
+  html_document: default
+  pdf_document: default
+layout: post
+tags:
+- tips + tricks
+- intermediate
+- R
+comments: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+The result of the data science process is to [communicate](/page/resources/#data_science_process_map) findings, typically to an audience that doesn't talk technical.  It is the most important deliverable of the process, even if not the first thing that springs to mind when considering data science.  Fantastic insights are of no use if the intended audience doesn't understand or trust it.  It is therefore vital to take care when presenting findings.
+
+There are typical and often repeated actions when summarising data in tables.  It adds overhead to transform analysis specifically to create *presentation-ready* results.  I have developed an approach and associated functions that streamline these tasks, with the benefit of making presentation consistent.
+
+The following scenarios are addressed:
+
+![Scenarios when summarising tables](/post/2018-11-04-summarising_tables_files/summarising_tables.png)
+
+- **Boolean Features**<br>
+I often create and use `boolean` features as it makes analysis consistent and easier to follow, especially when used as `filter` conditions.<br><br>
+However, it is difficult to review summary tables when labels read `TRUE` or `FALSE`, especially when *multiple boolean features* are presented.  Replacing it with *descriptive* labels improves legibility.<br>
+*See Credit Card example shown above*.<br><br>
+The function `func_legible_boolean` in the code block below achieves this.<br><br>
+
+- **Table Summaries**<br>
+By *row* or *column*, either summarising mulitple columns into one, or the content of each selected column.  Summaries are often a *sum total* of numeric fields, but can be other [summary statistics](https://en.wikipedia.org/wiki/Summary_statistics) too.<br><br>
+The function `func_create_summary` creates a *row summary*.<br><br>
+
+- **Headers**<br>
+*Remember the days when you had to* ***dial*** *a phone number when making a call?*  `r emo::ji("smile")`<br><br>
+It is a lot easier to code when features have no spaces, specifically using the [autocomplete](https://en.wikipedia.org/wiki/Autocomplete) feature of code editors. I therefore use *underscores* as *placeholders*.<br><br>
+It is a good idea though to revert the underscores to spaces when presenting tables.  `func_present_headers` takes care of this.<br><br>
+
+## Code
+
+### Library
+Load the packages used in the demonstration.
+
+```{r}
+package_list <- c("tidyverse", "lubridate", "knitr")
+invisible(suppressPackageStartupMessages(lapply(package_list, library, character.only = TRUE)))
+rm(package_list)
+options(digits=9)
+```
+
+### Functions
+The functions instantiated in following code block addresses the scenarios listed above.  The inline comments below describe the working and sequence of each function.
+
+
+```{r}
+func_rename <-
+  function(x) {
+    
+    # sequence is important here
+    # regex removing all chars not alpha-numeric, underscore or period
+    gsub("[^[:alnum:] \\_\\.]", "", x) %>%
+      
+      # replace any space or period with underscore
+      str_replace_all(pattern = " |\\.", replacement = "\\_") %>%
+      
+      # replace multiple underscores with one
+      str_replace_all(pattern = "\\_+", replacement = "\\_") %>%
+      
+      # remove trailing underscores and period
+      str_remove(pattern = "\\_$|\\.$")
+  }
+
+func_legible_boolean <-
+  
+  # returns `feature name` when TRUE and "Not_" + `feature name` otherwise
+  function(df) {
+    
+    # add row numbers to input dataframe
+    df <-
+      df %>%
+      ungroup() %>%
+      mutate(row_id = row_number())
+    
+    # select row_id and other logical fields
+    tmp <-
+      df %>%
+      select(row_id, select_if(., is.logical) %>% names(.)) %>%
+      
+      # gather all logical fields and keep row_id to retain identity
+      gather(key, value,-row_id) %>%
+      
+      # when value is TRUE then return the feature name else "Not_" pasted in
+      # front of it
+      mutate(value = case_when(
+        value ~ key,
+        TRUE ~ paste("Not", key, sep = "_")
+      )) %>%
+      
+      # return the feature names back to header positions
+      spread(key, value)
+    
+    vars <- 
+      df %>%
+      select_if(is.logical) %>%
+      names()
+    
+    df %>% 
+      
+      # return all values from the table after excluding the original logical
+      # fields and join the newly adjuted features back into the table using the
+      # row_id
+      select(-(!!vars)) %>%
+      inner_join(tmp,
+                 by = "row_id") %>%
+      
+      # remove the row_id as the join is complete
+      select(-row_id)
+  }
+
+func_create_summary <-
+  
+  # group by factors, summarising numeric fields to sum total
+  function(df) {
+    
+    # create a list of factors from the input dataframe
+    tmp_factors <- df %>% select_if(is.factor) %>% names()
+    
+    # mutate all factors in the dataframe to characters
+    df <- df %>% ungroup() %>% mutate_if(is.factor, as.character)
+    
+    
+    # list original dataframe with a newly created summary row
+    list(
+      
+      # original input dataframe
+      df,
+      
+      # summary row, replaceing each factor value to "Total"
+      df %>%
+        mutate_at(tmp_factors, ~"Total") %>%
+        
+        # group by for each of the original factor features
+        group_by_at(tmp_factors) %>%
+        
+        # summarise all numeric values to sum total, ignoring NULL values
+        summarise_if(is.numeric, sum, na.rm = TRUE)
+    ) %>% 
+      
+      # union all tables contained in the list, including original dataframe and
+      # newly created summary row
+      reduce(union_all) %>%
+      
+      # change factors back into factors
+      mutate_at(tmp_factors, factor) %>% 
+      return()
+  }
+
+
+func_present_headers <-
+  function(.) {
+    
+    # replace all `spaceholder underscores` with spaces
+    str_replace_all(., pattern = "_", replacement = " ") %>%
+      
+      # change all words in string to title text
+      str_to_title() %>%
+      return()
+  }
+
+```
+
+### Parameters and Configuration
+
+I am using the [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/olistbr/brazilian-ecommerce) from [kaggle Datasets](https://www.kaggle.com/datasets) in this demonstration.  The `var_path` parameter stores the location of the source data.
+
+
+```{r}
+var_path <- "~/Documents/Training/datasets/brazilian-ecommerce/"
+```
+
+### Import
+
+**Please note** *that the parsing messages upon `readr::read_csv` are disabled in this case to make the article more legible.*
+
+The code sequence below is written to import a nominated subset of files into a single table (datablock), nesting each file as a tibble.
+
+
+```{r message=FALSE}
+df_files <-
+  
+  # traverse the specified directory and add list of files to a table and rename
+  # the tibble's default column value to file_name_ext, representing the name of
+  # the file and its extention
+  list.files(path = var_path,
+             pattern = ".",
+             recursive = TRUE) %>%
+  as_tibble() %>%
+  rename(file_name_ext = value) %>%
+  
+  # remove the file extention to isolate the file name as a separate variable
+  mutate_at("file_name_ext", funs(file_name = str_remove), pattern = "\\.csv") %>% 
+  
+  # build a file path input for each file as used by the file parameter in the
+  # read_csv function
+  mutate(file_path = paste0(var_path, file_name_ext)) %>%
+  
+  # map the file_path to readr::read_csv to iteratively upload each file listed in the
+  # table
+  mutate(file = map(file_path, function(param_file_path) {
+    read_csv(file = param_file_path) %>%
+      return()
+  })) %>%
+  
+  # standardise the naming of each file in situ
+  mutate_at("file", map, function(df) {
+    df %>% 
+      rename_all(func_rename) %>% 
+      return()
+  }) %>% 
+  
+  # remove redundant variables to tidy up the datablock
+  select(-file_path, -file_name_ext)
+
+# print new table to glance the imported product
+df_files
+
+```
+
+This confirms 9 tables imported, specifying the rows `nrow` and columns `ncol` of each nested tibble.
+
+
+### Inspect Data
+
+The function `func_inspect_file` helps to extract and print the structure of nested tibbles, including `olist_order_payments_dataset`, `olist_orders_dataset` and `olist_customers_dataset` contained within `df_files`.  
+
+Changing the `character` fields to `factors` better structures and provides additional information about the features.
+
+
+```{r}
+func_inspect_file <-
+  function(param_file_name) {
+    
+    # create *** separators to pad tibble names followed by printed structure
+    rep("*", 30) %>% paste(collapse = "") %>% print()
+    print(param_file_name)
+    rep("*", 30) %>% paste(collapse = "") %>% print()
+    
+    df_files %>%
+      filter(file_name == param_file_name) %>%
+      select(-file_name) %>%
+      unnest() %>%
+      mutate_if(is.character, factor) %>%
+      head() %>%
+      str() %>%
+      print()
+  }
+
+tibble(
+  
+  # list tibble names to inspect
+  param_file = c(
+    "olist_order_payments_dataset",
+    "olist_orders_dataset",
+    "olist_customers_dataset"
+  )
+) %>%
+  mutate_at("param_file", walk, func_inspect_file)
+
+```
+
+### Join
+
+Iterating through a list of tibbles with matching primary and foreign keys will result in a joined dataframe.
+
+[Primary](https://en.wikipedia.org/wiki/Primary_key) and [foreign keys](https://en.wikipedia.org/wiki/Foreign_key) on each of the tibbles results in an automatic [join](https://en.wikipedia.org/wiki/Join_(SQL)) for each iteration, using a feature of the `dplyr::full_join` function to *guess* joins (column names shared in both tibbles) if none are explicitly provided.
+
+Let's run the sequence and inspect the head of the resulting datafame.
+
+
+```{r}
+df_customer_order_payment <-
+  
+  # a list of tibbles to join
+  tibble(
+  param_file = c(
+    "olist_order_payments_dataset",
+    "olist_orders_dataset",
+    "olist_customers_dataset"
+  )
+) %>%
+  
+  # unnest each tibble listed above, joining it with the result of the previous
+  # mapping sequence
+  mutate_at("param_file", map, function(param_file) {
+    df_files %>%
+      filter(file_name == param_file) %>%
+      select(-"file_name") %>%
+      unnest()
+  }) %>%
+  reduce(unnest) %>%
+  reduce(full_join)
+
+# return head of the joined tibbles
+df_customer_order_payment %>% 
+  head() %>% 
+  
+  # specify styling options
+  kable(format = "html") %>% 
+  kableExtra::kable_styling(full_width = FALSE, font_size = 11) %>% 
+  kableExtra::scroll_box(width = "100%", height = "200px")
+
+```
+
+The head of the dataframe confirms the result of the join.
+
+## Results
+### Grouping Parameter
+The configurable `param_vars_grouping` parameter is populated with variables to be used to group the content of the `df_customer_order_payment` dataframe.
+
+
+```{r}
+param_vars_grouping <- vars(customer_state, Purchase_year, Credit_Card)
+
+```
+
+### Output
+
+This is where we implement the functions previously described to create a *presentation-ready* summary table of the payment data contained in the `df_customer_order_payment` dataframe.
+
+
+```{r}
+df_customer_order_payment_data <-
+  df_customer_order_payment %>%
+  
+  # create a new boolean feature Credit_Card, defaulting all NULL values to
+  # FALSE and make it `legible` using the func_legible_boolean function
+  mutate(Credit_Card = coalesce(payment_type == "credit_card", FALSE)) %>%
+  func_legible_boolean() %>%
+  
+  # simplify the order_purchase_timestamp to keep year only and store in a newly
+  # created `Purchase_year` feature
+  mutate_at("order_purchase_timestamp", funs(Purchase_year = year)) %>%
+  
+  # change all grouping variables to factor, grouping by all factors and
+  # summarising payment_value for each combination of grouping variables
+  mutate_at(param_vars_grouping, factor) %>%
+  group_by_if(is.factor) %>%
+  summarise_at("payment_value", sum, na.rm = TRUE) %>%
+  ungroup() %>%
+  
+  # keep the top 3 customer_states ordered by desc payment_value total and lump
+  # the other states into `Other`
+  mutate(customer_state = fct_lump(f = customer_state, w = payment_value, n = 3)) %>%
+  
+  # regroup all factors based on the revised customer_state, and recalculate the
+  # sum total for combinations
+  group_by_if(is.factor) %>%
+  summarise_if(is.numeric, sum, na.rm = TRUE) %>%
+  
+  # spread the payment values for each grouping combination by year
+  spread(Purchase_year, payment_value) %>%
+  ungroup() %>%
+  
+  # regroup and nest the summary content for each grouping combination
+  group_by_if(is.factor) %>%
+  nest() %>%
+  
+  # map each nested summary, gather the values and elongate the summary, summing
+  # the content of the numeric field only
+  mutate_at("data", funs(total = map), function(df) {
+    df %>%
+      gather() %>%
+      summarise_if(is.numeric, sum, na.rm = TRUE) %>%
+      
+      # rename to Total as it will be added back into the grouping tibble when
+      # unnested
+      rename(Total = value) %>%
+      
+      # return the result
+      return()
+  }) %>%
+  # unnest the newly created 'Total' feature
+  unnest()
+
+df_customer_order_payment_data %>% 
+  
+  # summarise each numeric column into sum totals
+  func_create_summary() %>%
+  
+  # rename all headers by replacing placeholder underscores with spaces
+  rename_all(func_present_headers) %>%
+  
+  # round all numeric values up to the nearest dollar and format value as
+  # currency
+  mutate_if(is.numeric, ~round(.) %>% scales::dollar(.)) %>%
+  mutate_if(is.character, str_remove, pattern = "\\$NA") %>%
+  
+  # rename all factor values by replacing placeholder underscores with spaces
+  mutate_if(is.factor, str_replace_all, pattern = "_", replacement = " ") %>%
+  
+  # align tabular values right and output as html
+  kable(align = "r", format = "html") %>% 
+  kableExtra::kable_styling(full_width = FALSE, 
+                            font_size = 12) %>% 
+  
+  # merge duplicate rows into single cells (matplotlib style) to improve clarity
+  kableExtra::collapse_rows(columns = 1, 
+                            valign = "top") %>% 
+  
+  # add additional header categories
+  kableExtra::add_header_above(c(
+    "Dimension" = 2,
+    "Year" = 3,
+    " " = 1
+  ))
+
+```
+
+### Another approach to output
+
+This following section is a stylised alternative to the previous, creating separate summary tables for the boolean Credit Card payments options.  The intention, in line with the theme of this article, is to improve clarity by breaking data into smaller, bite-size chunks.
+
+The approach is instantiating the `func_output_group_item_table` function that takes as input a grouping parameter, and output the filtered results for distinct and consecutive categories within it.
+
+
+```{r tables, echo=TRUE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
+func_output_group_item_table <-
+  function(param_group, param_group_selector) {
+    # print the distinct grouping category as header
+    cat(paste0(
+      "<h4>",
+      str_replace_all(param_group, pattern = "_", replacement = " "),
+      "</h4>"
+    ))
+    
+    df_customer_order_payment_data %>%
+      
+      # filter the master data by the grouping category parameter
+      filter(!!param_group_selector == param_group) %>%
+      ungroup() %>%
+      
+      #  remove the grouping category from it
+      select(-!!param_group_selector) %>%
+      
+      # create a row with a sum total for each numeric column
+      func_create_summary() %>%
+      
+      # styling and presentation options executed next, as described in the
+      # previous code block
+      rename_all(func_present_headers) %>%
+      mutate_if(is.numeric, ~ round(.) %>% scales::dollar(.)) %>%
+      mutate_if(is.character, str_remove, pattern = "\\$NA") %>%
+      mutate_if(is.factor,
+                str_replace_all,
+                pattern = "_",
+                replacement = " ") %>%
+      kable(align = "r", format = "html") %>%
+      kableExtra::kable_styling(full_width = FALSE,
+                                font_size = 12) %>%
+      kableExtra::collapse_rows(columns = 1:4, valign = "middle") %>%
+      return()
+  }
+
+func_output_group_item_table_iterator <-
+  function(param_group_selector) {
+    for (param_group in (df_customer_order_payment_data %>%
+                         distinct(!!param_group_selector) %>%
+                         pull()))  {
+      func_output_group_item_table(param_group, param_group_selector) %>% print()
+    }
+  }
+
+# input the grouping parameter to output sectioned item tables
+func_output_group_item_table_iterator(quo(Credit_Card))
+
+```
+
+
+## Summary
+The demonstrated functions are invaluable in my workflow, without which the result would not be as effective nor consistent.  
+
+The functions are continuously evolving, becoming more configurable and robust, whilst keeping the emphasis on simplicity and ease-of-use.
+
+It shaves a lot of time off repetitive preparation and keeps me focused on the problem without the distraction of presentation.
+
+**Join the discussion below and add your tips and tricks when preparing to communicate results.**
+
+<hr>
+
+## Session
+
+```{r}
+sessionInfo()
+
+```
+
+
