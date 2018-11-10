@@ -10,6 +10,10 @@ tags:
 - tutorial
 - advanced
 - R
+# audience
+- development
+- analysis
+
 comments: yes
 ---
 

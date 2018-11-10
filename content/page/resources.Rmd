@@ -11,11 +11,11 @@ comments: false
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-I have a 'go-to' list of quality and up-to-date sources of information that I continuously draw upon either as *reference*, for *training*, *detecting patterns and trends*, or to *aid in comparison and evaluation*.
+I have a ‘go-to’ list of quality and up-to-date sources of information that I continuously draw upon either as a *reference*, for *training*, detecting *patterns* and *trends*, or *comparison* and *evaluation*.
 
-I have mapped the list to the data science process, and the skills and knowledge supporting it.  I hope that it will save you time and help focus on relevant and key aspects using quality, vetted information.
+I have mapped the list to the data science process, and the skills and knowledge supporting it. I hope that it will save you time and help focus on relevant and key aspects using quality, vetted information.
 
-The following graph provides an outline of the data science process and skills and knowledge required to practice it.<br><br>
+The following graph provides an outline of the data science process and the skills and knowledge required to practice it.<br><br>
 
 <a id="data_science_process_map"></a>
 

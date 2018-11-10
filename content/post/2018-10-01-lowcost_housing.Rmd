@@ -4,32 +4,83 @@ subtitle: "Reporting state changes of large-scale programmes over time"
 author: "Gerhard Groenewald"
 date: '2018-10-29'
 output:
-  html_document: default
-  pdf_document: default
+  blogdown::html_page
 layout: post
 tags:
-- tutorial
+- case study
 - advanced
 - R
+# audience
+- development
+- data science
+- analysis
+- management
+
 comments: yes
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+# Introduction
+The purpose of this case study is to explore aspects in reporting state changes of large-scale programmes over time. 
+
+A *state change* in this context refers to the shift in statuses of multiple activities performed in the delivery of a project, the project forming part of a more extensive body programme of works (concentrated portfolio of project activities).
+
+We could attempt this through Excel, and perhaps we'll be successful as the current dataset only contains c. 60,000 rows and 12 columns, spread roughly equally in 12 spreadsheets.
+
+It requires much cutting and pasting, and then complicated and nested formulas to create features necessary for the required computations.  It is a tall order, and undoubtedly fraught with issues and opportunities to introduce mistakes.  
+
+**Excel does not scale well**<br>
+The single biggest issue with using Excel for this type of work is that it does not scale well.  Increasing the column and row count ten-fold will eventually unleash the spinning wheel of death.  If not, then the additional reporting requirements that come with a maturing project will.
+
+This post demonstrates some techniques and approaches using [R](https://www.r-project.org) to transform data and create features to gain insight into *state changes* of *large-scale programmes over time*. 
+
+# Audience
+This post targets data analysts and scientists and is equally useful for those interested in the approaches described or using R to analyse these kinds of programmes of works.  The key takeaways are similarly valuable and insightful despite it being code-centric.
+
+The approaches and techniques described in this post also suit other industries, including but not limited to:
+
+- Wind farm projects,
+- Chain store refurbishments,
+- Network and IT programmes to name a few.
+
+<hr>
+
+# Scenario
+In 1994 the [African National Congress](https://en.wikipedia.org/wiki/African_National_Congress) became South Africa's ruling governing political party.  They pledged to address inequalities caused by years of apartheid, specifically to tackle poverty and focus on education and spreading wealth and opportunity.
+
+In an extract taken from their [election manifesto](http://www.politicsweb.co.za/documents/the-ancs-1994-election-manifesto), the ANC promised the following:
+
+> The ANC will ensure democratic, efficient and open local government which works closely with community structures in providing affordable housing and services.<br><br>
+> We have calculated that, within five years, the new government can:<br><br>
+>
+> - build one million homes;
+> - provide running water and flush toilets to over a million families;
+> - electrify 2.5-million rural and urban homes.
+
+The *fictitious scenario* for this case study is a large-scale South African initiative that provided low-cost housing between 2003 and 2011 in selected [townships](https://en.wikipedia.org/wiki/Township_(South_Africa)), a local term for informal settlements.
+
 **Please note that references to real companies or initiatives are purely coincidental.**
 
-The scenario for this tutorial is a large-scale South African initiative providing low-cost housing in selected [townships](https://en.wikipedia.org/wiki/Township_(South_Africa)), a local term for informal settlements.
+# Parts
+**[Part 1](#part1)** covers setup, importing and exploring base data, providing insights to aid analysis.
 
-The purpose of this tutorial is to demonstrate some techniques to transform data and create features to gain insight into *state changes* of *large-scale programmes over time*. 
+**[Part 2](#part2)** is concerned with creating and describing functions used for [feature engineering](https://en.wikipedia.org/wiki/Feature_engineering).
 
-A *state change* in this context infers the change to the statuses of multiple activities performed in the delivery of a project, the project forming part of a larger body programme of works (collective portfolio of project activities).
+**[Part 3](#part3)** explores the data to reveal aspects, insights of, and commentary on the content.
 
-Let's set up the environment, import and have a look at the data.
+**[Part 4](#part4)**.   Exception reporting allows a user to focus on exceptions in the programme.  Progress and Status reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators.  Prognosis offers an estimate of the future state, allowing the users to anticipate and prepare.
 
+**[Part 5](#part5)**.  Evaluating supplier performance is a cornerstone of contractual reporting, especially when terms may result in financial or other penalties and rewards.  Here we consider `duration`, which is a measure of performance particularly suitable for time-critical activities.
+
+<hr>
+
+<a id="part1"></a>
+
+# Part 1
 ## Setup
+Let's set up the environment, import and have a look at the data.
 
 ### Library
 
@@ -182,7 +233,7 @@ Low-cost housing was delivered in 3 Townships, spread throughout South Africa, l
 
 ![South African low-cost housing Project workflow by major milestones](/post/2018-10-01-lowcost_housing_files/lowcost_housing_milestone_process.png)
 
-The process is initiated by a Statement of Works `SOW` document, committing the delivery of a low-cost house.  This leads to a contract being drawn up with the house manufactured and installed once legal rights are obtained.
+The process is initiated by a Statement of Works `SOW` document, committing the delivery of a low-cost house.  The completed SOW leads to a contract being drawn up with the house manufactured and installed once legal rights are obtained.
 
 
 ### Data
@@ -226,7 +277,7 @@ df %>%
 
 ```
 
-The structure above reveals 4 major milestones in the delivery of a low-cost house.  We are interested in last 3 Milestones, namely `Contract`, `Manufacturing` and `Installation`, as per the process described in the *[How](#process)* section.
+The structure above exposes 4 major milestones in the delivery of a low-cost house.  We are interested in last 3 Milestones, namely `Contract`, `Manufacturing` and `Installation`, as per the process described in the *[How](#process)* section.
 
 The following code chunk extracts metadata about the Milestones from the source data, including attributes and associated data types.
 
@@ -289,14 +340,16 @@ These values are returned by the `Milestone Status` field, described and calcula
 
 <a id="fe"></a>
 
-## Feature Engineering
+<a id="part2"></a>
+
+# Part 2: Feature Engineering
 
 This section instantiates functions used to transform data and create new features. 
 
-These functions will be explained in the following section.
+Functions are explained in the following section.
 
 
-### Functions to create Features
+## Functions to create Features
 
 ```{r functions_fe}
 func_set_milestone_levels <-
@@ -395,7 +448,7 @@ func_add_ms_wide <-
   }
 ```
 
-### Create Features
+## Create Features
 
 The source data is passed through the functions listed above, resulting in the creation of 3 new tables for each report, each a derivative of the project state snapshot.
 
@@ -423,15 +476,15 @@ df_enhanced <-
 ```
 
 
-### Explore Features
+## Explore Features
 
 The section below explores each one of the three newly created tables described above.
 
 <a id="milestone_matrix"></a>
 
-#### Milestone Matrix
+### Milestone Matrix
 
-The `Milestone Matrix` is an automatic extract of each of the milestones contained within the source data.  The `func_add_milestone_matrix` function returns all fields that end with `Forecast` and/ or `Actual`, isolating the `Milestone` name and listing the fields required to provide the `Forecast` and `Actual` dates respectively.  These fields will be used contextually to create Milestone related features.
+The `Milestone Matrix` is an automatic extract of each of the milestones contained within the source data.  The `func_add_milestone_matrix` function returns all fields that end with `Forecast` and/ or `Actual`, isolating the `Milestone` name and listing the fields required to provide the `Forecast` and `Actual` dates respectively.  These fields are used contextually to create Milestone related features.
 
 ```{r milestone_matrix}
 df_enhanced %>% 
@@ -449,7 +502,7 @@ df_enhanced %>%
 ```
 
 
-#### Milestone Long
+### Milestone Long
 
 `Milestone Long` creates a long format of the data, providing [tidy data](/page/resources/#tidy) and simplified features better suited for further analysis.
 
@@ -499,7 +552,7 @@ df_enhanced %>%
   kableExtra::collapse_rows(columns = 1:2, valign = "top")
 ```
 
-#### Milestone Wide
+### Milestone Wide
 
 The `func_add_ms_wide` takes the product of the `func_add_ms_long` function as input.  
 
@@ -556,9 +609,11 @@ df_enhanced %>%
 
 <hr>
 
-### Exploratory Data Analysis
+<a id="part3"></a>
 
-In this section, we will dive into the detail and reveal aspects of the content. 
+## Part 3: Exploratory Data Analysis
+
+In this section, we are diving into the detail and reveal aspects of the content. 
 
 The next code block gets this going by creating a very simple tally of completed Milestones by snapshot report.  It uses the newly created `Milestone_Completed` boolean value contained within the `ms_long` tibble, coercing it as an integer when summarised by `sum`.
 
@@ -698,7 +753,7 @@ plot_data %>%
 ```
 
 
-#### Commentary
+### Commentary
 
 Notes about the rate of change as gleaned from the slope of the line graphs:
 
@@ -706,7 +761,7 @@ Notes about the rate of change as gleaned from the slope of the line graphs:
 - **Rate Decrease**: Negative slope
 - The steeper the angle, the higher the rate of change
 
-The slope of the upper-most curve suggests that the `Contract` activity rate of delivery has flattened out during 2010. The other two activities are catching up, largely running in parallel, consuming the pot of *Contract not Installed*.  
+The slope of the upper-most curve suggests that the `Contract` activity rate of delivery has flattened out during 2010. The other two activities are catching up, mainly running in parallel, consuming the pot of *Contract not Installed*.  
 
 The *Manufactured not Installed* pot is also getting smaller, suggesting that there is not much of a lag between `Manufacture` and `Installation` activities.
 
@@ -810,16 +865,28 @@ plot_data %>%
 
 ```
 
-#### Commentary Continued
+### Commentary Continued
 
 The cumulative delivery of manufactured housing overtook `Contracts` during 2007.  It is most likely that `Manufacturing` built up a large pot in anticipation of contracts being completed.  However, this investment was never converted as `Installation` did not show a corresponding step change during or after this period of increased activity.  This indicates that it was not possible to install the newly manufactured houses without completed contracts. The `Contract` team would have been under pressure to increase output.
 
-The rate of delivery in `Contracts` however increased in the 2 years following this event. I suspect that it had achieved critical mass after accruing latent potential during the previous 3 years of activity, subsequently yielding a greater and sustained throughput.  
+The rate of delivery in `Contracts`, however, increased in the 2 years following this event. I suspect that it had achieved critical mass after accruing latent potential during the previous 3 years of activity, subsequently yielding a higher and sustained throughput.  
 
-The above graph reveals that `Manufacturing` was throttled after peaking prematurely, and that the `Installation` peak followed within 6 months of that of `Contracts`.
+The above graph reveals that `Manufacturing` was throttled after peaking prematurely and that the `Installation` peak followed within 6 months of that of `Contracts`.
 
 <hr>
 
+<a id="part4"></a>
+
+## Part 4: Exception, Progress & Status and Prognosis Reporting
+*Exception* reporting allows users to focus on exceptions in the programme. 
+
+*Progress and Status* reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators. 
+
+*Prognosis* offers an estimate of the future state, allowing the users to anticipate and prepare.
+
+
+### Getting Ready for reporting
+Let's prepare some joined tibbles and functions to inspect the data.
 
 ### Join
 
@@ -889,12 +956,11 @@ plot_data_viridis <-
 ```
 
 
-## Exception Reporting
 ### Milestones Claimed & Pulled
 
 This code block teases out the milestones that have been *claimed* or *removed* (aka *pulled*).
 
-This is achieved by comparing sequential versions of reports, each with detail about underlying jobs and milestones, and extracting and categorising differences between these.
+This is achieved by comparing subsequent versions of reports, each with detail about underlying jobs and milestones, and extracting and categorising differences between these.
 
 
 ```{r exception: milestone_change_remove}
@@ -1165,9 +1231,17 @@ plot_data %>%
 
 The `cum` (cumulative) facet shows the cumulative progress to date, punctuated by the solid label.  The `Forecast` plotlines extend the current progress to date for each milestone to show cumulative forecast, punctuated by a clear label with the forecasted tally.
 
-The `net` facet show the new volume per Milestone per month.  The large bars at the end of 2011 largely represent activities forecasted beyond 2011.
+The `net` facet shows the new volume per Milestone per month.  The large bars at the end of 2011 mostly represent activities forecasted beyond 2011.
 
 <hr>
+
+<a id="part5"></a>
+
+## Part 5: Evaluating Performance
+
+Evaluating supplier performance is a cornerstone of contractual reporting, especially when terms may result in financial or other penalties and rewards.  
+
+Here we consider `duration`, which is a measure of performance particularly suitable for time-critical activities.
 
 <a id="supplier_tenure"></a>
 
@@ -1278,7 +1352,7 @@ plot_data %>%
 
 <a id="duration"></a>
 
-### Evaluating Performance - Duration
+### Duration
 
 Now let's create features to understand duration data, providing metrics on how long it took a supplier to deliver an activity once it became available to complete.
 
@@ -1414,7 +1488,7 @@ The extreme [`kurtosis`](https://en.wikipedia.org/wiki/Kurtosis) and [`skewness`
 
 #### Visualising Statistics
 
-[Violin plots](https://ggplot2.tidyverse.org/reference/geom_violin.html) makes it a lot easier to see the `kurtosis` and `skewness` by installation supplier.  The [`fivenum`](https://en.wikipedia.org/wiki/Five-number_summary) summary better describes the distribution of the underlying data, in this case, allowing for a more robust comparison between the various suppliers.
+[Violin plots](https://ggplot2.tidyverse.org/reference/geom_violin.html) make it a lot easier to see the `kurtosis` and `skewness` by installation supplier.  The [`fivenum`](https://en.wikipedia.org/wiki/Five-number_summary) summary better describes the distribution of the underlying data, in this case, allowing for a more robust comparison between the various suppliers.
 
 
 ```{r duration_plot}
@@ -1497,7 +1571,7 @@ plot_data %>%
     nudge_x = -0.30,
     show.legend = FALSE) +
   
-  # plot the volume by supplier for each supplier at the base of the violin plot
+  # plot the volume by a supplier for each supplier at the base of the violin plot
   geom_text(
     data = plot_data %>% count(Milestone, Supplier),
     aes(y = 0, label = paste("n =", n)), 
@@ -1557,7 +1631,7 @@ df_duration_groupwise_median_ci <-
 
 ```
 
-In the next code block we are calculating [confidence intervals](https://en.wikipedia.org/wiki/Confidence_interval) for medians using the [percentile](https://www.uvm.edu/~dhowell/StatPages/Randomization%20Tests/BootstMedians/bootstrapping_medians.html) [bootstrap](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) method.  This allows us to compare the median duration of the suppliers, and to establish whether these *typical* durations are different enough to be statistically significant or not.
+In the next code block, we are calculating [confidence intervals](https://en.wikipedia.org/wiki/Confidence_interval) for medians using the [percentile](https://www.uvm.edu/~dhowell/StatPages/Randomization%20Tests/BootstMedians/bootstrapping_medians.html) [bootstrap](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) method.  This allows us to compare the median duration of the suppliers, and to establish whether these *typical* durations are different enough to be statistically significant or not.
 
 
 ```{r duration_median_ci, eval=FALSE, include=TRUE}
@@ -1680,14 +1754,14 @@ plot_data %>%
 
 The *[Supplier Tenure](#supplier_tenure)* section provides some interesting insights that explain the difference.  *Independents* and *JG Holdings* had started much later in the programme, hence why the volume of delivery is significantly lower comparatively, all things being equal.
 
-Projects delivered later in the programme are likely to be *more problematic*, a possible explanation why *JG Holdings* took longer to complete activities.  Worth investigating this hypothesis in the future.
+Projects delivered later in the programme are likely to be *more problematic*, a possible explanation of why *JG Holdings* took longer to complete activities.  Worth investigating this hypothesis in the future.
 
-*Independents*, on the other hand, are made up of small outfits, making them lean and agile compared with larger suppliers, who in turn are able to scale significantly more.
+*Independents*, on the other hand, are made up of small outfits, making them lean and agile compared with larger suppliers, who in turn can scale significantly more.
 
 <hr>
 
 ## Summary
-The analysis demonstrated in this tutorial is not comprehensive and exhaustive but provides an overview of useful functions to analyse and report state changes of large-scale programmes over time.
+The analysis demonstrated in this case study is not comprehensive and exhaustive but provides an overview of useful functions to analyse and report state changes of large-scale programmes over time.
 
 <hr>
 

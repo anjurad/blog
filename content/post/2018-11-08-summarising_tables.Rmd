@@ -8,9 +8,13 @@ output:
   pdf_document: default
 layout: post
 tags:
-- tips + tricks
+- tips tricks
 - intermediate
 - R
+# audience
+- development
+- analysis
+
 comments: yes
 ---
 

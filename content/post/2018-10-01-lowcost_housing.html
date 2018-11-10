@@ -4,29 +4,76 @@ subtitle: "Reporting state changes of large-scale programmes over time"
 author: "Gerhard Groenewald"
 date: '2018-10-29'
 output:
-  html_document: default
-  pdf_document: default
+  blogdown::html_page
 layout: post
 tags:
-- tutorial
+- case study
 - advanced
 - R
+# audience
+- development
+- data science
+- analysis
+- management
+
 comments: yes
 ---
 
 <script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<p><strong>Please note that references to real companies or initiatives are purely coincidental.</strong></p>
-<p>The scenario for this tutorial is a large-scale South African initiative providing low-cost housing in selected <a href="https://en.wikipedia.org/wiki/Township_(South_Africa)">townships</a>, a local term for informal settlements.</p>
-<p>The purpose of this tutorial is to demonstrate some techniques to transform data and create features to gain insight into <em>state changes</em> of <em>large-scale programmes over time</em>.</p>
-<p>A <em>state change</em> in this context infers the change to the statuses of multiple activities performed in the delivery of a project, the project forming part of a larger body programme of works (collective portfolio of project activities).</p>
-<p>Let’s set up the environment, import and have a look at the data.</p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The purpose of this case study is to explore aspects in reporting state changes of large-scale programmes over time.</p>
+<p>A <em>state change</em> in this context refers to the shift in statuses of multiple activities performed in the delivery of a project, the project forming part of a more extensive body programme of works (concentrated portfolio of project activities).</p>
+<p>We could attempt this through Excel, and perhaps we’ll be successful as the current dataset only contains c. 60,000 rows and 12 columns, spread roughly equally in 12 spreadsheets.</p>
+<p>It requires much cutting and pasting, and then complicated and nested formulas to create features necessary for the required computations. It is a tall order, and undoubtedly fraught with issues and opportunities to introduce mistakes.</p>
+<p><strong>Excel does not scale well</strong><br>
+The single biggest issue with using Excel for this type of work is that it does not scale well. Increasing the column and row count ten-fold will eventually unleash the spinning wheel of death. If not, then the additional reporting requirements that come with a maturing project will.</p>
+<p>This post demonstrates some techniques and approaches using <a href="https://www.r-project.org">R</a> to transform data and create features to gain insight into <em>state changes</em> of <em>large-scale programmes over time</em>.</p>
 </div>
+<div id="audience" class="section level1">
+<h1>Audience</h1>
+<p>This post targets data analysts and scientists and is equally useful for those interested in the approaches described or using R to analyse these kinds of programmes of works. The key takeaways are similarly valuable and insightful despite it being code-centric.</p>
+<p>The approaches and techniques described in this post also suit other industries, including but not limited to:</p>
+<ul>
+<li>Wind farm projects,</li>
+<li>Chain store refurbishments,</li>
+<li>Network and IT programmes to name a few.</li>
+</ul>
+<hr>
+</div>
+<div id="scenario" class="section level1">
+<h1>Scenario</h1>
+<p>In 1994 the <a href="https://en.wikipedia.org/wiki/African_National_Congress">African National Congress</a> became South Africa’s ruling governing political party. They pledged to address inequalities caused by years of apartheid, specifically to tackle poverty and focus on education and spreading wealth and opportunity.</p>
+<p>In an extract taken from their <a href="http://www.politicsweb.co.za/documents/the-ancs-1994-election-manifesto">election manifesto</a>, the ANC promised the following:</p>
+<blockquote>
+<p>The ANC will ensure democratic, efficient and open local government which works closely with community structures in providing affordable housing and services.<br><br>
+We have calculated that, within five years, the new government can:<br><br></p>
+<ul>
+<li>build one million homes;</li>
+<li>provide running water and flush toilets to over a million families;</li>
+<li>electrify 2.5-million rural and urban homes.</li>
+</ul>
+</blockquote>
+<p>The <em>fictitious scenario</em> for this case study is a large-scale South African initiative that provided low-cost housing between 2003 and 2011 in selected <a href="https://en.wikipedia.org/wiki/Township_(South_Africa)">townships</a>, a local term for informal settlements.</p>
+<p><strong>Please note that references to real companies or initiatives are purely coincidental.</strong></p>
+</div>
+<div id="parts" class="section level1">
+<h1>Parts</h1>
+<p><strong><a href="#part1">Part 1</a></strong> covers setup, importing and exploring base data, providing insights to aid analysis.</p>
+<p><strong><a href="#part2">Part 2</a></strong> is concerned with creating and describing functions used for <a href="https://en.wikipedia.org/wiki/Feature_engineering">feature engineering</a>.</p>
+<p><strong><a href="#part3">Part 3</a></strong> explores the data to reveal aspects, insights of, and commentary on the content.</p>
+<p><strong><a href="#part4">Part 4</a></strong>. Exception reporting allows a user to focus on exceptions in the programme. Progress and Status reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators. Prognosis offers an estimate of the future state, allowing the users to anticipate and prepare.</p>
+<p><strong><a href="#part5">Part 5</a></strong>. Evaluating supplier performance is a cornerstone of contractual reporting, especially when terms may result in financial or other penalties and rewards. Here we consider <code>duration</code>, which is a measure of performance particularly suitable for time-critical activities.</p>
+<hr>
+<p><a id="part1"></a></p>
+</div>
+<div id="part-1" class="section level1">
+<h1>Part 1</h1>
 <div id="setup" class="section level2">
 <h2>Setup</h2>
+<p>Let’s set up the environment, import and have a look at the data.</p>
 <div id="library" class="section level3">
 <h3>Library</h3>
 <pre class="r"><code>package_list &lt;- c(&quot;tidyverse&quot;, &quot;lubridate&quot;, &quot;readxl&quot;, &quot;knitr&quot;, &quot;ggrepel&quot;)
@@ -160,7 +207,7 @@ df %&gt;%
 <img src="/post/2018-10-01-lowcost_housing_files/lowcost_housing_milestone_process.png" alt="South African low-cost housing Project workflow by major milestones" />
 <p class="caption">South African low-cost housing Project workflow by major milestones</p>
 </div>
-<p>The process is initiated by a Statement of Works <code>SOW</code> document, committing the delivery of a low-cost house. This leads to a contract being drawn up with the house manufactured and installed once legal rights are obtained.</p>
+<p>The process is initiated by a Statement of Works <code>SOW</code> document, committing the delivery of a low-cost house. The completed SOW leads to a contract being drawn up with the house manufactured and installed once legal rights are obtained.</p>
 </div>
 <div id="data" class="section level3">
 <h3>Data</h3>
@@ -219,7 +266,7 @@ df %&gt;%
 ## 10 2010-10-10 &lt;tibble [5,008 × 11]&gt;
 ## 11 2010-11-09 &lt;tibble [5,004 × 11]&gt;
 ## 12 2010-12-01 &lt;tibble [5,004 × 11]&gt;</code></pre>
-<p>The structure above reveals 4 major milestones in the delivery of a low-cost house. We are interested in last 3 Milestones, namely <code>Contract</code>, <code>Manufacturing</code> and <code>Installation</code>, as per the process described in the <em><a href="#process">How</a></em> section.</p>
+<p>The structure above exposes 4 major milestones in the delivery of a low-cost house. We are interested in last 3 Milestones, namely <code>Contract</code>, <code>Manufacturing</code> and <code>Installation</code>, as per the process described in the <em><a href="#process">How</a></em> section.</p>
 <p>The following code chunk extracts metadata about the Milestones from the source data, including attributes and associated data types.</p>
 <pre class="r"><code>df %&gt;%
   
@@ -337,14 +384,16 @@ Forecast, Actual
 <p>These values are returned by the <code>Milestone Status</code> field, described and calculated within the <em><a href="#fe">Feature Engineering</a></em> section below.</p>
 <hr>
 <p><a id="fe"></a></p>
+<p><a id="part2"></a></p>
 </div>
 </div>
-<div id="feature-engineering" class="section level2">
-<h2>Feature Engineering</h2>
+</div>
+<div id="part-2-feature-engineering" class="section level1">
+<h1>Part 2: Feature Engineering</h1>
 <p>This section instantiates functions used to transform data and create new features.</p>
-<p>These functions will be explained in the following section.</p>
-<div id="functions-to-create-features" class="section level3">
-<h3>Functions to create Features</h3>
+<p>Functions are explained in the following section.</p>
+<div id="functions-to-create-features" class="section level2">
+<h2>Functions to create Features</h2>
 <pre class="r"><code>func_set_milestone_levels &lt;-
   function(.) {
     factor(
@@ -440,8 +489,8 @@ func_add_ms_wide &lt;-
       return()
   }</code></pre>
 </div>
-<div id="create-features" class="section level3">
-<h3>Create Features</h3>
+<div id="create-features" class="section level2">
+<h2>Create Features</h2>
 <p>The source data is passed through the functions listed above, resulting in the creation of 3 new tables for each report, each a derivative of the project state snapshot.</p>
 <pre class="r"><code>df_enhanced &lt;-
   df %&gt;% 
@@ -464,13 +513,13 @@ func_add_ms_wide &lt;-
   # transform elongated ms_long to ms_wide
   mutate(ms_wide = map(ms_long, func_add_ms_wide))</code></pre>
 </div>
-<div id="explore-features" class="section level3">
-<h3>Explore Features</h3>
+<div id="explore-features" class="section level2">
+<h2>Explore Features</h2>
 <p>The section below explores each one of the three newly created tables described above.</p>
 <p><a id="milestone_matrix"></a></p>
-<div id="milestone-matrix" class="section level4">
-<h4>Milestone Matrix</h4>
-<p>The <code>Milestone Matrix</code> is an automatic extract of each of the milestones contained within the source data. The <code>func_add_milestone_matrix</code> function returns all fields that end with <code>Forecast</code> and/ or <code>Actual</code>, isolating the <code>Milestone</code> name and listing the fields required to provide the <code>Forecast</code> and <code>Actual</code> dates respectively. These fields will be used contextually to create Milestone related features.</p>
+<div id="milestone-matrix" class="section level3">
+<h3>Milestone Matrix</h3>
+<p>The <code>Milestone Matrix</code> is an automatic extract of each of the milestones contained within the source data. The <code>func_add_milestone_matrix</code> function returns all fields that end with <code>Forecast</code> and/ or <code>Actual</code>, isolating the <code>Milestone</code> name and listing the fields required to provide the <code>Forecast</code> and <code>Actual</code> dates respectively. These fields are used contextually to create Milestone related features.</p>
 <pre class="r"><code>df_enhanced %&gt;% 
   
   # return first observation only
@@ -546,8 +595,8 @@ Manufacture_Forecast
 </tbody>
 </table>
 </div>
-<div id="milestone-long" class="section level4">
-<h4>Milestone Long</h4>
+<div id="milestone-long" class="section level3">
+<h3>Milestone Long</h3>
 <p><code>Milestone Long</code> creates a long format of the data, providing <a href="/page/resources/#tidy">tidy data</a> and simplified features better suited for further analysis.</p>
 <p>The following flow diagram captures the sequence of steps performed by the <code>func_add_ms_long</code> function.</p>
 <div class="figure">
@@ -745,8 +794,8 @@ TRUE
 </tbody>
 </table>
 </div>
-<div id="milestone-wide" class="section level4">
-<h4>Milestone Wide</h4>
+<div id="milestone-wide" class="section level3">
+<h3>Milestone Wide</h3>
 <p>The <code>func_add_ms_wide</code> takes the product of the <code>func_add_ms_long</code> function as input.</p>
 <p>The purpose of the function is to widen the elongated table, taking the <code>ms_long</code> tibble for each <code>row_id</code> and transforming it into a single observation per <code>Job_Number</code> or <code>row_id</code>, the milestone-related data spread across it.</p>
 <pre class="r"><code>func_order_by_ms &lt;-
@@ -1043,11 +1092,12 @@ TRUE
 </div>
 <p><em>The table above is a simplified and formatted extract of the unnested <code>ms_wide</code> tibble.</em></p>
 <hr>
+<p><a id="part3"></a></p>
 </div>
 </div>
-<div id="exploratory-data-analysis" class="section level3">
-<h3>Exploratory Data Analysis</h3>
-<p>In this section, we will dive into the detail and reveal aspects of the content.</p>
+<div id="part-3-exploratory-data-analysis" class="section level2">
+<h2>Part 3: Exploratory Data Analysis</h2>
+<p>In this section, we are diving into the detail and reveal aspects of the content.</p>
 <p>The next code block gets this going by creating a very simple tally of completed Milestones by snapshot report. It uses the newly created <code>Milestone_Completed</code> boolean value contained within the <code>ms_long</code> tibble, coercing it as an integer when summarised by <code>sum</code>.</p>
 <pre class="r"><code>df_enhanced %&gt;% 
   unnest(ms_long) %&gt;%
@@ -1272,15 +1322,15 @@ Installation
        subtitle = &quot;Major Milestones state changes for reports in 2010&quot;,
        y = &quot;Units Completed&quot;)</code></pre>
 <p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/state_plot_output-1.png" width="672" /></p>
-<div id="commentary" class="section level4">
-<h4>Commentary</h4>
+<div id="commentary" class="section level3">
+<h3>Commentary</h3>
 <p>Notes about the rate of change as gleaned from the slope of the line graphs:</p>
 <ul>
 <li><strong>Rate Increase</strong>: <em>Positive slope<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></em></li>
 <li><strong>Rate Decrease</strong>: Negative slope</li>
 <li>The steeper the angle, the higher the rate of change</li>
 </ul>
-<p>The slope of the upper-most curve suggests that the <code>Contract</code> activity rate of delivery has flattened out during 2010. The other two activities are catching up, largely running in parallel, consuming the pot of <em>Contract not Installed</em>.</p>
+<p>The slope of the upper-most curve suggests that the <code>Contract</code> activity rate of delivery has flattened out during 2010. The other two activities are catching up, mainly running in parallel, consuming the pot of <em>Contract not Installed</em>.</p>
 <p>The <em>Manufactured not Installed</em> pot is also getting smaller, suggesting that there is not much of a lag between <code>Manufacture</code> and <code>Installation</code> activities.</p>
 <p>Some milestones have been removed (negative net change values) after July. This is because of quality issues, symptomatic of an aggressive push to achieve volume targets without scaling resource to meet demand - resulting in corners being cut. Milestones are subsequently removed until work is completed to specification, as it may otherwise trigger payments and/ or allow the project to proceed without the necessary quality in place.</p>
 <p>Let’s look at the same data, now taken from the latest version of the report, and focus on milestone delivery between 2006 and 2010.</p>
@@ -1377,13 +1427,23 @@ plot_data %&gt;%
        y = &quot;&quot;)</code></pre>
 <p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/programme_plot-1.png" width="672" /></p>
 </div>
-<div id="commentary-continued" class="section level4">
-<h4>Commentary Continued</h4>
+<div id="commentary-continued" class="section level3">
+<h3>Commentary Continued</h3>
 <p>The cumulative delivery of manufactured housing overtook <code>Contracts</code> during 2007. It is most likely that <code>Manufacturing</code> built up a large pot in anticipation of contracts being completed. However, this investment was never converted as <code>Installation</code> did not show a corresponding step change during or after this period of increased activity. This indicates that it was not possible to install the newly manufactured houses without completed contracts. The <code>Contract</code> team would have been under pressure to increase output.</p>
-<p>The rate of delivery in <code>Contracts</code> however increased in the 2 years following this event. I suspect that it had achieved critical mass after accruing latent potential during the previous 3 years of activity, subsequently yielding a greater and sustained throughput.</p>
-<p>The above graph reveals that <code>Manufacturing</code> was throttled after peaking prematurely, and that the <code>Installation</code> peak followed within 6 months of that of <code>Contracts</code>.</p>
+<p>The rate of delivery in <code>Contracts</code>, however, increased in the 2 years following this event. I suspect that it had achieved critical mass after accruing latent potential during the previous 3 years of activity, subsequently yielding a higher and sustained throughput.</p>
+<p>The above graph reveals that <code>Manufacturing</code> was throttled after peaking prematurely and that the <code>Installation</code> peak followed within 6 months of that of <code>Contracts</code>.</p>
 <hr>
+<p><a id="part4"></a></p>
 </div>
+</div>
+<div id="part-4-exception-progress-status-and-prognosis-reporting" class="section level2">
+<h2>Part 4: Exception, Progress &amp; Status and Prognosis Reporting</h2>
+<p><em>Exception</em> reporting allows users to focus on exceptions in the programme.</p>
+<p><em>Progress and Status</em> reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators.</p>
+<p><em>Prognosis</em> offers an estimate of the future state, allowing the users to anticipate and prepare.</p>
+<div id="getting-ready-for-reporting" class="section level3">
+<h3>Getting Ready for reporting</h3>
+<p>Let’s prepare some joined tibbles and functions to inspect the data.</p>
 </div>
 <div id="join" class="section level3">
 <h3>Join</h3>
@@ -1442,13 +1502,10 @@ plot_data_viridis &lt;-
       mutate_at(&quot;Supplier&quot;, fct_inorder)
   }</code></pre>
 </div>
-</div>
-<div id="exception-reporting" class="section level2">
-<h2>Exception Reporting</h2>
 <div id="milestones-claimed-pulled" class="section level3">
 <h3>Milestones Claimed &amp; Pulled</h3>
 <p>This code block teases out the milestones that have been <em>claimed</em> or <em>removed</em> (aka <em>pulled</em>).</p>
-<p>This is achieved by comparing sequential versions of reports, each with detail about underlying jobs and milestones, and extracting and categorising differences between these.</p>
+<p>This is achieved by comparing subsequent versions of reports, each with detail about underlying jobs and milestones, and extracting and categorising differences between these.</p>
 <pre class="r"><code>plot_data &lt;-
   df_enhanced_long %&gt;%
   select(Job_Number, Report, Milestone, Status_Current = Milestone_Completed) %&gt;%
@@ -1701,10 +1758,16 @@ plot_data %&gt;%
     )</code></pre>
 <p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/prognosis_plot-1.png" width="672" /></p>
 <p>The <code>cum</code> (cumulative) facet shows the cumulative progress to date, punctuated by the solid label. The <code>Forecast</code> plotlines extend the current progress to date for each milestone to show cumulative forecast, punctuated by a clear label with the forecasted tally.</p>
-<p>The <code>net</code> facet show the new volume per Milestone per month. The large bars at the end of 2011 largely represent activities forecasted beyond 2011.</p>
+<p>The <code>net</code> facet shows the new volume per Milestone per month. The large bars at the end of 2011 mostly represent activities forecasted beyond 2011.</p>
 <hr>
-<p><a id="supplier_tenure"></a></p>
+<p><a id="part5"></a></p>
 </div>
+</div>
+<div id="part-5-evaluating-performance" class="section level2">
+<h2>Part 5: Evaluating Performance</h2>
+<p>Evaluating supplier performance is a cornerstone of contractual reporting, especially when terms may result in financial or other penalties and rewards.</p>
+<p>Here we consider <code>duration</code>, which is a measure of performance particularly suitable for time-critical activities.</p>
+<p><a id="supplier_tenure"></a></p>
 <div id="supplier-tenure" class="section level3">
 <h3>Supplier Tenure</h3>
 <p>Supplier tenure shows when <code>Installation</code> suppliers started and were last active on the programme. Line ends are punctuated by the start and end dates respectively</p>
@@ -1806,8 +1869,8 @@ plot_data %&gt;%
 <p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/Installation%20Supplier%20Start%20&%20Stop-1.png" width="672" /></p>
 <p><a id="duration"></a></p>
 </div>
-<div id="evaluating-performance---duration" class="section level3">
-<h3>Evaluating Performance - Duration</h3>
+<div id="duration" class="section level3">
+<h3>Duration</h3>
 <p>Now let’s create features to understand duration data, providing metrics on how long it took a supplier to deliver an activity once it became available to complete.</p>
 <div id="create-features-1" class="section level4">
 <h4>Create Features</h4>
@@ -2420,7 +2483,7 @@ Internal
 </div>
 <div id="visualising-statistics" class="section level4">
 <h4>Visualising Statistics</h4>
-<p><a href="https://ggplot2.tidyverse.org/reference/geom_violin.html">Violin plots</a> makes it a lot easier to see the <code>kurtosis</code> and <code>skewness</code> by installation supplier. The <a href="https://en.wikipedia.org/wiki/Five-number_summary"><code>fivenum</code></a> summary better describes the distribution of the underlying data, in this case, allowing for a more robust comparison between the various suppliers.</p>
+<p><a href="https://ggplot2.tidyverse.org/reference/geom_violin.html">Violin plots</a> make it a lot easier to see the <code>kurtosis</code> and <code>skewness</code> by installation supplier. The <a href="https://en.wikipedia.org/wiki/Five-number_summary"><code>fivenum</code></a> summary better describes the distribution of the underlying data, in this case, allowing for a more robust comparison between the various suppliers.</p>
 <pre class="r"><code>plot_data &lt;-
   df_duration %&gt;%
   
@@ -2500,7 +2563,7 @@ plot_data %&gt;%
     nudge_x = -0.30,
     show.legend = FALSE) +
   
-  # plot the volume by supplier for each supplier at the base of the violin plot
+  # plot the volume by a supplier for each supplier at the base of the violin plot
   geom_text(
     data = plot_data %&gt;% count(Milestone, Supplier),
     aes(y = 0, label = paste(&quot;n =&quot;, n)), 
@@ -2543,7 +2606,7 @@ plot_data %&gt;%
 </div>
 <div id="confirming-differences" class="section level4">
 <h4>Confirming differences</h4>
-<p>In the next code block we are calculating <a href="https://en.wikipedia.org/wiki/Confidence_interval">confidence intervals</a> for medians using the <a href="https://www.uvm.edu/~dhowell/StatPages/Randomization%20Tests/BootstMedians/bootstrapping_medians.html">percentile</a> <a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)">bootstrap</a> method. This allows us to compare the median duration of the suppliers, and to establish whether these <em>typical</em> durations are different enough to be statistically significant or not.</p>
+<p>In the next code block, we are calculating <a href="https://en.wikipedia.org/wiki/Confidence_interval">confidence intervals</a> for medians using the <a href="https://www.uvm.edu/~dhowell/StatPages/Randomization%20Tests/BootstMedians/bootstrapping_medians.html">percentile</a> <a href="https://en.wikipedia.org/wiki/Bootstrapping_(statistics)">bootstrap</a> method. This allows us to compare the median duration of the suppliers, and to establish whether these <em>typical</em> durations are different enough to be statistically significant or not.</p>
 <pre class="r"><code>model_data &lt;-
   df_duration %&gt;%
   filter(Supplier != &quot;Unknown&quot;) %&gt;% 
@@ -2655,15 +2718,15 @@ plot_data %&gt;%
 <p><img src="/post/2018-10-01-lowcost_housing_files/figure-html/duration_median_ci_plot-1.png" width="672" /></p>
 <p><em>Independents</em> and <em>JG Holdings</em> median durations are significantly different from the other <em>Installation suppliers</em>.</p>
 <p>The <em><a href="#supplier_tenure">Supplier Tenure</a></em> section provides some interesting insights that explain the difference. <em>Independents</em> and <em>JG Holdings</em> had started much later in the programme, hence why the volume of delivery is significantly lower comparatively, all things being equal.</p>
-<p>Projects delivered later in the programme are likely to be <em>more problematic</em>, a possible explanation why <em>JG Holdings</em> took longer to complete activities. Worth investigating this hypothesis in the future.</p>
-<p><em>Independents</em>, on the other hand, are made up of small outfits, making them lean and agile compared with larger suppliers, who in turn are able to scale significantly more.</p>
+<p>Projects delivered later in the programme are likely to be <em>more problematic</em>, a possible explanation of why <em>JG Holdings</em> took longer to complete activities. Worth investigating this hypothesis in the future.</p>
+<p><em>Independents</em>, on the other hand, are made up of small outfits, making them lean and agile compared with larger suppliers, who in turn can scale significantly more.</p>
 <hr>
 </div>
 </div>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<p>The analysis demonstrated in this tutorial is not comprehensive and exhaustive but provides an overview of useful functions to analyse and report state changes of large-scale programmes over time.</p>
+<p>The analysis demonstrated in this case study is not comprehensive and exhaustive but provides an overview of useful functions to analyse and report state changes of large-scale programmes over time.</p>
 <hr>
 </div>
 <div id="session-info" class="section level2">
@@ -2683,13 +2746,13 @@ plot_data %&gt;%
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] psych_1.8.4     bindrcpp_0.2.2  ggrepel_0.8.0   knitr_1.20     
+##  [1] psych_1.8.10    bindrcpp_0.2.2  ggrepel_0.8.0   knitr_1.20     
 ##  [5] readxl_1.1.0    lubridate_1.7.4 forcats_0.3.0   stringr_1.3.1  
-##  [9] dplyr_0.7.7     purrr_0.2.5     readr_1.1.1     tidyr_0.8.2    
+##  [9] dplyr_0.7.8     purrr_0.2.5     readr_1.1.1     tidyr_0.8.2    
 ## [13] tibble_1.4.2    ggplot2_3.1.0   tidyverse_1.2.1
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.19      lattice_0.20-35   zoo_1.8-4        
+##  [1] Rcpp_1.0.0        lattice_0.20-38   zoo_1.8-4        
 ##  [4] assertthat_0.2.0  rprojroot_1.3-2   digest_0.6.18    
 ##  [7] utf8_1.1.4        R6_2.3.0          cellranger_1.1.0 
 ## [10] plyr_1.8.4        backports_1.1.2   evaluate_0.12    
@@ -2709,6 +2772,7 @@ plot_data %&gt;%
 ## [52] glue_1.3.0        hms_0.4.2         parallel_3.5.1   
 ## [55] yaml_2.2.0        colorspace_1.3-2  rvest_0.3.2      
 ## [58] bindr_0.1.1       haven_1.1.2</code></pre>
+</div>
 </div>
 <div class="footnotes">
 <hr />
