@@ -181,7 +181,7 @@ func_present_headers <-
 
 ### Parameters and Configuration
 
-I am using the [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/olistbr/brazilian-ecommerce) from [kaggle Datasets](https://www.kaggle.com/datasets) in this demonstration.  The `var_path` parameter stores the location of the source data.
+I am using the [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/olistbr/brazilian-ecommerce) from [kaggle Datasets](https://www.kaggle.com/datasets) in this demonstration.  The `var_path` parameter stores the location of the source data within my environment.
 
 
 ```{r}
@@ -190,9 +190,9 @@ var_path <- "~/Documents/Training/datasets/brazilian-ecommerce/"
 
 ### Import
 
-**Please note** *that the parsing messages upon `readr::read_csv` are disabled in this case to make the article more legible.*
+**Please note** *that, parsing in this case, the messages upon `readr::read_csv` are disabled to make the article more legible.*
 
-The code sequence below is written to import a nominated subset of files into a single table (datablock), nesting each file as a tibble.
+The code sequence below is written to import a nominated subset of files into a single dataframe (datablock), nesting each file as a tibble.
 
 
 ```{r message=FALSE}
@@ -497,9 +497,9 @@ func_output_group_item_table_iterator(quo(customer_state))
 ```
 
 ## Summary
-The demonstrated functions are invaluable in my workflow, without which the result would not be as effective nor consistent.  
+The demonstrated functions are invaluable in my workflow, without which the result would not be as effective nor consistent.
 
-The functions are continuously evolving, becoming more configurable and robust, whilst keeping the emphasis on simplicity and ease-of-use.
+The functions are continuously evolving, becoming more configurable and robust while keeping the emphasis on simplicity and ease-of-use.
 
 It shaves a lot of time off repetitive preparation and keeps me focused on the problem without the distraction of presentation.
 

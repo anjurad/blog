@@ -174,13 +174,13 @@ func_present_headers &lt;-
 </div>
 <div id="parameters-and-configuration" class="section level3">
 <h3>Parameters and Configuration</h3>
-<p>I am using the <a href="https://www.kaggle.com/olistbr/brazilian-ecommerce">Brazilian E-Commerce Public Dataset by Olist</a> from <a href="https://www.kaggle.com/datasets">kaggle Datasets</a> in this demonstration. The <code>var_path</code> parameter stores the location of the source data.</p>
+<p>I am using the <a href="https://www.kaggle.com/olistbr/brazilian-ecommerce">Brazilian E-Commerce Public Dataset by Olist</a> from <a href="https://www.kaggle.com/datasets">kaggle Datasets</a> in this demonstration. The <code>var_path</code> parameter stores the location of the source data within my environment.</p>
 <pre class="r"><code>var_path &lt;- &quot;~/Documents/Training/datasets/brazilian-ecommerce/&quot;</code></pre>
 </div>
 <div id="import" class="section level3">
 <h3>Import</h3>
-<p><strong>Please note</strong> <em>that the parsing messages upon <code>readr::read_csv</code> are disabled in this case to make the article more legible.</em></p>
-<p>The code sequence below is written to import a nominated subset of files into a single table (datablock), nesting each file as a tibble.</p>
+<p><strong>Please note</strong> <em>that, parsing in this case, the messages upon <code>readr::read_csv</code> are disabled to make the article more legible.</em></p>
+<p>The code sequence below is written to import a nominated subset of files into a single dataframe (datablock), nesting each file as a tibble.</p>
 <pre class="r"><code>df_files &lt;-
   
   # traverse the specified directory and add list of files to a table and rename
@@ -1598,7 +1598,7 @@ $5,994,008
 <div id="summary" class="section level2">
 <h2>Summary</h2>
 <p>The demonstrated functions are invaluable in my workflow, without which the result would not be as effective nor consistent.</p>
-<p>The functions are continuously evolving, becoming more configurable and robust, whilst keeping the emphasis on simplicity and ease-of-use.</p>
+<p>The functions are continuously evolving, becoming more configurable and robust while keeping the emphasis on simplicity and ease-of-use.</p>
 <p>It shaves a lot of time off repetitive preparation and keeps me focused on the problem without the distraction of presentation.</p>
 <p><strong>Join the discussion below and add your tips and tricks when preparing to communicate results.</strong></p>
 <hr>
