@@ -23,32 +23,32 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Introduction
-The purpose of this case study is to explore aspects in reporting state changes of large-scale programmes over time. 
+The purpose of this case study is to explore aspects in reporting *state changes* of *large-scale programmes over time*. 
 
-A *state change* in this context refers to the shift in statuses of multiple activities performed in the delivery of a project, the project forming part of a more extensive body programme of works (concentrated portfolio of project activities).
+A *state change* in this context refers to the shift in statuses of multiple activities performed during the delivery of a project, the project forming part of a more extensive body programme of works (concentrated portfolio of project activities).
 
-We could attempt this through Excel, and perhaps we'll be successful as the current dataset only contains c. 60,000 rows and 12 columns, spread roughly equally in 12 spreadsheets.
+We could attempt this using Excel, and perhaps we'll be successful as the current dataset only contains c. 60,000 rows and 12 columns, spread roughly equally in 12 spreadsheets.
 
 It requires much cutting and pasting, and then complicated and nested formulas to create features necessary for the required computations.  It is a tall order, and undoubtedly fraught with issues and opportunities to introduce mistakes.  
 
 **Excel does not scale well**<br>
-The single biggest issue with using Excel for this type of work is that it does not scale well.  Increasing the column and row count ten-fold will eventually unleash the spinning wheel of death.  If not, then the additional reporting requirements that come with a maturing project will.
+The single biggest issue with using Excel for this type of work is that it does not scale well.  Increasing the column and row count n-fold will eventually unleash the spinning wheel of death.  If not, then the additional reporting requirements that come with a maturing project will.
 
-This post demonstrates some techniques and approaches using [R](https://www.r-project.org) to transform data and create features to gain insight into *state changes* of *large-scale programmes over time*. 
+This post demonstrates some approaches and techniques using [R](https://www.r-project.org) to transform data and create features to gain insight into *state changes* of *large-scale programmes over time*. 
 
 # Audience
 This post targets data analysts and scientists and is equally useful for those interested in the approaches described or using R to analyse these kinds of programmes of works.  The key takeaways are similarly valuable and insightful despite it being code-centric.
 
-The approaches and techniques described in this post also suit other industries, including but not limited to:
+The approaches and techniques described in this post also suit other industries and programmes, including but not limited to:
 
 - Wind farm projects,
 - Chain store refurbishments,
-- Network and IT programmes to name a few.
+- Network and IT programmes *to name a few*.
 
 <hr>
 
 # Scenario
-In 1994 the [African National Congress](https://en.wikipedia.org/wiki/African_National_Congress) became South Africa's ruling governing political party.  They pledged to address inequalities caused by years of apartheid, specifically to tackle poverty and focus on education and spreading wealth and opportunity.
+In 1994 the [African National Congress](https://en.wikipedia.org/wiki/African_National_Congress) became South Africa's ruling governing political party.  They pledged to address inequalities caused by years of apartheid, specifically to tackle poverty, focus on education and spreading wealth and opportunity.
 
 In an extract taken from their [election manifesto](http://www.politicsweb.co.za/documents/the-ancs-1994-election-manifesto), the ANC promised the following:
 
@@ -59,7 +59,7 @@ In an extract taken from their [election manifesto](http://www.politicsweb.co.za
 > - provide running water and flush toilets to over a million families;
 > - electrify 2.5-million rural and urban homes.
 
-The *fictitious scenario* for this case study is a large-scale South African initiative that provided low-cost housing between 2003 and 2011 in selected [townships](https://en.wikipedia.org/wiki/Township_(South_Africa)), a local term for informal settlements.
+The *fictitious scenario* for this case study is a large-scale South African initiative that provided low-cost housing between 2003 and 2011 in selected [townships](https://en.wikipedia.org/wiki/Township_(South_Africa)). *Township* is a local term for an informal settlement.
 
 **Please note that references to real companies or initiatives are purely coincidental.**
 
@@ -68,11 +68,11 @@ The *fictitious scenario* for this case study is a large-scale South African ini
 
 **[Part 2](#part2)** is concerned with creating and describing functions used for [feature engineering](https://en.wikipedia.org/wiki/Feature_engineering).
 
-**[Part 3](#part3)** explores the data to reveal aspects, insights of, and commentary on the content.
+**[Part 3](#part3)** explores the data to reveal aspects, insights of, and commentary about the content.
 
-**[Part 4](#part4)**.   Exception reporting allows a user to focus on exceptions in the programme.  Progress and Status reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators.  Prognosis offers an estimate of the future state, allowing the users to anticipate and prepare.
+**[Part 4](#part4)**.   Exception reporting allows users to focus on programme exceptions.  Progress and Status reporting provides a snapshot of the current state to date.  Prognosis offers an estimate of the future state.
 
-**[Part 5](#part5)**.  Evaluating supplier performance is a cornerstone of contractual reporting, especially when terms may result in financial or other penalties and rewards.  Here we consider `duration`, which is a measure of performance particularly suitable for time-critical activities.
+**[Part 5](#part5)**.  In the last part, we evaluate an aspect of supplier performance and consider `duration`, a measure indicating how long it takes a supplier to complete a task, once the task becomes available to start.
 
 <hr>
 
@@ -878,9 +878,9 @@ The above graph reveals that `Manufacturing` was throttled after peaking prematu
 <a id="part4"></a>
 
 ## Part 4: Exception, Progress & Status and Prognosis Reporting
-*Exception* reporting allows users to focus on exceptions in the programme. 
+*Exception* reporting allows users to focus on programme exceptions.  It becomes a challenge to focus on relevant and current issues when presented with a sea of data, so cutting to the heart of prioritised issues and opportunities are hugely efficient and effective.  
 
-*Progress and Status* reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators. 
+*Progress and Status* reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators.  
 
 *Prognosis* offers an estimate of the future state, allowing the users to anticipate and prepare.
 
@@ -1241,7 +1241,9 @@ The `net` facet shows the new volume per Milestone per month.  The large bars at
 
 Evaluating supplier performance is a cornerstone of contractual reporting, especially when terms may result in financial or other penalties and rewards.  
 
-Here we consider `duration`, which is a measure of performance particularly suitable for time-critical activities.
+Here we consider `duration`, a measure indicating how long it takes a supplier to complete a task, once the task becomes available to start.
+
+It is a performance measure that is particularly suitable for time-critical activities.
 
 <a id="supplier_tenure"></a>
 
