@@ -24,28 +24,28 @@ comments: yes
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>The purpose of this case study is to explore aspects in reporting state changes of large-scale programmes over time.</p>
-<p>A <em>state change</em> in this context refers to the shift in statuses of multiple activities performed in the delivery of a project, the project forming part of a more extensive body programme of works (concentrated portfolio of project activities).</p>
-<p>We could attempt this through Excel, and perhaps we’ll be successful as the current dataset only contains c. 60,000 rows and 12 columns, spread roughly equally in 12 spreadsheets.</p>
+<p>The purpose of this case study is to explore aspects in reporting <em>state changes</em> of <em>large-scale programmes over time</em>.</p>
+<p>A <em>state change</em> in this context refers to the shift in statuses of multiple activities performed during the delivery of a project, the project forming part of a more extensive body programme of works (concentrated portfolio of project activities).</p>
+<p>We could attempt this using Excel, and perhaps we’ll be successful as the current dataset only contains c. 60,000 rows and 12 columns, spread roughly equally in 12 spreadsheets.</p>
 <p>It requires much cutting and pasting, and then complicated and nested formulas to create features necessary for the required computations. It is a tall order, and undoubtedly fraught with issues and opportunities to introduce mistakes.</p>
 <p><strong>Excel does not scale well</strong><br>
-The single biggest issue with using Excel for this type of work is that it does not scale well. Increasing the column and row count ten-fold will eventually unleash the spinning wheel of death. If not, then the additional reporting requirements that come with a maturing project will.</p>
-<p>This post demonstrates some techniques and approaches using <a href="https://www.r-project.org">R</a> to transform data and create features to gain insight into <em>state changes</em> of <em>large-scale programmes over time</em>.</p>
+The single biggest issue with using Excel for this type of work is that it does not scale well. Increasing the column and row count n-fold will eventually unleash the spinning wheel of death. If not, then the additional reporting requirements that come with a maturing project will.</p>
+<p>This post demonstrates some approaches and techniques using <a href="https://www.r-project.org">R</a> to transform data and create features to gain insight into <em>state changes</em> of <em>large-scale programmes over time</em>.</p>
 </div>
 <div id="audience" class="section level1">
 <h1>Audience</h1>
 <p>This post targets data analysts and scientists and is equally useful for those interested in the approaches described or using R to analyse these kinds of programmes of works. The key takeaways are similarly valuable and insightful despite it being code-centric.</p>
-<p>The approaches and techniques described in this post also suit other industries, including but not limited to:</p>
+<p>The approaches and techniques described in this post also suit other industries and programmes, including but not limited to:</p>
 <ul>
 <li>Wind farm projects,</li>
 <li>Chain store refurbishments,</li>
-<li>Network and IT programmes to name a few.</li>
+<li>Network and IT programmes <em>to name a few</em>.</li>
 </ul>
 <hr>
 </div>
 <div id="scenario" class="section level1">
 <h1>Scenario</h1>
-<p>In 1994 the <a href="https://en.wikipedia.org/wiki/African_National_Congress">African National Congress</a> became South Africa’s ruling governing political party. They pledged to address inequalities caused by years of apartheid, specifically to tackle poverty and focus on education and spreading wealth and opportunity.</p>
+<p>In 1994 the <a href="https://en.wikipedia.org/wiki/African_National_Congress">African National Congress</a> became South Africa’s ruling governing political party. They pledged to address inequalities caused by years of apartheid, specifically to tackle poverty, focus on education and spreading wealth and opportunity.</p>
 <p>In an extract taken from their <a href="http://www.politicsweb.co.za/documents/the-ancs-1994-election-manifesto">election manifesto</a>, the ANC promised the following:</p>
 <blockquote>
 <p>The ANC will ensure democratic, efficient and open local government which works closely with community structures in providing affordable housing and services.<br><br>
@@ -56,16 +56,16 @@ We have calculated that, within five years, the new government can:<br><br></p>
 <li>electrify 2.5-million rural and urban homes.</li>
 </ul>
 </blockquote>
-<p>The <em>fictitious scenario</em> for this case study is a large-scale South African initiative that provided low-cost housing between 2003 and 2011 in selected <a href="https://en.wikipedia.org/wiki/Township_(South_Africa)">townships</a>, a local term for informal settlements.</p>
+<p>The <em>fictitious scenario</em> for this case study is a large-scale South African initiative that provided low-cost housing between 2003 and 2011 in selected <a href="https://en.wikipedia.org/wiki/Township_(South_Africa)">townships</a>. <em>Township</em> is a local term for an informal settlement.</p>
 <p><strong>Please note that references to real companies or initiatives are purely coincidental.</strong></p>
 </div>
 <div id="parts" class="section level1">
 <h1>Parts</h1>
 <p><strong><a href="#part1">Part 1</a></strong> covers setup, importing and exploring base data, providing insights to aid analysis.</p>
 <p><strong><a href="#part2">Part 2</a></strong> is concerned with creating and describing functions used for <a href="https://en.wikipedia.org/wiki/Feature_engineering">feature engineering</a>.</p>
-<p><strong><a href="#part3">Part 3</a></strong> explores the data to reveal aspects, insights of, and commentary on the content.</p>
-<p><strong><a href="#part4">Part 4</a></strong>. Exception reporting allows a user to focus on exceptions in the programme. Progress and Status reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators. Prognosis offers an estimate of the future state, allowing the users to anticipate and prepare.</p>
-<p><strong><a href="#part5">Part 5</a></strong>. Evaluating supplier performance is a cornerstone of contractual reporting, especially when terms may result in financial or other penalties and rewards. Here we consider <code>duration</code>, which is a measure of performance particularly suitable for time-critical activities.</p>
+<p><strong><a href="#part3">Part 3</a></strong> explores the data to reveal aspects, insights of, and commentary about the content.</p>
+<p><strong><a href="#part4">Part 4</a></strong>. Exception reporting allows users to focus on programme exceptions. Progress and Status reporting provides a snapshot of the current state to date. Prognosis offers an estimate of the future state.</p>
+<p><strong><a href="#part5">Part 5</a></strong>. In the last part, we evaluate an aspect of supplier performance and consider <code>duration</code>, a measure indicating how long it takes a supplier to complete a task, once the task becomes available to start.</p>
 <hr>
 <p><a id="part1"></a></p>
 </div>
@@ -1438,7 +1438,7 @@ plot_data %&gt;%
 </div>
 <div id="part-4-exception-progress-status-and-prognosis-reporting" class="section level2">
 <h2>Part 4: Exception, Progress &amp; Status and Prognosis Reporting</h2>
-<p><em>Exception</em> reporting allows users to focus on exceptions in the programme.</p>
+<p><em>Exception</em> reporting allows users to focus on programme exceptions. It becomes a challenge to focus on relevant and current issues when presented with a sea of data, so cutting to the heart of prioritised issues and opportunities are hugely efficient and effective.</p>
 <p><em>Progress and Status</em> reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators.</p>
 <p><em>Prognosis</em> offers an estimate of the future state, allowing the users to anticipate and prepare.</p>
 <div id="getting-ready-for-reporting" class="section level3">
@@ -1766,7 +1766,8 @@ plot_data %&gt;%
 <div id="part-5-evaluating-performance" class="section level2">
 <h2>Part 5: Evaluating Performance</h2>
 <p>Evaluating supplier performance is a cornerstone of contractual reporting, especially when terms may result in financial or other penalties and rewards.</p>
-<p>Here we consider <code>duration</code>, which is a measure of performance particularly suitable for time-critical activities.</p>
+<p>Here we consider <code>duration</code>, a measure indicating how long it takes a supplier to complete a task, once the task becomes available to start.</p>
+<p>It is a performance measure that is particularly suitable for time-critical activities.</p>
 <p><a id="supplier_tenure"></a></p>
 <div id="supplier-tenure" class="section level3">
 <h3>Supplier Tenure</h3>
