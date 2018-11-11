@@ -29,7 +29,9 @@ A *state change* in this context refers to the shift in statuses of multiple act
 
 We could attempt this using Excel, and perhaps we'll be successful as the current dataset only contains c. 60,000 rows and 12 columns, spread roughly equally in 12 spreadsheets.
 
-It requires much cutting and pasting, and then complicated and nested formulas to create features necessary for the required computations.  It is a tall order, and undoubtedly fraught with issues and opportunities to introduce mistakes.  
+Generally, reporting change using Excel is difficult.  Most analysts typically copy-and-paste the current and a prior version of a reporting snapshot onto separate tabs and then contrast and compare using complicated and nested formulas.  Calculations for the respective reporting period is then copied and pasted into another tab.
+
+It is a tall order, and undoubtedly fraught with issues and opportunities to introduce mistakes. 
 
 **Excel does not scale well**<br>
 The single biggest issue with using Excel for this type of work is that it does not scale well.  Increasing the column and row count n-fold will eventually unleash the spinning wheel of death.  If not, then the additional reporting requirements that come with a maturing project will.
@@ -450,7 +452,7 @@ func_add_ms_wide <-
 
 ## Create Features
 
-The source data is passed through the functions listed above, resulting in the creation of 3 new tables for each report, each a derivative of the project state snapshot.
+The source data is passed through the functions listed above, resulting in the creation of 3 new tibbles for each report, each a derivative of the project state snapshot.
 
 ```{r fe}
 df_enhanced <-
@@ -478,7 +480,7 @@ df_enhanced <-
 
 ## Explore Features
 
-The section below explores each one of the three newly created tables described above.
+The section below explores each one of the three newly created tibbles described above.
 
 <a id="milestone_matrix"></a>
 
@@ -527,13 +529,13 @@ Collected data in the nested tibbles are unnested, exposing values to be consume
 **Step 5**<br>
 `Forecast` and `Actual` values for each `row_id` and `Milestone` are `spread` into a single observation.  New fields, namely `Milestone_Status`, `Milestone_Date` and `Milestone_Completed` are calculated, using the `Forecast`, `Actual` and `Report` dates as input.
 
-The following code chunk returns the `head` of the of the unnested `ms_long` tibble.
+The following code chunk returns the `head` of the unnested `ms_long` tibble.
 
 ```{r func_add_ms_long}
 df_enhanced %>% 
   
-  # select the first nested tibble
-  head(1) %>% 
+  # select the last nested tibble
+  tail(1) %>% 
   
   # select and unnest the ms_long tibble
   select(ms_long) %>% 
@@ -581,9 +583,9 @@ func_order_by_ms <-
       return()
   }
 
-# return the table head, grouping features for each Milestone
+# return the table tail, grouping features for each Milestone
 df_enhanced %>%
-  head(1) %>%
+  tail(1) %>%
   select(ms_wide) %>%
   unnest() %>%
   head() %>%
@@ -606,6 +608,34 @@ df_enhanced %>%
 ```
 
 *The table above is a simplified and formatted extract of the unnested `ms_wide` tibble.*
+
+The wide table is very useful for users wishing to analyse data using Excel pivot tables for example.
+
+```{r}
+df_enhanced %>%
+  tail(1) %>%
+  select(ms_wide) %>%
+  unnest() %>%
+  
+  # pass df through function to ensure that fields are ordered by Milestone
+  func_order_by_ms() %>%
+  ungroup() %>%
+  group_by_at(c(
+    "Contract_Completed",
+    "Manufacture_Completed",
+    "Installation_Completed"
+  )) %>%
+  summarise(jobs = n_distinct(row_id)) %>%
+  ungroup() %>%
+  mutate(ratio = jobs / sum(jobs)) %>%
+  arrange_if(is.logical) %>%
+  rename_all(func_remove_spaces) %>%
+  kable(format = "html", digits = 2) %>%
+  kableExtra::kable_styling(full_width = FALSE, font_size = 10) %>%
+  kableExtra::collapse_rows(columns = 1:3, valign = "top")
+
+```
+
 
 <hr>
 
@@ -877,8 +907,8 @@ The above graph reveals that `Manufacturing` was throttled after peaking prematu
 
 <a id="part4"></a>
 
-## Part 4: Exception, Progress & Status and Prognosis Reporting
-*Exception* reporting allows users to focus on programme exceptions.  It becomes a challenge to focus on relevant and current issues when presented with a sea of data, so cutting to the heart of prioritised issues and opportunities are hugely efficient and effective.  
+## Part 4: Reporting Exceptions, Progress & Status and Prognosis
+*Exception* reporting allows users to concentrate on programme exceptions.  It becomes a challenge to focus on relevant and current issues when presented with a sea of data, so cutting to the heart of prioritised issues and opportunities are hugely efficient and effective.  
 
 *Progress and Status* reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators.  
 

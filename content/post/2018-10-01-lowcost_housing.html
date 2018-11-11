@@ -27,7 +27,8 @@ comments: yes
 <p>The purpose of this case study is to explore aspects in reporting <em>state changes</em> of <em>large-scale programmes over time</em>.</p>
 <p>A <em>state change</em> in this context refers to the shift in statuses of multiple activities performed during the delivery of a project, the project forming part of a more extensive body programme of works (concentrated portfolio of project activities).</p>
 <p>We could attempt this using Excel, and perhaps we’ll be successful as the current dataset only contains c. 60,000 rows and 12 columns, spread roughly equally in 12 spreadsheets.</p>
-<p>It requires much cutting and pasting, and then complicated and nested formulas to create features necessary for the required computations. It is a tall order, and undoubtedly fraught with issues and opportunities to introduce mistakes.</p>
+<p>Generally, reporting change using Excel is difficult. Most analysts typically copy-and-paste the current and a prior version of a reporting snapshot onto separate tabs and then contrast and compare using complicated and nested formulas. Calculations for the respective reporting period is then copied and pasted into another tab.</p>
+<p>It is a tall order, and undoubtedly fraught with issues and opportunities to introduce mistakes.</p>
 <p><strong>Excel does not scale well</strong><br>
 The single biggest issue with using Excel for this type of work is that it does not scale well. Increasing the column and row count n-fold will eventually unleash the spinning wheel of death. If not, then the additional reporting requirements that come with a maturing project will.</p>
 <p>This post demonstrates some approaches and techniques using <a href="https://www.r-project.org">R</a> to transform data and create features to gain insight into <em>state changes</em> of <em>large-scale programmes over time</em>.</p>
@@ -491,7 +492,7 @@ func_add_ms_wide &lt;-
 </div>
 <div id="create-features" class="section level2">
 <h2>Create Features</h2>
-<p>The source data is passed through the functions listed above, resulting in the creation of 3 new tables for each report, each a derivative of the project state snapshot.</p>
+<p>The source data is passed through the functions listed above, resulting in the creation of 3 new tibbles for each report, each a derivative of the project state snapshot.</p>
 <pre class="r"><code>df_enhanced &lt;-
   df %&gt;% 
   
@@ -515,7 +516,7 @@ func_add_ms_wide &lt;-
 </div>
 <div id="explore-features" class="section level2">
 <h2>Explore Features</h2>
-<p>The section below explores each one of the three newly created tables described above.</p>
+<p>The section below explores each one of the three newly created tibbles described above.</p>
 <p><a id="milestone_matrix"></a></p>
 <div id="milestone-matrix" class="section level3">
 <h3>Milestone Matrix</h3>
@@ -614,11 +615,11 @@ Step 3 creates containers for each of the date fields, querying values from the 
 Collected data in the nested tibbles are unnested, exposing values to be consumed by functions generating new milestone-related features.</p>
 <p><strong>Step 5</strong><br>
 <code>Forecast</code> and <code>Actual</code> values for each <code>row_id</code> and <code>Milestone</code> are <code>spread</code> into a single observation. New fields, namely <code>Milestone_Status</code>, <code>Milestone_Date</code> and <code>Milestone_Completed</code> are calculated, using the <code>Forecast</code>, <code>Actual</code> and <code>Report</code> dates as input.</p>
-<p>The following code chunk returns the <code>head</code> of the of the unnested <code>ms_long</code> tibble.</p>
+<p>The following code chunk returns the <code>head</code> of the unnested <code>ms_long</code> tibble.</p>
 <pre class="r"><code>df_enhanced %&gt;% 
   
-  # select the first nested tibble
-  head(1) %&gt;% 
+  # select the last nested tibble
+  tail(1) %&gt;% 
   
   # select and unnest the ms_long tibble
   select(ms_long) %&gt;% 
@@ -673,19 +674,19 @@ Contract
 2
 </td>
 <td style="text-align:right;">
-1
+55188
 </td>
 <td style="text-align:left;">
 NA
 </td>
 <td style="text-align:left;">
-2010-02-14
+2013-06-13
 </td>
 <td style="text-align:left;">
 Forecast
 </td>
 <td style="text-align:left;">
-2010-02-14
+2013-06-13
 </td>
 <td style="text-align:left;">
 FALSE
@@ -693,7 +694,7 @@ FALSE
 </tr>
 <tr>
 <td style="text-align:right;">
-2
+55189
 </td>
 <td style="text-align:left;">
 2005-12-21
@@ -713,7 +714,7 @@ TRUE
 </tr>
 <tr>
 <td style="text-align:right;">
-3
+55190
 </td>
 <td style="text-align:left;">
 2008-09-29
@@ -733,7 +734,7 @@ TRUE
 </tr>
 <tr>
 <td style="text-align:right;">
-4
+55191
 </td>
 <td style="text-align:left;">
 2007-07-31
@@ -753,27 +754,7 @@ TRUE
 </tr>
 <tr>
 <td style="text-align:right;">
-5
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-2010-01-10
-</td>
-<td style="text-align:left;">
-Forecast
-</td>
-<td style="text-align:left;">
-2010-01-10
-</td>
-<td style="text-align:left;">
-FALSE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-6
+55192
 </td>
 <td style="text-align:left;">
 2007-08-26
@@ -786,6 +767,26 @@ Actual
 </td>
 <td style="text-align:left;">
 2007-08-26
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+55193
+</td>
+<td style="text-align:left;">
+2007-12-10
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+2007-12-10
 </td>
 <td style="text-align:left;">
 TRUE
@@ -818,9 +819,9 @@ TRUE
       return()
   }
 
-# return the table head, grouping features for each Milestone
+# return the table tail, grouping features for each Milestone
 df_enhanced %&gt;%
-  head(1) %&gt;%
+  tail(1) %&gt;%
   select(ms_wide) %&gt;%
   unnest() %&gt;%
   head() %&gt;%
@@ -897,10 +898,10 @@ Installation Completed
 <tbody>
 <tr>
 <td style="text-align:right;">
-1
+55188
 </td>
 <td style="text-align:left;">
-2010-02-14
+2013-06-13
 </td>
 <td style="text-align:left;">
 Forecast
@@ -929,7 +930,7 @@ FALSE
 </tr>
 <tr>
 <td style="text-align:right;">
-2
+55189
 </td>
 <td style="text-align:left;">
 2005-12-21
@@ -961,7 +962,7 @@ TRUE
 </tr>
 <tr>
 <td style="text-align:right;">
-3
+55190
 </td>
 <td style="text-align:left;">
 2008-09-29
@@ -973,27 +974,27 @@ Actual
 TRUE
 </td>
 <td style="text-align:left;">
-2010-03-16
+2010-05-30
 </td>
 <td style="text-align:left;">
-Forecast
+Actual
 </td>
 <td style="text-align:left;">
-FALSE
+TRUE
 </td>
 <td style="text-align:left;">
-NA
+2010-06-03
 </td>
 <td style="text-align:left;">
-No Forecast
+Actual
 </td>
 <td style="text-align:left;">
-FALSE
+TRUE
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-4
+55191
 </td>
 <td style="text-align:left;">
 2007-07-31
@@ -1025,39 +1026,7 @@ TRUE
 </tr>
 <tr>
 <td style="text-align:right;">
-5
-</td>
-<td style="text-align:left;">
-2010-01-10
-</td>
-<td style="text-align:left;">
-Forecast
-</td>
-<td style="text-align:left;">
-FALSE
-</td>
-<td style="text-align:left;">
-2006-06-26
-</td>
-<td style="text-align:left;">
-Actual
-</td>
-<td style="text-align:left;">
-TRUE
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-No Forecast
-</td>
-<td style="text-align:left;">
-FALSE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-6
+55192
 </td>
 <td style="text-align:left;">
 2007-08-26
@@ -1087,10 +1056,179 @@ Actual
 TRUE
 </td>
 </tr>
+<tr>
+<td style="text-align:right;">
+55193
+</td>
+<td style="text-align:left;">
+2007-12-10
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+2005-10-20
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+2008-05-08
+</td>
+<td style="text-align:left;">
+Actual
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
 </tbody>
 </table>
 </div>
 <p><em>The table above is a simplified and formatted extract of the unnested <code>ms_wide</code> tibble.</em></p>
+<p>The wide table is very useful for users wishing to analyse data using Excel pivot tables for example.</p>
+<pre class="r"><code>df_enhanced %&gt;%
+  tail(1) %&gt;%
+  select(ms_wide) %&gt;%
+  unnest() %&gt;%
+  
+  # pass df through function to ensure that fields are ordered by Milestone
+  func_order_by_ms() %&gt;%
+  ungroup() %&gt;%
+  group_by_at(c(
+    &quot;Contract_Completed&quot;,
+    &quot;Manufacture_Completed&quot;,
+    &quot;Installation_Completed&quot;
+  )) %&gt;%
+  summarise(jobs = n_distinct(row_id)) %&gt;%
+  ungroup() %&gt;%
+  mutate(ratio = jobs / sum(jobs)) %&gt;%
+  arrange_if(is.logical) %&gt;%
+  rename_all(func_remove_spaces) %&gt;%
+  kable(format = &quot;html&quot;, digits = 2) %&gt;%
+  kableExtra::kable_styling(full_width = FALSE, font_size = 10) %&gt;%
+  kableExtra::collapse_rows(columns = 1:3, valign = &quot;top&quot;)</code></pre>
+<table class="table" style="font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Contract Completed
+</th>
+<th style="text-align:left;">
+Manufacture Completed
+</th>
+<th style="text-align:left;">
+Installation Completed
+</th>
+<th style="text-align:right;">
+jobs
+</th>
+<th style="text-align:right;">
+ratio
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;vertical-align: top !important;" rowspan="3">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;vertical-align: top !important;" rowspan="2">
+FALSE
+</td>
+<td style="text-align:right;">
+69
+</td>
+<td style="text-align:right;">
+0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: top !important;" rowspan="2">
+TRUE
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: top !important;" rowspan="4">
+TRUE
+</td>
+<td style="text-align:left;vertical-align: top !important;" rowspan="2">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:right;">
+119
+</td>
+<td style="text-align:right;">
+0.02
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: top !important;" rowspan="2">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:right;">
+79
+</td>
+<td style="text-align:right;">
+0.02
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:right;">
+4690
+</td>
+<td style="text-align:right;">
+0.94
+</td>
+</tr>
+</tbody>
+</table>
 <hr>
 <p><a id="part3"></a></p>
 </div>
@@ -1436,9 +1574,9 @@ plot_data %&gt;%
 <p><a id="part4"></a></p>
 </div>
 </div>
-<div id="part-4-exception-progress-status-and-prognosis-reporting" class="section level2">
-<h2>Part 4: Exception, Progress &amp; Status and Prognosis Reporting</h2>
-<p><em>Exception</em> reporting allows users to focus on programme exceptions. It becomes a challenge to focus on relevant and current issues when presented with a sea of data, so cutting to the heart of prioritised issues and opportunities are hugely efficient and effective.</p>
+<div id="part-4-reporting-exceptions-progress-status-and-prognosis" class="section level2">
+<h2>Part 4: Reporting Exceptions, Progress &amp; Status and Prognosis</h2>
+<p><em>Exception</em> reporting allows users to concentrate on programme exceptions. It becomes a challenge to focus on relevant and current issues when presented with a sea of data, so cutting to the heart of prioritised issues and opportunities are hugely efficient and effective.</p>
 <p><em>Progress and Status</em> reporting provides a snapshot of the current state to date, which is especially useful if coupled with targets and performance indicators.</p>
 <p><em>Prognosis</em> offers an estimate of the future state, allowing the users to anticipate and prepare.</p>
 <div id="getting-ready-for-reporting" class="section level3">
