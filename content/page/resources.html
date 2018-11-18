@@ -1,0 +1,1060 @@
+---
+title: Resources
+subtitle: Links to and information about data science references, training and news
+author: "Gerhard Groenewald"
+date: "26/08/2018"
+output: html_document
+comments: false
+---
+
+
+
+<p>I have a ‘go-to’ list of quality and up-to-date sources of information that I continuously draw upon either as a <em>reference</em>, for <em>training</em>, detecting <em>patterns</em> and <em>trends</em>, or <em>comparison</em> and <em>evaluation</em>.</p>
+<p>I have mapped the list to the data science process, and the skills and knowledge supporting it. I hope that it will save you time and help focus on relevant and key aspects using quality, vetted information.</p>
+<p>The following graph provides an outline of the data science process and the skills and knowledge required to practice it.<br><br></p>
+<p><a id="data_science_process_map"></a></p>
+<div class="figure">
+<img src="/page/resources_files/datascience_process_skills.png" alt="The data science process and tools, skills &amp; knowledge that support it" />
+<p class="caption">The data science process and tools, skills &amp; knowledge that support it</p>
+</div>
+<p>The <code>process</code> section of the graph is an extract from <a href="http://r4ds.had.co.nz/explore-intro.html">R for Data Science</a> by <a href="http://hadley.nz">Hadley Wickham</a> and <a href="https://www.linkedin.com/in/garrett-grolemund-49328411/">Garrett Grolemund</a>.<br><br></p>
+<div id="summary-of-the-data-science-process" class="section level2">
+<h2>Summary of the data-science process</h2>
+<blockquote>
+<p><a href="https://www.londonr.org/wp-content/uploads/sites/2/presentations/LondonR_-_BigR_Data_-_Hadley_Wickham_-_20130716.pdf">Data analysis is the <strong>process</strong> by which data becomes understanding, knowledge and insight.</a> Hadley Wickham, July 2013</p>
+</blockquote>
+<div id="extract-transform-load" class="section level3">
+<h3>Extract, Transform &amp; Load</h3>
+<p>The first, and probably the most labour intensive part of the data science process is to prepare and structure datasets to facilitate analysis, specifically <strong>importing</strong>, <strong>tidying</strong> and <strong>cleaning</strong> data. Hadley Wickham wrote about it in <a href="http://vita.had.co.nz/papers/tidy-data.html">The Journal of Statistical Software, vol. 59, 2014</a>.<br><br></p>
+<p><a id="tidy"></a></p>
+<div id="tidy-data" class="section level4">
+<h4>Tidy Data</h4>
+<p><em>Tidying data<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></em> aims to achieve the following:<br></p>
+<ul>
+<li>Each <em>variable<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></em> forms a column and contains <em>values<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a></em></li>
+<li>Each <em>observation<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></em> forms a row.</li>
+<li>Each type of observational unit forms a table.<br></li>
+</ul>
+<p>It attempts to deal with ‘messy data’, including the following issues:<br></p>
+<ul>
+<li>Column headers are values, not variable names.</li>
+<li>Multiple variables are stored in one column.</li>
+<li>Variables are stored in both rows and columns.</li>
+<li>Multiple types of observational units are stored in the same table.</li>
+<li>A single observational unit is stored in multiple tables.<br><br></li>
+</ul>
+</div>
+<div id="null-values-missing-data" class="section level4">
+<h4>Null Values/ Missing Data</h4>
+<p>Most models are typically unable to support data with missing values. The data science process will, therefore, include steps to detect and populate missing data.</p>
+<p>It can occur anywhere between the <em>importing</em> and <em>transforming</em> stages. <em>Models</em> can be used to guess values for more complex treatments, whereas a simpler approach could use aggregation during <em>transformation</em>.<br><br></p>
+</div>
+</div>
+<div id="transform" class="section level3">
+<h3>Transform</h3>
+<p>The result of the <code>transform</code> step in the data science process is to:</p>
+<ul>
+<li>reshape data, which could be used to produce tidy data,</li>
+<li>transform data, like <em>rescaling<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></em> of numeric values, or reducing dimensions of categorical values using <a href="#pca">Principle Component Analysis</a></li>
+<li>create new features, also known as ‘Feature Engineering’,</li>
+<li>or a combination of the above that typically results in aggregation.<br><br></li>
+</ul>
+<div id="split-apply-combine" class="section level4">
+<h4>Split, Apply, Combine</h4>
+<p>A common analytical pattern is to:</p>
+<ul>
+<li>split, group or nest data into pieces,</li>
+<li>apply some function to each piece,</li>
+<li>and to combine the results back together again.</li>
+</ul>
+<p>It is also useful approach when modelling. Read more about it in <a href="https://www.jstatsoft.org/article/view/v040i01">Hadley Wickham’s paper: ‘The Split-Apply-Combine Strategy for Data Analysis’</a>.<br><br></p>
+</div>
+</div>
+<div id="visualisation-modelling" class="section level3">
+<h3>Visualisation &amp; Modelling</h3>
+<p>In Feburary 2013 Hadley Wickham gave a talk where he described the interaction between visualisation and modelling very well.</p>
+<blockquote>
+<p>Visualization can surprise you, but it doesn’t scale well. Modeling scales well, but it can’t surprise you.<br><br> Visualization can show you something in your data that you didn’t expect. But some things are hard to see, and visualization is a slow, human process.<br><br>
+Modeling might tell you something slightly unexpected, but your choice of model restricts what you’re going to find once you’ve fit it.<br><br>
+So you iterate. Visualization suggests a model, and then you use your model to factor out some feature of the data. Then you visualize again.</p>
+</blockquote>
+<h2>
+Table of resources in relation to Data Science
+</h2>
+<h3>
+Process
+</h3>
+<h4>
+Programming
+</h4>
+<table class="table table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Area
+</th>
+<th style="text-align:left;">
+Language
+</th>
+<th style="text-align:left;">
+Source
+</th>
+<th style="text-align:right;">
+#
+</th>
+<th style="text-align:left;">
+Title
+</th>
+<th style="text-align:left;">
+Author
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="4">
+Reference
+</td>
+<td style="text-align:left;">
+Python
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="4">
+Web
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+<a href="http://pandas.pydata.org/pandas-docs/stable/">pandas</a>
+</td>
+<td style="text-align:left;">
+<a href="http://wesmckinney.com">Wes McKinney</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+R
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+<a href="https://www.tidyverse.org">Tidyverse</a>
+</td>
+<td style="text-align:left;">
+<a href="http://hadley.nz">Hadley Wickham</a>, Various
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+<a href="http://r-pkgs.had.co.nz/style.html">Style guide</a>
+</td>
+<td style="text-align:left;">
+<a href="http://hadley.nz">Hadley Wickham</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R, Spark
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+<a href="http://spark.rstudio.com">SparklyR</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.rstudio.com/products/RStudio/">Rstudio</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="13">
+Training
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="6">
+Python
+</td>
+<td style="text-align:left;">
+Book
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/Python-Data-Analysis-Wrangling-IPython-ebook/dp/B075X4LT6K/ref=sr_1_1?s=digital-text&amp;ie=UTF8&amp;qid=1533142155&amp;sr=1-1&amp;keywords=pandas">Python for Data Analysis: Data Wrangling with Pandas, NumPy, and IPython 2nd Edition</a>
+</td>
+<td style="text-align:left;">
+<a href="http://wesmckinney.com">Wes McKinney</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="5">
+Web
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+<a href="https://www.youtube.com/channel/UCnVzApLJE2ljPZSeQylSEyg">Easier data analysis in Python with pandas (video series)</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.dataschool.io">Kevin Markham</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+<a href="https://www.dataschool.io/best-practices-with-pandas/">Best practices with pandas (video series)</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.dataschool.io">Kevin Markham</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+<a href="https://developers.google.com/edu/python/">Google’s Python Class</a>
+</td>
+<td style="text-align:left;">
+<a href="https://cs.stanford.edu/people/nick/">Nick Parlante</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+<a href="https://www.kaggle.com/learn/python">Kaggle Learn: Python</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.kaggle.com/colinmorris">Colin Morris</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+<a href="https://www.kaggle.com/learn/pandas">Kaggle Learn: Pandas</a>
+</td>
+<td style="text-align:left;">
+<a href="http://www.residentmar.io/about.html">Aleksey Bilogur</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="4">
+R
+</td>
+<td style="text-align:left;">
+Book
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/Data-Science-Transform-Visualize-Model-ebook/dp/B01NAJAEN5/ref=sr_1_1?s=digital-text&amp;ie=UTF8&amp;qid=1533143298&amp;sr=1-1&amp;keywords=r+for+data+science">R for Data Science: Import, Tidy, Transform, Visualize, and Model Data 1st Edition</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/garrett-grolemund-49328411/">Garrett Grolemund</a>, <a href="http://hadley.nz">Hadley Wickham</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="3">
+Web
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:left;">
+<a href="http://r4ds.had.co.nz">R for Data Science</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/garrett-grolemund-49328411/">Garrett Grolemund</a>, <a href="http://hadley.nz">Hadley Wickham</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:left;">
+<a href="https://www.kaggle.com/learn/r">Kaggle Learn: R</a>
+</td>
+<td style="text-align:left;">
+<a href="http://www.rctatman.com">Rachael Tatman</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:left;">
+<a href="http://shop.oreilly.com/product/0636920034834.do">Introduction to Data Science with R How to Manipulate, Visualize, and Model Data with the R Language</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/garrett-grolemund-49328411/">Garrett Grolemund</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="3">
+SQL
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+Book
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/High-Performance-MySQL-Optimization-Replication-ebook/dp/B007I8S1TY/ref=tmm_kin_swatch_0?_encoding=UTF8&amp;qid=1533186140&amp;sr=8-1">High Performance MySQL: Optimization, Backups, and Replication 3rd Edition</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.xaprb.com">Baron Schwartz</a>, <a href="https://www.percona.com/about-percona/team/peter-zaitsev">Peter Zaitsev</a>, <a href="https://www.percona.com/about-percona/team/vadim-tkachenko">Vadim Tkachenko</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/MySQL-Stored-Procedure-Programming-High-Performance-ebook/dp/B0043D2EJU/ref=tmm_kin_swatch_0?_encoding=UTF8&amp;qid=1533186303&amp;sr=8-1">MySQL Stored Procedure Programming: Building High-Performance Web Applications in MySQL</a>
+</td>
+<td style="text-align:left;">
+<a href="http://guyharrison.squarespace.com">Guy Harrison</a>, <a href="http://stevenfeuerstein.com">Steven Feuerstein</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Web
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:left;">
+<a href="https://www.kaggle.com/learn/sql">Kaggle Learn: SQL</a>
+</td>
+<td style="text-align:left;">
+<a href="http://www.rctatman.com">Rachael Tatman</a>
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+Visualisation
+</h4>
+<table class="table table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Area
+</th>
+<th style="text-align:left;">
+Language
+</th>
+<th style="text-align:left;">
+Source
+</th>
+<th style="text-align:right;">
+#
+</th>
+<th style="text-align:left;">
+Title
+</th>
+<th style="text-align:left;">
+Author
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+Reference
+</td>
+<td style="text-align:left;">
+Python
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="3">
+Web
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+<a href="https://matplotlib.org">matplotlib</a>
+</td>
+<td style="text-align:left;">
+Various
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+<a href="https://ggplot2.tidyverse.org/reference/index.html">ggplot2</a>
+</td>
+<td style="text-align:left;">
+<a href="http://hadley.nz">Hadley Wickham</a>, Various
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="3">
+Training
+</td>
+<td style="text-align:left;">
+Python
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+<a href="https://www.kaggle.com/learn/data-visualisation">Kaggle Learn: Data Visualisation</a>
+</td>
+<td style="text-align:left;">
+<a href="http://www.residentmar.io/about.html">Aleksey Bilogur</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+R
+</td>
+<td style="text-align:left;">
+Book
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/ggplot2-Elegant-Graphics-Data-Analysis-ebook/dp/B01GVCRF6M/ref=tmm_kin_swatch_0?_encoding=UTF8&amp;qid=1533142020&amp;sr=8-1">ggplot2: Elegant Graphics for Data Analysis (Use R!) 2nd Edition</a>
+</td>
+<td style="text-align:left;">
+<a href="http://hadley.nz">Hadley Wickham</a>, <a href="https://cpsievert.me">Carson Sievert</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Web
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+<a href="http://shop.oreilly.com/product/0636920034834.do">Introduction to Data Science with R How to Manipulate, Visualize, and Model Data with the R Language</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/garrett-grolemund-49328411/">Garrett Grolemund</a>
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+Model
+</h4>
+<table class="table table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Area
+</th>
+<th style="text-align:left;">
+Language
+</th>
+<th style="text-align:left;">
+Source
+</th>
+<th style="text-align:right;">
+#
+</th>
+<th style="text-align:left;">
+Title
+</th>
+<th style="text-align:left;">
+Author
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Reference
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="6">
+Python
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="6">
+Web
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+<a href="http://scikit-learn.org/stable/">scikit-learn</a>
+</td>
+<td style="text-align:left;">
+Various
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="10">
+Training
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+<a href="https://www.dataschool.io/machine-learning-with-scikit-learn/">Introduction to machine learning in Python with scikit-learn (video series)</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.dataschool.io">Kevin Markham</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+<a href="https://www.kaggle.com/learn/machine-learning">Kaggle Learn: Machine Learning</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/dansbecker/">Dan Becker</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+<a href="https://www.kaggle.com/learn/deep-learning">Kaggle Learn: Deep Learning</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/dansbecker/">Dan Becker</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+<a href="https://developers.google.com/machine-learning/crash-course/">Machine Learning Crash Course with TensorFlow APIs</a>
+</td>
+<td style="text-align:left;">
+Google
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+<a href="https://www.dataschool.io/learn/">Machine Learning with Text in Python</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.dataschool.io">Kevin Markham</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Python, R
+</td>
+<td style="text-align:left;">
+Web, Book
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+<a href="https://machinelearningmastery.com">Machine Learning Mastery</a>
+</td>
+<td style="text-align:left;">
+<a href="https://machinelearningmastery.com/about/">Jason Brownlee</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="5">
+R
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+Book
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+<a href="http://www-bcf.usc.edu/~gareth/ISL/">An Introduction to Statistical Learning with Applications in R</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/Gareth-James/e/B00F54OH4G/ref=dp_byline_cont_book_1">Gareth James</a>, <a href="https://scholar.google.co.uk/citations?user=bHZf-c8AAAAJ&amp;hl=en">Daniela Witten</a>, <a href="http://web.stanford.edu/~hastie/">Trevor Hastie</a>, <a href="https://statweb.stanford.edu/~tibs/">Robert Tibshirani</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/Machine-Learning-techniques-predictive-modeling-ebook/dp/B0114P1K1C/ref=pd_cp_351_1?_encoding=UTF8&amp;pd_rd_i=B0114P1K1C&amp;pd_rd_r=af4fbfc0-95ad-11e8-9889-7529903ded07&amp;pd_rd_w=zF0PO&amp;pd_rd_wg=CGjia&amp;pf_rd_i=desktop-dp-sims&amp;pf_rd_m=A3P5ROKL5A1OLE&amp;pf_rd_p=3262852920272843952&amp;pf_rd_r=TA0Z2YJAZ5TNV4SCTFN7&amp;pf_rd_s=desktop-dp-sims&amp;pf_rd_t=40701&amp;psc=1&amp;refRID=TA0Z2YJAZ5TNV4SCTFN7">Machine Learning with R - Second Edition: Expert techniques for predictive modeling to solve all your data analysis problems</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/brettlantz/">Brett Lantz</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+Web
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+<a href="https://lagunita.stanford.edu/courses/HumanitiesSciences/StatLearning/Winter2016/info">Statistical Learning</a>
+</td>
+<td style="text-align:left;">
+<a href="http://web.stanford.edu/~hastie/">Trevor Hastie</a>, <a href="https://statweb.stanford.edu/~tibs/">Robert Tibshirani</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:left;">
+<a href="http://appliedpredictivemodeling.com">Applied Predictive Modeling</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/max-kuhn-864a9110/">Max Kuhn</a>, <a href="https://www.linkedin.com/in/kjell-johnson-9a65b33/">Kjell Johnson</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Training, Reference
+</td>
+<td style="text-align:left;">
+Book
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/Applied-Predictive-Modeling-Max-Kuhn-ebook/dp/B00K15TZU0/ref=tmm_kin_swatch_0?_encoding=UTF8&amp;qid=1533142962&amp;sr=8-1">Applied Predictive Modeling</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/max-kuhn-864a9110/">Max Kuhn</a>, <a href="https://www.linkedin.com/in/kjell-johnson-9a65b33/">Kjell Johnson</a>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>
+Statistics
+</h3>
+<h4>
+Probability
+</h4>
+<table class="table table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Area
+</th>
+<th style="text-align:left;">
+Language
+</th>
+<th style="text-align:left;">
+Source
+</th>
+<th style="text-align:right;">
+#
+</th>
+<th style="text-align:left;">
+Title
+</th>
+<th style="text-align:left;">
+Author
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="4">
+Training
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="4">
+Mathematics
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="4">
+Web
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+<a href="https://www.youtube.com/channel/UCFrjdcImgcQVyFbK04MBEhA">Statistics 101</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.youtube.com/channel/UCFrjdcImgcQVyFbK04MBEhA">Brandon Foltz</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/learning/statistics-foundations-1">Statistics Foundations 1</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/eddie-davila-b308b322/?trk=lil_instructor">Eddie Davila</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/learning/statistics-foundations-2">Statistics Foundations 2</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/eddie-davila-b308b322/?trk=lil_instructor">Eddie Davila</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/learning/statistics-foundations-3">Statistics Foundations 3</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/eddie-davila-b308b322/?trk=lil_instructor">Eddie Davila</a>
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+Statistics
+</h4>
+<table class="table table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Area
+</th>
+<th style="text-align:left;">
+Language
+</th>
+<th style="text-align:left;">
+Source
+</th>
+<th style="text-align:right;">
+#
+</th>
+<th style="text-align:left;">
+Title
+</th>
+<th style="text-align:left;">
+Author
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Reference
+</td>
+<td style="text-align:left;">
+R
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="5">
+Web
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+<a href="http://rcompanion.org/handbook/">Summary and Analysis of Extension Program Evaluation in R</a>
+</td>
+<td style="text-align:left;">
+<a href="https://scholar.google.com/citations?user=W9CxPFIAAAAJ&amp;hl=en">Salvatore S. Mangiafico</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="7">
+Training
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="4">
+Mathematics
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+<a href="https://www.youtube.com/channel/UCFrjdcImgcQVyFbK04MBEhA">Statistics 101</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.youtube.com/channel/UCFrjdcImgcQVyFbK04MBEhA">Brandon Foltz</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/learning/statistics-foundations-1">Statistics Foundations 1</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/eddie-davila-b308b322/?trk=lil_instructor">Eddie Davila</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/learning/statistics-foundations-2">Statistics Foundations 2</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/eddie-davila-b308b322/?trk=lil_instructor">Eddie Davila</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/learning/statistics-foundations-3">Statistics Foundations 3</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.linkedin.com/in/eddie-davila-b308b322/?trk=lil_instructor">Eddie Davila</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Python, R
+</td>
+<td style="text-align:left;">
+Web, Book
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+<a href="https://machinelearningmastery.com">Machine Learning Mastery</a>
+</td>
+<td style="text-align:left;">
+<a href="https://machinelearningmastery.com/about/">Jason Brownlee</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+R
+</td>
+<td style="text-align:left;">
+Book
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+<a href="http://www-bcf.usc.edu/~gareth/ISL/">An Introduction to Statistical Learning with Applications in R</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/Gareth-James/e/B00F54OH4G/ref=dp_byline_cont_book_1">Gareth James</a>, <a href="https://scholar.google.co.uk/citations?user=bHZf-c8AAAAJ&amp;hl=en">Daniela Witten</a>, <a href="http://web.stanford.edu/~hastie/">Trevor Hastie</a>, <a href="https://statweb.stanford.edu/~tibs/">Robert Tibshirani</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Web
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+<a href="https://lagunita.stanford.edu/courses/HumanitiesSciences/StatLearning/Winter2016/info">Statistical Learning</a>
+</td>
+<td style="text-align:left;">
+<a href="http://web.stanford.edu/~hastie/">Trevor Hastie</a>, <a href="https://statweb.stanford.edu/~tibs/">Robert Tibshirani</a>
+</td>
+</tr>
+</tbody>
+</table>
+<h3>
+Mathematics
+</h3>
+<h4>
+Linear Algebra
+</h4>
+<table class="table table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Area
+</th>
+<th style="text-align:left;">
+Language
+</th>
+<th style="text-align:left;">
+Source
+</th>
+<th style="text-align:right;">
+#
+</th>
+<th style="text-align:left;">
+Title
+</th>
+<th style="text-align:left;">
+Author
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+Training
+</td>
+<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+Mathematics
+</td>
+<td style="text-align:left;">
+Book
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/Linear-Algebra-Step-Kuldeep-Singh-ebook/dp/B016WNBNGI/ref=tmm_kin_swatch_0?_encoding=UTF8&amp;qid=1533141864&amp;sr=8-1">Linear Algebra: Step by Step</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.amazon.co.uk/Kuldeep-Singh/e/B001KI8PA8/ref=dp_byline_cont_book_1">Kuldeep Singh</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Web
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+<a href="https://www.coursera.org/learn/linear-algebra-machine-learning">Mathematics for Machine Learning: Linear Algebra</a>
+</td>
+<td style="text-align:left;">
+<a href="http://www.imperial.ac.uk/people/david.dye">David Dye</a>, <a href="https://www.coursera.org/instructor/samuel-cooper">Samuel J. Cooper</a>, <a href="https://www.coursera.org/instructor/freddie-page">A. Freddie Page</a>
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+Calculus
+</h4>
+<table class="table table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Area
+</th>
+<th style="text-align:left;">
+Language
+</th>
+<th style="text-align:left;">
+Source
+</th>
+<th style="text-align:right;">
+#
+</th>
+<th style="text-align:left;">
+Title
+</th>
+<th style="text-align:left;">
+Author
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Training
+</td>
+<td style="text-align:left;">
+Mathematics
+</td>
+<td style="text-align:left;">
+Web
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+<a href="https://www.coursera.org/learn/multivariate-calculus-machine-learning">Mathematics for Machine Learning: Multivariate Calculus</a>
+</td>
+<td style="text-align:left;">
+<a href="http://www.imperial.ac.uk/people/david.dye">David Dye</a>, <a href="https://www.coursera.org/instructor/samuel-cooper">Samuel J. Cooper</a>, <a href="https://www.coursera.org/instructor/freddie-page">A. Freddie Page</a>
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+PCA
+</h4>
+<table class="table table-hover table-condensed" style="font-size: 12px; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Area
+</th>
+<th style="text-align:left;">
+Language
+</th>
+<th style="text-align:left;">
+Source
+</th>
+<th style="text-align:right;">
+#
+</th>
+<th style="text-align:left;">
+Title
+</th>
+<th style="text-align:left;">
+Author
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Training
+</td>
+<td style="text-align:left;">
+Mathematics
+</td>
+<td style="text-align:left;">
+Web
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+<a href="https://www.coursera.org/learn/pca-machine-learning">Mathematics for Machine Learning: PCA</a>
+</td>
+<td style="text-align:left;">
+<a href="https://sites.google.com/view/marcdeisenroth">Marc P. Deisenroth</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><sub>Described in <a href="http://r4ds.had.co.nz/exploratory-data-analysis.html">R for Data Science: Exploratory Data Analysis</a></sub><a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p><sub>A <em>variable</em> is a quantity, quality, or property that you can measure. <em>Height, weight, sex, etc.</em></sub><a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn3"><p><sub>A <em>value</em> is the state of a variable when you measure it. The value of a variable may change from measurement to measurement. <em>152 cm, 80 kg, female, etc.</em></sub><a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn4"><p><sub>An <em>observation</em>, or data point, is a set of measurements made under similar conditions (you usually make all of the measurements in an observation at the same time and on the same object). An observation will contain several values, each associated with a different variable. <em>Each person.</em></sub><a href="#fnref4" class="footnote-back">↩</a></p></li>
+<li id="fn5"><p><sub><a href="https://en.wikipedia.org/wiki/Standard_score"><em>Standardisation</em></a>, <em>Normalisation</em> &amp; <a href="https://en.wikipedia.org/wiki/Power_transform"><em>Box-Cox transformations</em></a> for example</sub><a href="#fnref5" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
