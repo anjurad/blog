@@ -1,4 +1,4 @@
-baseurl = "https://www.gerhardgroenewald.co.uk"
+baseurl = "https://www.gerhardgroenewald.co.uk/"
 DefaultContentLanguage = "en"
 title = "Gerhard Groenewald"
 theme = "beautifulhugo"
