@@ -85,6 +85,10 @@ func_legible_boolean <-
   # returns `feature name` when TRUE and "Not_" + `feature name` otherwise
   function(df) {
     
+    # only exec if there is a logical field in the df
+    if (df %>%
+            select_if(is.logical) %>%
+            ncol() > 0) {
     # add row numbers to input dataframe
     df <-
       df %>%
@@ -125,6 +129,10 @@ func_legible_boolean <-
       
       # remove the row_id as the join is complete
       select(-row_id)
+    } else {
+      df %>% 
+        return()
+    }
   }
 
 func_create_summary <-

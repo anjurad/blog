@@ -1,0 +1,10 @@
+---
+title: Resume
+subtitle: management consultant & data scientist
+comments: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
