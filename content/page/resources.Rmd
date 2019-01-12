@@ -97,7 +97,7 @@ library(tidyr)
 func_create_author_weblink <-
   function(param_input) {
     param_input %>%
-      as_data_frame() %>%
+      enframe(name = NULL) %>%
       rename(Author = value) %>%
       left_join(author_weblink,
                 by = "Author") %>%
