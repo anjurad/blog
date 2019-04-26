@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 I have a ‘go-to’ list of quality and up-to-date sources of information that I continuously draw upon either as a *reference*, for *training*, detecting *patterns* and *trends*, or *comparison* and *evaluation*.
 
-I have mapped the list to the data science process, and the skills and knowledge supporting it. I hope that it will save you time and help focus on relevant and key aspects using quality, vetted information.
+I have mapped the list to the data science process, and the skills and knowledge supporting it. I hope that it saves you time and help focus on relevant and critical aspects using quality, vetted information.
 
 The following graph provides an outline of the data science process and the skills and knowledge required to practice it.<br><br>
 
@@ -49,7 +49,7 @@ It attempts to deal with 'messy data', including the following issues:<br>
 #### Null Values/ Missing Data
 Most models are typically unable to support data with missing values.  The data science process will, therefore, include steps to detect and populate missing data.
 
-It can occur anywhere between the *importing* and *transforming* stages.  *Models* can be used to guess values for more complex treatments, whereas a simpler approach could use aggregation during *transformation*.<br><br>
+It can occur anywhere between the *importing* and *transforming* stages.  *Models* can be used to guess values for more complex treatments, whereas a more straightforward approach could use aggregation during *transformation*.<br><br>
 
 ### Transform
 The result of the `transform` step in the data science process is to:
@@ -60,26 +60,70 @@ The result of the `transform` step in the data science process is to:
 * or a combination of the above that typically results in aggregation.<br><br>
 
 #### Split, Apply, Combine
-A common analytical pattern is to:
+A typical analytical pattern is to:
 
 * split, group or nest data into pieces,
 * apply some function to each piece,
 * and to combine the results back together again.
 
-It is also useful approach when modelling.  Read more about it in [Hadley Wickham's paper: 'The Split-Apply-Combine Strategy for Data Analysis'](https://www.jstatsoft.org/article/view/v040i01).<br><br>
+It is also a useful approach when modelling.  Read more about it in [Hadley Wickham's paper: 'The Split-Apply-Combine Strategy for Data Analysis'](https://www.jstatsoft.org/article/view/v040i01).<br><br>
+
+<a id="visualisation"></a>
 
 ### Visualisation & Modelling
 In Feburary 2013 Hadley Wickham gave a talk where he described the interaction between visualisation and modelling very well.  
 
-> Visualization can surprise you, but it doesn’t scale well. Modeling scales well, but it can’t surprise you.<br><br>  Visualization can show you something in your data that you didn’t expect. But some things are hard to see, and visualization is a slow, human process.<br><br>
-Modeling might tell you something slightly unexpected, but your choice of model restricts what you’re going to find once you’ve fit it.<br><br>
-So you iterate. Visualization suggests a model, and then you use your model to factor out some feature of the data. Then you visualize again.
+> Visualisation can surprise you, but it doesn’t scale well. Modelling scales well, but it can’t surprise you.<br><br>  Visualisation can show you something in your data that you didn’t expect. But some things are hard to see, and visualisation is a slow, human process.<br><br>
+Modelling might tell you something slightly unexpected, but your choice of model restricts what you’re going to find once you’ve fit it.<br><br>
+So you iterate. Visualisation suggests a model, and then you use your model to factor out some feature of the data. Then you visualise again.
+
+**Visualisation is a significant deliverable**
+
+Visualisation aims to summarise and simplify information with the following guidelines:
+
+- Intuitive and straightforward with a low learning curve ([KISS](https://en.wikipedia.org/wiki/KISS_principle))
+- Focus on the salient points, keeping noise | clutter to a minimum
+- Content is explicit and not implicit
+- Promoting shared understanding, including producing underlying information supporting layered and increasing levels of detail and complexity to align operations and various levels of management<br><br>
+
+## Tools, Skills & Knowledge
+
+### Domain Knowledge
+It is challenging to deliver good analytics and associated visualisations without domain knowledge or a procedure that extracts and distils required information instead.<br><br>
+
+In practice, clients often have very little time or cannot provide a decent brief ([unconscious competence](https://en.wikipedia.org/wiki/Four_stages_of_competence) for example), leading to a thin and vague specification.  Domain knowledge allows one to anticipate and prepare for potential questions in advance, especially if the brief is inadequate.<br><br><hr><br>
+
+*Statistics* and *Mathematics* are used to solve a variety of problems.  The aspects listed below exposes a few uses but are in no means exhaustive.<br><br>
+
+### Statistics
+The most widely used are [Descriptive Statistics](https://en.wikipedia.org/wiki/Descriptive_statistics), which simplifies and quantitatively describes or summarises features of a collection of information, including central tendency, spread and shape.
+
+[Statistical inference](https://en.wikipedia.org/wiki/Statistical_inference) assumes an underlying [probability distribution](https://en.wikipedia.org/wiki/Probability_distribution) that best describes an observed population, enabling one to deduce properties from it.<br><br>
+
+### Probability
+[Probability](https://en.wikipedia.org/wiki/Probability) underpins statistics and deals with the likelihood of an event occurring.<br><br>
+
+### Mathematics
+#### Linear Algebra
+[Linear algebra is the mathematics of data](https://machinelearningmastery.com/why-learn-linear-algebra-for-machine-learning/).  It is used to apply *operations[^6]* across [matrices](https://en.wikipedia.org/wiki/Matrix_(mathematics)) (tabular data) and [vectors](https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)) (lists) in parallel.
+
+[Factorisation](https://en.wikipedia.org/wiki/Factorization) or [decomposition](https://en.wikipedia.org/wiki/Matrix_decomposition) simplifies data, including projecting dimensions onto subspaces and [reducing dimensions](https://en.wikipedia.org/wiki/Dimensionality_reduction).  It allows for for computations to run more efficiently.<br><br>
+
+#### Multivariate Calculus
+The [integral](https://en.wikipedia.org/wiki/Integral) is used to calculate the area under a curve and derive the [Probability Density](https://en.wikipedia.org/wiki/Probability_density_function) or [Cumulative Distribution](https://en.wikipedia.org/wiki/Cumulative_distribution_function) Functions, as used in [parametric statistics](https://en.wikipedia.org/wiki/Parametric_statistics) and [probability theory (distributions)](https://blog.cloudera.com/blog/2015/12/common-probability-distributions-the-data-scientists-crib-sheet/).
+
+[Derivatives](https://en.wikipedia.org/wiki/Derivative) or [Jacobians](https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant) (higher dimension partial derivatives) are used to calculate the [gradient descent](https://en.wikipedia.org/wiki/Gradient_descent), the base variant of a widely used [optimisation algorithm](https://en.wikipedia.org/wiki/Mathematical_optimization) used to determine the best parameters to [minimise the cost of fitting](https://en.wikipedia.org/wiki/Least_squares) a chosen model to data.
+
+The [Taylor/ Power Series](https://en.wikipedia.org/wiki/Taylor_series) is a method for re-expressing functions as a polynomial series. Linear approximations of complex functions simplify the problem, quantifies the influence of predictor variables and enables one to identify anomalies.
+
+<hr><br><br>
 
 [^1]: <sub>Described in [R for Data Science: Exploratory Data Analysis](http://r4ds.had.co.nz/exploratory-data-analysis.html)</sub>
 [^2]: <sub>A *variable* is a quantity, quality, or property that you can measure. *Height, weight, sex, etc.*</sub>
 [^3]: <sub>A *value* is the state of a variable when you measure it. The value of a variable may change from measurement to measurement. *152 cm, 80 kg, female, etc.*</sub>
 [^4]: <sub>An *observation*, or data point, is a set of measurements made under similar conditions (you usually make all of the measurements in an observation at the same time and on the same object).  An observation will contain several values, each associated with a different variable. *Each person.*</sub>
 [^5]: <sub>[*Standardisation*](https://en.wikipedia.org/wiki/Standard_score), *Normalisation* & [*Box-Cox transformations*](https://en.wikipedia.org/wiki/Power_transform) for example</sub>
+[^6]: <sub>Matrix transformation, inversion, addition and multiplication</sub>
 
 
 <h2>Table of resources in relation to Data Science</h2>

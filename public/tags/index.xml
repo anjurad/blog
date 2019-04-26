@@ -2,21 +2,112 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on Gerhard Groenewald</title>
-    <link>https://www.gerhardgroenewald.co.uk/tags/</link>
+    <link>/tags/</link>
     <description>Recent content in Tags on Gerhard Groenewald</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>gerhard@anjurad.com (Gerhard Groenewald)</managingEditor>
     <webMaster>gerhard@anjurad.com (Gerhard Groenewald)</webMaster>
+    <lastBuildDate>Mon, 29 Oct 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://www.gerhardgroenewald.co.uk/tags/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>Advanced</title>
+      <link>/tags/advanced/</link>
+      <pubDate>Mon, 29 Oct 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/advanced/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Analysis</title>
+      <link>/tags/analysis/</link>
+      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/analysis/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Case Study</title>
+      <link>/tags/case-study/</link>
+      <pubDate>Mon, 29 Oct 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/case-study/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Data Science</title>
+      <link>/tags/data-science/</link>
+      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/data-science/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Development</title>
+      <link>/tags/development/</link>
+      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/development/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Intermediate</title>
+      <link>/tags/intermediate/</link>
+      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/intermediate/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Management</title>
+      <link>/tags/management/</link>
+      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/management/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>R</title>
+      <link>/tags/r/</link>
+      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/r/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Tips Tricks</title>
+      <link>/tags/tips-tricks/</link>
+      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/tips-tricks/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Tutorial</title>
+      <link>/tags/tutorial/</link>
+      <pubDate>Mon, 24 Sep 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/tutorial/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Website</title>
-      <link>https://www.gerhardgroenewald.co.uk/tags/website/</link>
+      <link>/tags/website/</link>
       <pubDate>Wed, 01 Aug 2018 00:00:00 +0000</pubDate>
       <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
-      <guid>https://www.gerhardgroenewald.co.uk/tags/website/</guid>
+      <guid>/tags/website/</guid>
       <description></description>
     </item>
     

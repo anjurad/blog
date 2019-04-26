@@ -1,27 +1,310 @@
 ---
-title: Resume
+title: Résumé
 subtitle: management consultant & data scientist
+author: "Gerhard Groenewald"
+date: "30/11/2018"
+output: html_document
 comments: false
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## Schooling and Early Career
+
+I was born and raised in in Cape Town.
+
+I excelled at music and reached licentiate level by the time I graduated from school.  During my year of compulsory military service I was selected to an elite group in the South African Air Force (SAAF) and performed  255 concerts on tour throughout South Africa.
+
+After completing national service I remained in Pretoria and joined the SAAF Band as it paid very well for a 19-year-old and allowed enough time to focus on studies too.
+
+In *1994* I started a degree in Marketing and Financial Management at the [University of Pretoria](https://www.up.ac.za) and transfered to the SAAF Magazine, *Ad Astra*, as *Marketing Coordinator*.  I spent my final year at the SAAF Gymnasium *(Training Academy)* as a Public Relations officer.<br><br>
+
+I resigned the SAAF upon completing formal education and returned to Cape Town for a few months before travelling to the UK.<br><hr><br>
+
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+# Library ----
+library(tidyverse)
+library(readxl)
+library(lubridate)
+
+# Functions ----
+func_rename <-
+  function(x) {
+    
+    # sequence is important here
+    # regex removing all chars not alpha-numeric, underscore or period
+    gsub("[^[:alnum:] \\_\\.]", "", x) %>%
+      
+      # replace any space or period with underscore
+      str_replace_all(pattern = " |\\.", replacement = "\\_") %>%
+      
+      # replace multiple underscores with one
+      str_replace_all(pattern = "\\_+", replacement = "\\_") %>%
+      
+      # remove trailing underscores and period
+      str_remove(pattern = "\\_$|\\.$")
+  }
+
+# Parameters ----
+var_path <- "~/Documents/R Projects/gerhardgroenewald.co.uk/resources/"
+options(digits=9)
+
+# IO: In ----
+df_import <-
+  list.files(path = var_path,
+             pattern = "^cv\\.xlsx",
+             recursive = TRUE) %>%
+  enframe(name=NULL) %>%
+  rename(file_name_ext = value) %>%
+  mutate(file_path = paste(var_path, file_name_ext, sep = "/")) %>%
+  mutate_at("file_path", list(file_tab = map), readxl::excel_sheets) %>%
+  unnest() %>%
+  mutate(file = map2(file_path, file_tab, function(file_path, file_tab) {
+    readxl::read_excel(path = file_path,
+                       sheet = file_tab,
+                       guess_max = 100000)
+  })) %>%
+  select(-file_path,-file_name_ext)
+
 ```
 
-```{r}
-library(plotly)
-Animals <- c("giraffes", "orangutans", "monkeys")
-SF_Zoo <- c(20, 14, 23)
-LA_Zoo <- c(12, 18, 29)
-data <- data.frame(Animals, SF_Zoo, LA_Zoo)
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+create_plot_output <- function(param_section) {
+  param_date_ranges <-
+    df_import %>%
+    filter(file_tab == param_section) %>%
+    unnest(file) %>%
+    mutate_if(is.POSIXct, ymd) %>%
+    mutate(company = fct_reorder(company, from, .desc = FALSE)) %>%
+    mutate(row_id = row_number()) %>%
+    gather(Period, Date, from:to) %>%
+    mutate_at("Date", floor_date, unit = "week", week_start = 1) %>%
+    distinct(Date) %>%
+    arrange(Date) %>%
+    # filter_at("Date",
+    #           all_vars(difftime(
+    #             time1 = lead(.),
+    #             time2 = .,
+    #             units = "weeks"
+    #           ) > 20)) %>%
+    pull()
+  
+  param_spead <- 0.6
 
-p <- plot_ly(data, x = ~Animals, y = ~SF_Zoo, type = 'bar', name = 'SF Zoo',
-             orientation = "h") %>%
-  add_trace(y = ~LA_Zoo, name = 'LA Zoo') %>%
-  layout(yaxis = list(title = 'Count'), barmode = 'group')
+  df_import %>%
+    filter(file_tab == param_section) %>%
+    unnest(file) %>%
+    mutate_if(is.POSIXct, ymd) %>%
+    mutate(company = fct_reorder(company, from, .desc = FALSE)) %>%
+    mutate(row_id = row_number()) %>%
+    gather(Period, Date, from:to) %>%
+    mutate(role = if_else(Period == "from", role, NA_character_)) %>%
+    mutate(label_position = if_else(row_id %% 2 == 1,-1 * param_spead,
+                                    param_spead)) %>%
+    mutate_at("row_id", factor) %>%
+    mutate_at("role", str_wrap, width = 10) %>%
+    ggplot(aes(
+      x = Date,
+      y = 0,
+      label = company,
+      group = row_id,
+      col = company
+    )) +
+    geom_vline(
+      xintercept = today() %>% ceiling_date(unit = "month"),
+      colour = "black",
+      linetype = "dashed",
+      size = 0.1
+    ) +
+    geom_line(size = 10, show.legend = TRUE) +
+    ggrepel::geom_label_repel(
+      aes(y = label_position,
+          label = role),
+      size = 3,
+      label.size = 0.5,
+      fontface = "bold",
+      vjust = "middle",
+      lineheight = 1,
+      na.rm = TRUE,
+      show.legend = FALSE
+    ) +
+    scale_y_continuous(limits = c(-1, 1)) +
+    scale_colour_viridis_d() +
+    scale_x_date(breaks = param_date_ranges,
+                 date_labels = "%b\n\'%y") +
+    theme_classic() +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      panel.margin = unit(1, "cm"),
+      strip.background = element_blank(),
+      strip.text.y = element_text(angle = 180, hjust = 1),
+      panel.grid.major.x = element_line(
+        colour = "black",
+        linetype = "dashed",
+        size = 0.1
+      ),
+      axis.text.x = element_text(angle = 0),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.line.y = element_blank(),
+      legend.position = "bottom",
+      legend.box = "horizontal",
+      legend.direction = "horizontal"
+    ) +
+    guides(colour = guide_legend(override.aes = list(size = 2, stroke = 1.5))) +
+    labs(x = "", y = "", colour = "") %>%
+    return()
+}
 ```
 
-```{r}
-p
+## University
+
+```{r echo=FALSE, fig.height=3.5, fig.width=8.2, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+create_plot_output("timeline_student")
+
 ```
 
+### BCom (Hons) Marketing & Financial Management ***1994 - 1998***
+I studied at the [University of Pretoria](https://www.up.ac.za) and majored in Marketing and Financial Management, completing an **Honours** degree in 1998.  [A South African Honours degree is an optional fourth and additional one-year, postgraduate qualification where intake is highly selective.](https://en.wikipedia.org/wiki/Honours_degree#South_Africa)
+
+I completed two **research projects** as part of this degree, including:
+
+- [*Capital Asset pricing models*](https://en.wikipedia.org/wiki/Capital_asset_pricing_model) as part of the Financial Management track and, 
+- Specialisation in [*Marketing Research*](https://www.amazon.co.uk/Business-Research-Advantage-Computer-Education/dp/0256137773/ref=sr_1_1?keywords=9780256137774&linkCode=qs&qid=1555332370&s=books&sr=1-1) by conducting a [*Servqual*](https://en.wikipedia.org/wiki/SERVQUAL)[^1] study at a local health club.<br><hr><br>
+
+## General
+
+```{r echo=FALSE, fig.height=3.5, fig.width=8.2, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+create_plot_output("timeline_general")
+
+```
+
+In March 1999 I emigrated to the UK, initially settling in London.<br><br>
+
+### Temping ***1999***
+I took on temporary work as an Accounts Assistant after arriving in the UK.  I planned to complete training as a Management and Cost accountant; however, the lure of variety within booming telecommunications industry proved too great.<br><hr><br>
+
+### Orange ***1999 - 2006***
+I joined [Orange](https://en.wikipedia.org/wiki/Orange_UK) [Network Planning](https://en.wikipedia.org/wiki/Network_planning_and_design) in London as a *Project Coordinator*.
+
+Within a year I was promoted to *Project Manager*, a PMO role primarily focussed on providing management information in support of regional delivery.  I discovered a love for reporting and fast became a [Business Objects](https://www.sap.com/uk/products/bi-platform.html) superuser, employing increasingly advanced MS Excel and Access with VBA to deal with more complex business problems.
+
+It came naturally to me, and I developed an insatiable appetite for learning about *data management and analysis*.
+
+A few highlights from this role included:
+
+- I designed and delivered a tracking database and spearheaded a focus group that changed a business process.  This reduced abortive and additional costs of over £5m nationally in the first year alone after implementation.<br><br>
+
+ - I developed a management reporting approach that improved the end-to-end delivery of the 3G programme of works.  It optimised overall benefit by *aligning delivery across multiple departments[^2]*, capitalising on [earned value](https://en.wikipedia.org/wiki/Earned_value_management).
+<br>
+It was rolled out nationally and used by leadership to gauge the status, progress, convergence and potential of the programme.<br><br>
+
+In 2002 I was promoted to *Regional Facilitator* (**Programme Manager**) in the North West, an area covering Northern England, Scotland and Ireland.  I simultaneously commenced the *Orange Senior Management Development programme*.
+
+I was responsible for regional governance and managed operational reviews with the leadership team.
+
+Part of the North regional senior management team, I facilitated the delivery of several access network programmes across various regional and central functional departments.
+
+It was in this role where I first started to programmatically sequence and model both concurrent and consecutive activities within workstreams, generating a programme schedule to harmonise and optimise delivery between multiple and independent constituent teams.
+
+I won an award for leading the successful, cross-functional and end-to-end delivery of the Northern 3G launch programme of works.
+
+This role, more than any other, honed my skills to *influence and persuade* and *managing upwards*.
+
+In 2004 took on responsibility for *Facilitation* (renamed as **Programme Control**) nationally, taking on direct reports and gaining *line management* experience.<br><br>
+
+I used modelling more widely to plan and forecast programmes and quantify risk.  It kick-started an initiative to apply marketing segmentation to London boroughs in a bid to prioritise delivery.  It served as a precursor to the *Value to Cost Ratio*, a weighted set of attributes resulting in a ranking score.  It was used to determine budgetary spend on the Access Network to maximise benefit.<br><br><hr><br>
+
+### Convergys ***2007 - 2010***
+I was responsible for managing multi-million pound programmes developing, customising and implementing SS7 and SIGTRAN based IVR systems and Value Added Solutions (SMSC, Voicemail, MMS) throughout the EMEA/ APAC regions from inception to completion.
+
+Some key points from this position:
+
+- Full budgetary responsibility of up to $2.5m USD
+- Customer facing, often at executive level
+- Matrix management of teams of over 20 people internally and 3rd party suppliers, including remote teams.
+- Managing complete programme lifecycle, including design, software development, manufacturing, testing, installation, commissioning & network integration
+- Producing Statements of Work and Business Cases to support pre-sales bids
+- Coordinating implementation of solutions with resellers, including Ericsson and Huawei’s complex and extensive core network rollout and upgrades
+
+<br><hr><br>
+
+## Management Consultant & Data Scientist
+The next section covers the contracts that I took on as an independent management consultant.  
+
+Some general observations about the role:<br><br>
+
+- **Visualisation**<br>
+I initially focussed on generating management information only but soon realised the [importance of visualisation](/page/resources/#visualisation), and have focused on improving that skill since.<br><br>
+During this time I invested in *[Tableau Desktop](https://www.tableau.com/en-gb)* as it produces standardised, high-quality and straightforward visualisations with little effort.  Coding up a visualisation (using R or Python) is flexible and highly customisable, but it takes a lot more effort and thought all things being equal.<br><br>
+I found it very useful in consultations, specifically during *collaborative* [*munging*](https://en.wikipedia.org/wiki/Data_wrangling) and [*visualisation*](https://en.wikipedia.org/wiki/Data_visualization) as it is often challenging to keep typically non-technical *(data)* participants engaged during live coding sessions.<br><br>
+[Geospatial](https://en.wikipedia.org/wiki/Spatial_analysis) computation and visualisation is an invaluable skill and deliverable, especially given the nature of telecoms programmes.  I perform many calculations and mapping programmatically using R[^3] (e.g. libraries like [rgdal](https://cran.r-project.org/web/packages/rgdal/index.html)
+and [spdplyr](https://cran.r-project.org/web/packages/spdplyr/index.html)) and use the excellent [GQIS](https://qgis.org/en/site/) for on-the-go visualisation in addition to Tableau.  Tableau has an ongoing initiative to improve its mapping offering and have [released excellent features](https://www.tableau.com/solutions/maps) during the past few years.<br><br>
+
+- **Programming**<br>
+I initially ran simulations using MS Access, VBA and *ActiveX Data Objects*.
+It executed serially, and some would often take 24 hours to complete!<br><br>
+I quickly moved to use SQL (exclusively for over 3 years) but eventually found R a lot more scalable and efficient, not just for modelling, but other deliverables too.  I progressively transitioned to R until it became my tool of choice for prototyping and rapid development.<br><br>
+
+- **Machine Learning**<br>
+During 2006 I started using python more extensively leading up to an [8-week course](https://www.dataschool.io/learn/) in [Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing) to create a classification algorithm. Today [scikit-learn](https://scikit-learn.org/stable/) is my default machine learning library.<br><br><hr><br>
+
+```{r echo=FALSE, fig.height=3.5, fig.width=8.2, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+create_plot_output("timeline_anjurad")
+
+```
+
+### Nokia ***2011 - 2013***
+In 2011 Nokia approached me to help demystify a convoluted KPI improvement programme.  Its complexity made it difficult to demonstrate to the customer with sufficient confidence that the project was under control and on target.
+
+I created and maintained various modelled scenarios of programme delivery, and it was used to prioritise, plan and control multiple work streams.  The last of the outstanding target [KPIs](https://en.wikipedia.org/wiki/Performance_indicator) turned green just outside of a week of the deadline.  This result would have been unlikely without systematic planning and prioritisation.
+
+I set up a reporting solution for the Joint Benefit Project (JBP500) and completed optimisation analysis to use existing spare transmission tactically to expedite the programme.  Using the spare capacity helped Nokia avoid significant liquidated damages and achieve the delivery target within the agreed time.
+
+I created a reporting suite to manage the London Olympic programmes.  An emphasis on *management by exception* allowed us to focus on the right things at the right time.<br><br>
+
+In 2013 Nokia commenced work on a significant, complex and large-scale programme without a suitable tool to manage the work. I got the ball rolling with a few tactical solutions but ended up designing, building and implementing ‘Nisaba’, a web-based workflow, data concentrator/ warehouse and reporting solution used to manage *2G Refresh* and *3UK programmes of work*.  The solution supported a few hundred users for almost 4 years, despite being introduced as a tactical solution only.<br><br><hr><br>
+
+### CTIL ***2013 - 2016***
+Towards the end of 2013, I was headhunted to take over from Accenture as their contract came to an end.  As part of the Beacon PMO, my primary and first project was to model programme delivery and create *scenario and baseline plans* of the [Beacon](https://blog.vodafone.co.uk/2012/11/20/better-coverage-fewer-masts-your-complete-guide-to-our-network-joint-venture/) and London programmes.
+
+How was the information used?:
+
+- Vodafone used the predictions to launch regional (key cities and town) marketing campaigns in pace with the [4G Network rollout](https://www.vodafone.co.uk/network/network-improvements) throughout the UK.
+
+- Generate budgets and targets, agreeing on corresponding budgets within Telefónica and Vodafone.
+
+- Organisational and resource planning, including proposals to the board to restructure the organisation in accordance with the Beacon programme life-cycle
+<br><br>
+
+Highlighting a few other projects:
+
+- Conducting an extensive and in-depth analysis of CTIL Estates rent and rates, producing time-series forecasts and providing information to set requirements for the network maintenance RFQ.<br><br>
+
+- Implementing 'AIR', a tactical IT solution which extracted, transformed, concentrated and combined data from various sources providing a feed to the CTIL Acquisition workflow tool (SOL). It exposed privileged and secure access via a web interface and was used by the CTIL London Acquisition team as a case management solution.<br><br>
+
+<hr><br>
+
+### Huawei ***2016 - 2017***
+My primary role was to interface with the customer and provide reporting and analytics.  I mapped all major operational processes using the [BPMN2.0](http://www.bpmn.org) standard.<br><br>
+
+My main achievement during this time was providing management information and steer to a successful turn-around project dealing with a backlog of quality issues.  By the end of the calendar year we closed down 92% of quality issues, with performance and status well within acceptable tolerances and work-in-progress pots.<br><br><hr><br>
+
+### Vodafone ***2017 - 2018***
+Vodafone headhunted me for the position.
+
+Some aspects of the role included:
+
+- Regional governance Reporting and Analytics
+- ETL solutions to import and transform high volume and complex 3rd party Network Performance Data.  This activity would complete within minutes, previously taking several engineers a week to perform.
+- Network metrics anomaly detection and association with *potentially causal* events
+- Financial, planning, budgeting and reporting, including auditing a completed bill of material schedules to find anomalous entries, recouping several million pounds.
+- Business process analysis and mapping using the [BPMN2.0](http://www.bpmn.org) standard
+- Bespoke network analysis and supporting media for corporate customer sales pitches<br><br>
+
+My headline achievement was developing and producing automated packs for Sales and Marketing.  It classified opportunities using predictive clustering of network programme outcomes and associated existing and prospective customers geospatially.
+
+[^1]: <sub>A Multiple-Item Scale For Measuring Consumer Perception study (Parasuraman, Zeithaml and Berry)</sub>
+[^2]: <sub>**E2E:** end-to-end management</sub>
+[^3]: <sub>[Geocomputation with R](https://geocompr.robinlovelace.net) is a fantastic reference</sub>

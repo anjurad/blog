@@ -719,3 +719,18 @@ input.gsc-input, .gsc-input-box, .gsc-input-box-hover, .gsc-input-box-focus, .gs
   box-sizing: content-box;
   line-height: normal;
 }
+
+/* --- fab --- */
+.fab {
+  font-size: 15px;
+  position: fixed;
+  right: 50px;
+  bottom: 50px;
+  box-shadow: 0 1px 1px 0 #666;
+}
+ 
+.fab:hover {
+  box-shadow: 0 6px 14px 0 #666;
+  border-radius: 10%;
+  transform: scale(1.05);
+}

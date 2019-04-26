@@ -11,7 +11,7 @@ tags:
 - tips tricks
 - intermediate
 - R
-# audience
+# #audience
 - development
 - analysis
 
@@ -222,9 +222,19 @@ func_present_headers &lt;-
   }) %&gt;% 
   
   # remove redundant variables to tidy up the datablock
-  select(-file_path, -file_name_ext)
-
-# print new table to glance the imported product
+  select(-file_path, -file_name_ext)</code></pre>
+<pre><code>## Warning: Calling `as_tibble()` on a vector is discouraged, because the behavior is likely to change in the future. Use `tibble::enframe(name = NULL)` instead.
+## This warning is displayed once per session.</code></pre>
+<pre><code>## Warning: funs() is soft deprecated as of dplyr 0.8.0
+## please use list() instead
+## 
+## # Before:
+## funs(name = f(.)
+## 
+## # After: 
+## list(name = ~f(.))
+## This warning is displayed once per session.</code></pre>
+<pre class="r"><code># print new table to glance the imported product
 df_files</code></pre>
 <pre><code>## # A tibble: 9 x 2
 ##   file_name                         file                    
@@ -277,9 +287,9 @@ tibble(
 ## [1] &quot;******************************&quot;
 ## Classes &#39;tbl_df&#39;, &#39;tbl&#39; and &#39;data.frame&#39;:    6 obs. of  5 variables:
 ##  $ order_id            : Factor w/ 99440 levels &quot;00010242fe8c5a6d1ba2dd792cb16214&quot;,..: 71446 65633 14657 72396 25967 16046
-##  $ payment_sequential  : int  1 1 1 1 1 1
+##  $ payment_sequential  : num  1 1 1 1 1 1
 ##  $ payment_type        : Factor w/ 5 levels &quot;boleto&quot;,&quot;credit_card&quot;,..: 2 2 2 2 2 2
-##  $ payment_installments: int  8 1 1 8 2 2
+##  $ payment_installments: num  8 1 1 8 2 2
 ##  $ payment_value       : num  99.3 24.4 65.7 107.8 128.4 ...
 ## NULL
 ## [1] &quot;******************************&quot;
@@ -348,56 +358,56 @@ df_customer_order_payment %&gt;%
   kable(format = &quot;html&quot;) %&gt;% 
   kableExtra::kable_styling(full_width = FALSE, font_size = 11) %&gt;% 
   kableExtra::scroll_box(width = &quot;100%&quot;, height = &quot;200px&quot;)</code></pre>
-<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:200px; overflow-x: scroll; width:100%; ">
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:200px; overflow-x: scroll; width:100%; ">
 <table class="table" style="font-size: 11px; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 order_id
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 payment_sequential
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 payment_type
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 payment_installments
 </th>
-<th style="text-align:right;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 payment_value
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 customer_id
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 order_status
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 order_purchase_timestamp
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 order_approved_at
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 order_delivered_carrier_date
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 order_delivered_customer_date
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 order_estimated_delivery_date
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 customer_unique_id
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 customer_zip_code_prefix
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 customer_city
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 customer_state
 </th>
 </tr>
@@ -807,12 +817,12 @@ df_customer_order_payment_data %&gt;%
 <thead>
 <tr>
 <th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
-<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
 Dimension
 </div>
 </th>
 <th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
-<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
 Year
 </div>
 </th>
@@ -1614,9 +1624,9 @@ $5,994,008
 <div id="session" class="section level2">
 <h2>Session</h2>
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>## R version 3.5.1 (2018-07-02)
+<pre><code>## R version 3.5.3 (2019-03-11)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS  10.14
+## Running under: macOS Mojave 10.14.4
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
@@ -1629,27 +1639,27 @@ $5,994,008
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] bindrcpp_0.2.2  knitr_1.20      lubridate_1.7.4 forcats_0.3.0  
-##  [5] stringr_1.3.1   dplyr_0.7.8     purrr_0.2.5     readr_1.1.1    
-##  [9] tidyr_0.8.2     tibble_1.4.2    ggplot2_3.1.0   tidyverse_1.2.1
+##  [1] knitr_1.22      lubridate_1.7.4 forcats_0.4.0   stringr_1.4.0  
+##  [5] dplyr_0.8.0.1   purrr_0.3.2     readr_1.3.1     tidyr_0.8.3    
+##  [9] tibble_2.1.1    ggplot2_3.1.1   tidyverse_1.2.1
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] tidyselect_0.2.5  xfun_0.4          haven_1.1.2      
-##  [4] lattice_0.20-38   colorspace_1.3-2  viridisLite_0.3.0
-##  [7] htmltools_0.3.6   emo_0.0.0.9000    yaml_2.2.0       
-## [10] utf8_1.1.4        rlang_0.3.0.1     pillar_1.3.0     
-## [13] withr_2.1.2       glue_1.3.0        selectr_0.4-1    
-## [16] modelr_0.1.2      readxl_1.1.0      bindr_0.1.1      
-## [19] plyr_1.8.4        munsell_0.5.0     blogdown_0.9     
-## [22] gtable_0.2.0      cellranger_1.1.0  rvest_0.3.2      
-## [25] kableExtra_0.9.0  evaluate_0.12     fansi_0.4.0      
-## [28] highr_0.7         broom_0.5.0       Rcpp_1.0.0       
-## [31] backports_1.1.2   scales_1.0.0      jsonlite_1.5     
-## [34] hms_0.4.2         digest_0.6.18     stringi_1.2.4    
-## [37] bookdown_0.7      grid_3.5.1        rprojroot_1.3-2  
-## [40] cli_1.0.1         tools_3.5.1       magrittr_1.5     
-## [43] lazyeval_0.2.1    crayon_1.3.4      pkgconfig_2.0.2  
-## [46] xml2_1.2.0        assertthat_0.2.0  rmarkdown_1.10   
-## [49] httr_1.3.1        rstudioapi_0.8    R6_2.3.0         
-## [52] nlme_3.1-137      compiler_3.5.1</code></pre>
+##  [1] tidyselect_0.2.5  xfun_0.6          haven_2.1.0      
+##  [4] lattice_0.20-38   colorspace_1.4-1  generics_0.0.2   
+##  [7] viridisLite_0.3.0 htmltools_0.3.6   emo_0.0.0.9000   
+## [10] yaml_2.2.0        utf8_1.1.4        rlang_0.3.4      
+## [13] pillar_1.3.1      glue_1.3.1        withr_2.1.2.9000 
+## [16] selectr_0.4-1     modelr_0.1.4      readxl_1.3.1     
+## [19] plyr_1.8.4        munsell_0.5.0     blogdown_0.11    
+## [22] gtable_0.3.0      cellranger_1.1.0  rvest_0.3.3      
+## [25] kableExtra_1.1.0  evaluate_0.13     fansi_0.4.0      
+## [28] highr_0.8         broom_0.5.2       Rcpp_1.0.1.2     
+## [31] scales_1.0.0      backports_1.1.4   webshot_0.5.1    
+## [34] jsonlite_1.6      hms_0.4.2         digest_0.6.18    
+## [37] stringi_1.4.3     bookdown_0.9      grid_3.5.3       
+## [40] cli_1.1.0         tools_3.5.3       magrittr_1.5     
+## [43] lazyeval_0.2.2    crayon_1.3.4      pkgconfig_2.0.2  
+## [46] xml2_1.2.0        assertthat_0.2.1  rmarkdown_1.12   
+## [49] httr_1.4.0        rstudioapi_0.10   R6_2.4.0         
+## [52] nlme_3.1-139      compiler_3.5.3</code></pre>
 </div>

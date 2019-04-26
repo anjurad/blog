@@ -7,3 +7,6 @@ comments: false
 My name is **Gerhard Groenewald**.  
 
 I am a management consultant in the UK telecommunications industry, specialising in data science.
+
+My [résumé](../../page/resume) provides more detail about my career.
+<br><br><hl>

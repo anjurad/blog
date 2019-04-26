@@ -2,22 +2,64 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Gerhard Groenewald</title>
-    <link>https://www.gerhardgroenewald.co.uk/post/</link>
+    <link>/post/</link>
     <description>Recent content in Posts on Gerhard Groenewald</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>gerhard@anjurad.com (Gerhard Groenewald)</managingEditor>
     <webMaster>gerhard@anjurad.com (Gerhard Groenewald)</webMaster>
-    <lastBuildDate>Wed, 01 Aug 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 18 Nov 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://www.gerhardgroenewald.co.uk/post/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>Planning weekly food</title>
+      <link>/post/2018-11-18-family_food_budget/</link>
+      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/post/2018-11-18-family_food_budget/</guid>
+      <description>Introduction  Code Library Load the packages used in the demonstration.
+package_list &amp;lt;- c(&amp;quot;tidyverse&amp;quot;, &amp;quot;readxl&amp;quot;, &amp;quot;lubridate&amp;quot;, &amp;quot;knitr&amp;quot;, &amp;quot;kableExtra&amp;quot;) invisible(suppressPackageStartupMessages(lapply(package_list, library, character.only = TRUE))) rm(package_list)  Functions The functions below primarily helps with presentation and formatting. The inline comments below describe the working and sequence of each function.
+func_rename &amp;lt;- function(x) { # sequence is important here # regex removing all chars not alpha-numeric, underscore or period gsub(&amp;quot;[^[:alnum:] \\_\\.]&amp;quot;, &amp;quot;&amp;quot;, x) %&amp;gt;% # replace any space or period with underscore str_replace_all(pattern = &amp;quot; |\\.</description>
+    </item>
+    
+    <item>
+      <title>Summarising tables</title>
+      <link>/post/2018-11-08-summarising_tables/</link>
+      <pubDate>Thu, 08 Nov 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/post/2018-11-08-summarising_tables/</guid>
+      <description>Introduction The result of the data science process is to communicate findings, typically to an audience that doesn’t talk technical. It is the most important deliverable of the process, even if not the first thing that springs to mind when considering data science. Fantastic insights are of no use if the intended audience doesn’t understand or trust it. It is therefore vital to take care when presenting findings.
+There are typical and often repeated actions when summarising data in tables.</description>
+    </item>
+    
+    <item>
+      <title>Low-cost housing in South Africa</title>
+      <link>/post/2018-10-01-lowcost_housing/</link>
+      <pubDate>Mon, 29 Oct 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/post/2018-10-01-lowcost_housing/</guid>
+      <description>Introduction The purpose of this case study is to explore aspects in reporting state changes of large-scale programmes over time.
+A state change in this context refers to the shift in statuses of multiple activities performed during the delivery of a project, the project forming part of a more extensive body programme of works (concentrated portfolio of project activities).
+We could attempt this using Excel, and perhaps we’ll be successful as the current dataset only contains c.</description>
+    </item>
+    
+    <item>
+      <title>Simulating data and file-based ETL</title>
+      <link>/post/2018-09-24-simulated_data/</link>
+      <pubDate>Mon, 24 Sep 2018 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/post/2018-09-24-simulated_data/</guid>
+      <description>Introduction Data Scientists spend a lot of time importing, cleaning, tidying and transforming data before any decent analysis can start. Like many, the industry that I work in typically email files to communicate data and report. I follow a consistent approach to ETL and subsequent data concentration to better manage the accumulation of multiple, disparate files from a variety of sources and different formats.
+This tutorial demonstrates a simplified version of this process.</description>
+    </item>
+    
+    <item>
       <title>Hello World</title>
-      <link>https://www.gerhardgroenewald.co.uk/post/2018-07-24-first-post/</link>
+      <link>/post/2018-07-24-first-post/</link>
       <pubDate>Wed, 01 Aug 2018 00:00:00 +0000</pubDate>
       <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
-      <guid>https://www.gerhardgroenewald.co.uk/post/2018-07-24-first-post/</guid>
+      <guid>/post/2018-07-24-first-post/</guid>
       <description>Last year Louis Columbus of Forbes stated that Machine Learning Engineers, Data Scientists, and Big Data Engineers rank among the top emerging jobs on LinkedIn. David Robinson&amp;rsquo;s Stackoverflow article about The Incredible Growth of Python substantiates this observation.
 Data science in the UK is still emerging, whereas in the US it appears to have taken off in a big way.
 It is encouraging to read about mainstream adoption in the UK, even if still early days.</description>

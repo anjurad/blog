@@ -10,7 +10,7 @@ comments: false
 
 
 <p>I have a ‘go-to’ list of quality and up-to-date sources of information that I continuously draw upon either as a <em>reference</em>, for <em>training</em>, detecting <em>patterns</em> and <em>trends</em>, or <em>comparison</em> and <em>evaluation</em>.</p>
-<p>I have mapped the list to the data science process, and the skills and knowledge supporting it. I hope that it will save you time and help focus on relevant and key aspects using quality, vetted information.</p>
+<p>I have mapped the list to the data science process, and the skills and knowledge supporting it. I hope that it saves you time and help focus on relevant and critical aspects using quality, vetted information.</p>
 <p>The following graph provides an outline of the data science process and the skills and knowledge required to practice it.<br><br></p>
 <p><a id="data_science_process_map"></a></p>
 <div class="figure">
@@ -47,7 +47,7 @@ comments: false
 <div id="null-values-missing-data" class="section level4">
 <h4>Null Values/ Missing Data</h4>
 <p>Most models are typically unable to support data with missing values. The data science process will, therefore, include steps to detect and populate missing data.</p>
-<p>It can occur anywhere between the <em>importing</em> and <em>transforming</em> stages. <em>Models</em> can be used to guess values for more complex treatments, whereas a simpler approach could use aggregation during <em>transformation</em>.<br><br></p>
+<p>It can occur anywhere between the <em>importing</em> and <em>transforming</em> stages. <em>Models</em> can be used to guess values for more complex treatments, whereas a more straightforward approach could use aggregation during <em>transformation</em>.<br><br></p>
 </div>
 </div>
 <div id="transform" class="section level3">
@@ -61,23 +61,67 @@ comments: false
 </ul>
 <div id="split-apply-combine" class="section level4">
 <h4>Split, Apply, Combine</h4>
-<p>A common analytical pattern is to:</p>
+<p>A typical analytical pattern is to:</p>
 <ul>
 <li>split, group or nest data into pieces,</li>
 <li>apply some function to each piece,</li>
 <li>and to combine the results back together again.</li>
 </ul>
-<p>It is also useful approach when modelling. Read more about it in <a href="https://www.jstatsoft.org/article/view/v040i01">Hadley Wickham’s paper: ‘The Split-Apply-Combine Strategy for Data Analysis’</a>.<br><br></p>
+<p>It is also a useful approach when modelling. Read more about it in <a href="https://www.jstatsoft.org/article/view/v040i01">Hadley Wickham’s paper: ‘The Split-Apply-Combine Strategy for Data Analysis’</a>.<br><br></p>
+<p><a id="visualisation"></a></p>
 </div>
 </div>
 <div id="visualisation-modelling" class="section level3">
 <h3>Visualisation &amp; Modelling</h3>
 <p>In Feburary 2013 Hadley Wickham gave a talk where he described the interaction between visualisation and modelling very well.</p>
 <blockquote>
-<p>Visualization can surprise you, but it doesn’t scale well. Modeling scales well, but it can’t surprise you.<br><br> Visualization can show you something in your data that you didn’t expect. But some things are hard to see, and visualization is a slow, human process.<br><br>
-Modeling might tell you something slightly unexpected, but your choice of model restricts what you’re going to find once you’ve fit it.<br><br>
-So you iterate. Visualization suggests a model, and then you use your model to factor out some feature of the data. Then you visualize again.</p>
+<p>Visualisation can surprise you, but it doesn’t scale well. Modelling scales well, but it can’t surprise you.<br><br> Visualisation can show you something in your data that you didn’t expect. But some things are hard to see, and visualisation is a slow, human process.<br><br>
+Modelling might tell you something slightly unexpected, but your choice of model restricts what you’re going to find once you’ve fit it.<br><br>
+So you iterate. Visualisation suggests a model, and then you use your model to factor out some feature of the data. Then you visualise again.</p>
 </blockquote>
+<p><strong>Visualisation is a significant deliverable</strong></p>
+<p>Visualisation aims to summarise and simplify information with the following guidelines:</p>
+<ul>
+<li>Intuitive and straightforward with a low learning curve (<a href="https://en.wikipedia.org/wiki/KISS_principle">KISS</a>)</li>
+<li>Focus on the salient points, keeping noise | clutter to a minimum</li>
+<li>Content is explicit and not implicit</li>
+<li>Promoting shared understanding, including producing underlying information supporting layered and increasing levels of detail and complexity to align operations and various levels of management<br><br></li>
+</ul>
+</div>
+</div>
+<div id="tools-skills-knowledge" class="section level2">
+<h2>Tools, Skills &amp; Knowledge</h2>
+<div id="domain-knowledge" class="section level3">
+<h3>Domain Knowledge</h3>
+<p>It is challenging to deliver good analytics and associated visualisations without domain knowledge or a procedure that extracts and distils required information instead.<br><br></p>
+In practice, clients often have very little time or cannot provide a decent brief (<a href="https://en.wikipedia.org/wiki/Four_stages_of_competence">unconscious competence</a> for example), leading to a thin and vague specification. Domain knowledge allows one to anticipate and prepare for potential questions in advance, especially if the brief is inadequate.<br><br>
+<hr>
+<p><br></p>
+<p><em>Statistics</em> and <em>Mathematics</em> are used to solve a variety of problems. The aspects listed below exposes a few uses but are in no means exhaustive.<br><br></p>
+</div>
+<div id="statistics" class="section level3">
+<h3>Statistics</h3>
+<p>The most widely used are <a href="https://en.wikipedia.org/wiki/Descriptive_statistics">Descriptive Statistics</a>, which simplifies and quantitatively describes or summarises features of a collection of information, including central tendency, spread and shape.</p>
+<p><a href="https://en.wikipedia.org/wiki/Statistical_inference">Statistical inference</a> assumes an underlying <a href="https://en.wikipedia.org/wiki/Probability_distribution">probability distribution</a> that best describes an observed population, enabling one to deduce properties from it.<br><br></p>
+</div>
+<div id="probability" class="section level3">
+<h3>Probability</h3>
+<p><a href="https://en.wikipedia.org/wiki/Probability">Probability</a> underpins statistics and deals with the likelihood of an event occurring.<br><br></p>
+</div>
+<div id="mathematics" class="section level3">
+<h3>Mathematics</h3>
+<div id="linear-algebra" class="section level4">
+<h4>Linear Algebra</h4>
+<p><a href="https://machinelearningmastery.com/why-learn-linear-algebra-for-machine-learning/">Linear algebra is the mathematics of data</a>. It is used to apply <em>operations<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a></em> across <a href="https://en.wikipedia.org/wiki/Matrix_(mathematics)">matrices</a> (tabular data) and <a href="https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)">vectors</a> (lists) in parallel.</p>
+<p><a href="https://en.wikipedia.org/wiki/Factorization">Factorisation</a> or <a href="https://en.wikipedia.org/wiki/Matrix_decomposition">decomposition</a> simplifies data, including projecting dimensions onto subspaces and <a href="https://en.wikipedia.org/wiki/Dimensionality_reduction">reducing dimensions</a>. It allows for for computations to run more efficiently.<br><br></p>
+</div>
+<div id="multivariate-calculus" class="section level4">
+<h4>Multivariate Calculus</h4>
+<p>The <a href="https://en.wikipedia.org/wiki/Integral">integral</a> is used to calculate the area under a curve and derive the <a href="https://en.wikipedia.org/wiki/Probability_density_function">Probability Density</a> or <a href="https://en.wikipedia.org/wiki/Cumulative_distribution_function">Cumulative Distribution</a> Functions, as used in <a href="https://en.wikipedia.org/wiki/Parametric_statistics">parametric statistics</a> and <a href="https://blog.cloudera.com/blog/2015/12/common-probability-distributions-the-data-scientists-crib-sheet/">probability theory (distributions)</a>.</p>
+<p><a href="https://en.wikipedia.org/wiki/Derivative">Derivatives</a> or <a href="https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant">Jacobians</a> (higher dimension partial derivatives) are used to calculate the <a href="https://en.wikipedia.org/wiki/Gradient_descent">gradient descent</a>, the base variant of a widely used <a href="https://en.wikipedia.org/wiki/Mathematical_optimization">optimisation algorithm</a> used to determine the best parameters to <a href="https://en.wikipedia.org/wiki/Least_squares">minimise the cost of fitting</a> a chosen model to data.</p>
+<p>The <a href="https://en.wikipedia.org/wiki/Taylor_series">Taylor/ Power Series</a> is a method for re-expressing functions as a polynomial series. Linear approximations of complex functions simplify the problem, quantifies the influence of predictor variables and enables one to identify anomalies.</p>
+<hr>
+<p><br><br></p>
 <h2>
 Table of resources in relation to Data Science
 </h2>
@@ -112,13 +156,13 @@ Author
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;vertical-align: middle !important;" rowspan="4">
+<td style="text-align:left;vertical-align: middle !important;" rowspan="5">
 Reference
 </td>
 <td style="text-align:left;">
 Python
 </td>
-<td style="text-align:left;vertical-align: middle !important;" rowspan="4">
+<td style="text-align:left;vertical-align: middle !important;" rowspan="5">
 Web
 </td>
 <td style="text-align:right;">
@@ -132,11 +176,22 @@ Web
 </td>
 </tr>
 <tr>
-<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+<td style="text-align:left;vertical-align: middle !important;" rowspan="3">
 R
 </td>
 <td style="text-align:right;">
 2
+</td>
+<td style="text-align:left;">
+<a href="https://geocompr.robinlovelace.net">Geocomputation with R</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.robinlovelace.net">Robin Lovelace</a>, <a href="https://nowosad.github.io">Jakub Nowosad</a>, <a href="https://www.geographie.uni-jena.de/en/Muenchow.html">Jannes Muenchow</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
 </td>
 <td style="text-align:left;">
 <a href="https://www.tidyverse.org">Tidyverse</a>
@@ -147,7 +202,7 @@ R
 </tr>
 <tr>
 <td style="text-align:right;">
-3
+4
 </td>
 <td style="text-align:left;">
 <a href="http://r-pkgs.had.co.nz/style.html">Style guide</a>
@@ -161,7 +216,7 @@ R
 R, Spark
 </td>
 <td style="text-align:right;">
-4
+5
 </td>
 <td style="text-align:left;">
 <a href="http://spark.rstudio.com">SparklyR</a>
@@ -181,7 +236,7 @@ Python
 Book
 </td>
 <td style="text-align:right;">
-5
+6
 </td>
 <td style="text-align:left;">
 <a href="https://www.amazon.co.uk/Python-Data-Analysis-Wrangling-IPython-ebook/dp/B075X4LT6K/ref=sr_1_1?s=digital-text&amp;ie=UTF8&amp;qid=1533142155&amp;sr=1-1&amp;keywords=pandas">Python for Data Analysis: Data Wrangling with Pandas, NumPy, and IPython 2nd Edition</a>
@@ -195,7 +250,7 @@ Book
 Web
 </td>
 <td style="text-align:right;">
-6
+7
 </td>
 <td style="text-align:left;">
 <a href="https://www.youtube.com/channel/UCnVzApLJE2ljPZSeQylSEyg">Easier data analysis in Python with pandas (video series)</a>
@@ -206,7 +261,7 @@ Web
 </tr>
 <tr>
 <td style="text-align:right;">
-7
+8
 </td>
 <td style="text-align:left;">
 <a href="https://www.dataschool.io/best-practices-with-pandas/">Best practices with pandas (video series)</a>
@@ -217,7 +272,7 @@ Web
 </tr>
 <tr>
 <td style="text-align:right;">
-8
+9
 </td>
 <td style="text-align:left;">
 <a href="https://developers.google.com/edu/python/">Google’s Python Class</a>
@@ -228,7 +283,7 @@ Web
 </tr>
 <tr>
 <td style="text-align:right;">
-9
+10
 </td>
 <td style="text-align:left;">
 <a href="https://www.kaggle.com/learn/python">Kaggle Learn: Python</a>
@@ -239,7 +294,7 @@ Web
 </tr>
 <tr>
 <td style="text-align:right;">
-10
+11
 </td>
 <td style="text-align:left;">
 <a href="https://www.kaggle.com/learn/pandas">Kaggle Learn: Pandas</a>
@@ -256,7 +311,7 @@ R
 Book
 </td>
 <td style="text-align:right;">
-11
+12
 </td>
 <td style="text-align:left;">
 <a href="https://www.amazon.co.uk/Data-Science-Transform-Visualize-Model-ebook/dp/B01NAJAEN5/ref=sr_1_1?s=digital-text&amp;ie=UTF8&amp;qid=1533143298&amp;sr=1-1&amp;keywords=r+for+data+science">R for Data Science: Import, Tidy, Transform, Visualize, and Model Data 1st Edition</a>
@@ -270,7 +325,7 @@ Book
 Web
 </td>
 <td style="text-align:right;">
-12
+13
 </td>
 <td style="text-align:left;">
 <a href="http://r4ds.had.co.nz">R for Data Science</a>
@@ -281,7 +336,7 @@ Web
 </tr>
 <tr>
 <td style="text-align:right;">
-13
+14
 </td>
 <td style="text-align:left;">
 <a href="https://www.kaggle.com/learn/r">Kaggle Learn: R</a>
@@ -292,7 +347,7 @@ Web
 </tr>
 <tr>
 <td style="text-align:right;">
-14
+15
 </td>
 <td style="text-align:left;">
 <a href="http://shop.oreilly.com/product/0636920034834.do">Introduction to Data Science with R How to Manipulate, Visualize, and Model Data with the R Language</a>
@@ -309,7 +364,7 @@ SQL
 Book
 </td>
 <td style="text-align:right;">
-15
+16
 </td>
 <td style="text-align:left;">
 <a href="https://www.amazon.co.uk/High-Performance-MySQL-Optimization-Replication-ebook/dp/B007I8S1TY/ref=tmm_kin_swatch_0?_encoding=UTF8&amp;qid=1533186140&amp;sr=8-1">High Performance MySQL: Optimization, Backups, and Replication 3rd Edition</a>
@@ -320,7 +375,7 @@ Book
 </tr>
 <tr>
 <td style="text-align:right;">
-16
+17
 </td>
 <td style="text-align:left;">
 <a href="https://www.amazon.co.uk/MySQL-Stored-Procedure-Programming-High-Performance-ebook/dp/B0043D2EJU/ref=tmm_kin_swatch_0?_encoding=UTF8&amp;qid=1533186303&amp;sr=8-1">MySQL Stored Procedure Programming: Building High-Performance Web Applications in MySQL</a>
@@ -334,7 +389,7 @@ Book
 Web
 </td>
 <td style="text-align:right;">
-17
+18
 </td>
 <td style="text-align:left;">
 <a href="https://www.kaggle.com/learn/sql">Kaggle Learn: SQL</a>
@@ -373,13 +428,13 @@ Author
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
+<td style="text-align:left;vertical-align: middle !important;" rowspan="3">
 Reference
 </td>
 <td style="text-align:left;">
 Python
 </td>
-<td style="text-align:left;vertical-align: middle !important;" rowspan="3">
+<td style="text-align:left;vertical-align: middle !important;" rowspan="4">
 Web
 </td>
 <td style="text-align:right;">
@@ -393,11 +448,22 @@ Various
 </td>
 </tr>
 <tr>
-<td style="text-align:left;">
+<td style="text-align:left;vertical-align: middle !important;" rowspan="2">
 R
 </td>
 <td style="text-align:right;">
 2
+</td>
+<td style="text-align:left;">
+<a href="https://geocompr.robinlovelace.net">Geocomputation with R</a>
+</td>
+<td style="text-align:left;">
+<a href="https://www.robinlovelace.net">Robin Lovelace</a>, <a href="https://nowosad.github.io">Jakub Nowosad</a>, <a href="https://www.geographie.uni-jena.de/en/Muenchow.html">Jannes Muenchow</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
 </td>
 <td style="text-align:left;">
 <a href="https://ggplot2.tidyverse.org/reference/index.html">ggplot2</a>
@@ -414,7 +480,7 @@ Training
 Python
 </td>
 <td style="text-align:right;">
-3
+4
 </td>
 <td style="text-align:left;">
 <a href="https://www.kaggle.com/learn/data-visualisation">Kaggle Learn: Data Visualisation</a>
@@ -431,7 +497,7 @@ R
 Book
 </td>
 <td style="text-align:right;">
-4
+5
 </td>
 <td style="text-align:left;">
 <a href="https://www.amazon.co.uk/ggplot2-Elegant-Graphics-Data-Analysis-ebook/dp/B01GVCRF6M/ref=tmm_kin_swatch_0?_encoding=UTF8&amp;qid=1533142020&amp;sr=8-1">ggplot2: Elegant Graphics for Data Analysis (Use R!) 2nd Edition</a>
@@ -445,7 +511,7 @@ Book
 Web
 </td>
 <td style="text-align:right;">
-5
+6
 </td>
 <td style="text-align:left;">
 <a href="http://shop.oreilly.com/product/0636920034834.do">Introduction to Data Science with R How to Manipulate, Visualize, and Model Data with the R Language</a>
@@ -1070,6 +1136,7 @@ Web
 </table>
 </div>
 </div>
+</div>
 <div class="footnotes">
 <hr />
 <ol>
@@ -1078,5 +1145,6 @@ Web
 <li id="fn3"><p><sub>A <em>value</em> is the state of a variable when you measure it. The value of a variable may change from measurement to measurement. <em>152 cm, 80 kg, female, etc.</em></sub><a href="#fnref3" class="footnote-back">↩</a></p></li>
 <li id="fn4"><p><sub>An <em>observation</em>, or data point, is a set of measurements made under similar conditions (you usually make all of the measurements in an observation at the same time and on the same object). An observation will contain several values, each associated with a different variable. <em>Each person.</em></sub><a href="#fnref4" class="footnote-back">↩</a></p></li>
 <li id="fn5"><p><sub><a href="https://en.wikipedia.org/wiki/Standard_score"><em>Standardisation</em></a>, <em>Normalisation</em> &amp; <a href="https://en.wikipedia.org/wiki/Power_transform"><em>Box-Cox transformations</em></a> for example</sub><a href="#fnref5" class="footnote-back">↩</a></p></li>
+<li id="fn6"><p><sub>Matrix transformation, inversion, addition and multiplication</sub><a href="#fnref6" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
