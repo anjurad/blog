@@ -9,13 +9,13 @@ comments: false
 
 ## Schooling and Early Career
 
-I was born and raised in in Cape Town.
+I was born and raised in Cape Town.
 
-I excelled at music and reached licentiate level by the time I graduated from school.  During my year of compulsory military service I was selected to an elite group in the South African Air Force (SAAF) and performed  255 concerts on tour throughout South Africa.
+I excelled at music and reached licentiate level by the time I graduated from school.  During my year of compulsory military service, I was selected to an elite group in the South African Air Force (SAAF) and performed  255 concerts on tour throughout South Africa.
 
 After completing national service I remained in Pretoria and joined the SAAF Band as it paid very well for a 19-year-old and allowed enough time to focus on studies too.
 
-In *1994* I started a degree in Marketing and Financial Management at the [University of Pretoria](https://www.up.ac.za) and transfered to the SAAF Magazine, *Ad Astra*, as *Marketing Coordinator*.  I spent my final year at the SAAF Gymnasium *(Training Academy)* as a Public Relations officer.<br><br>
+In *1994* I started a degree in Marketing and Financial Management at the [University of Pretoria](https://www.up.ac.za) and transferred to the SAAF Magazine, *Ad Astra*, as *Marketing Coordinator*.  I spent my final year at the SAAF Gymnasium *(Training Academy)* as a Public Relations officer.<br><br>
 
 I resigned the SAAF upon completing formal education and returned to Cape Town for a few months before travelling to the UK.<br><hr><br>
 
@@ -182,7 +182,7 @@ create_plot_output("timeline_general")
 In March 1999 I emigrated to the UK, initially settling in London.<br><br>
 
 ### Temping ***1999***
-I took on temporary work as an Accounts Assistant after arriving in the UK.  I planned to complete training as a Management and Cost accountant; however, the lure of variety within booming telecommunications industry proved too great.<br><hr><br>
+I took on temporary work as an Accounts Assistant after arriving in the UK.  I planned to complete training as a Management and Cost accountant; however, the lure of variety within the booming telecommunications industry proved too high.<br><hr><br>
 
 ### Orange ***1999 - 2006***
 I joined [Orange](https://en.wikipedia.org/wiki/Orange_UK) [Network Planning](https://en.wikipedia.org/wiki/Network_planning_and_design) in London as a *Project Coordinator*.
@@ -191,7 +191,7 @@ Within a year I was promoted to *Project Manager*, a PMO role primarily focussed
 
 It came naturally to me, and I developed an insatiable appetite for learning about *data management and analysis*.
 
-A few highlights from this role includes:
+A few highlights from this role include:
 
 - I designed and delivered a tracking database and spearheaded a focus group that changed a business process.  This reduced abortive and additional costs of over £5m nationally in the first year alone after implementation.<br><br>
 
@@ -216,12 +216,12 @@ In 2004 took on responsibility for *Facilitation* (renamed as **Programme Contro
 I used modelling more widely to plan and forecast programmes and quantify risk.  It kick-started an initiative to apply marketing segmentation to London boroughs in a bid to prioritise delivery.  It served as a precursor to the *Value to Cost Ratio*, a weighted set of attributes resulting in a ranking score.  It was used to determine budgetary spend on the Access Network to maximise benefit.<br><br><hr><br>
 
 ### Convergys ***2007 - 2010***
-I was responsible for managing multi-million pound programmes developing, customising and implementing SS7 and SIGTRAN based IVR systems and Value Added Solutions (SMSC, Voicemail, MMS) throughout the EMEA/ APAC regions from inception to completion.
+I was responsible for managing multi-million-pound programmes developing, customising and implementing SS7 and SIGTRAN based IVR systems and Value Added Solutions (SMSC, Voicemail, MMS) throughout the EMEA/ APAC regions from inception to completion.
 
 Some key points from this position:
 
-- Full budgetary responsibility of up to $2.5m USD
-- Customer facing, often at executive level
+- Full budgetary responsibility of up to USD 2.5m
+- Customer facing, often at an executive level
 - Matrix management of teams of over 20 people internally and 3rd party suppliers, including remote teams.
 - Managing complete programme lifecycle, including design, software development, manufacturing, testing, installation, commissioning & network integration
 - Producing Statements of Work and Business Cases to support pre-sales bids
@@ -275,7 +275,7 @@ How was the information used?:
 
 - Generate budgets and targets, agreeing on corresponding budgets within Telefónica and Vodafone.
 
-- Organisational and resource planning, including proposals to the board to restructure the organisation in accordance with the Beacon programme life-cycle
+- Organisational and resource planning, including proposals to the board to restructure the organisation per the Beacon programme life-cycle
 <br><br>
 
 Highlighting a few other projects:
@@ -289,7 +289,7 @@ Highlighting a few other projects:
 ### Huawei ***2016 - 2017***
 My primary role was to interface with the customer and provide reporting and analytics.  I mapped all major operational processes using the [BPMN2.0](http://www.bpmn.org) standard.<br><br>
 
-My main achievement during this time was providing management information and steer to a successful turn-around project dealing with a backlog of quality issues.  By the end of the calendar year we closed down 92% of quality issues, with performance and status well within acceptable tolerances and work-in-progress pots.<br><br><hr><br>
+My main achievement during this time was providing management information and steer to a successful turn-around project dealing with a backlog of quality issues.  By the end of the calendar year, we closed down 92% of quality issues, with performance and status well within acceptable tolerances and work-in-progress pots.<br><br><hr><br>
 
 ### Vodafone ***2017 - 2018***
 Vodafone headhunted me for the position.
@@ -303,7 +303,7 @@ Some aspects of the role included:
 - Business process analysis and mapping using the [BPMN2.0](http://www.bpmn.org) standard
 - Bespoke network analysis and supporting media for corporate customer sales pitches<br><br>
 
-My headline achievement was developing and producing automated packs for Sales and Marketing.  It identified opportunities, using predictive clustering of network programme outcomes, which were then geospatially associated to existing and prospective customers.
+My headline achievement was developing and producing automated packs for Sales and Marketing.  It identified opportunities, using predictive clustering of network programme outcomes, which were then geospatially associated with existing and prospective customers.
 
 [^1]: <sub>A Multiple-Item Scale For Measuring Consumer Perception study (Parasuraman, Zeithaml and Berry)</sub>
 [^2]: <sub>**E2E:** end-to-end management</sub>
