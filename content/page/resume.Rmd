@@ -191,7 +191,7 @@ Within a year I was promoted to *Project Manager*, a PMO role primarily focussed
 
 It came naturally to me, and I developed an insatiable appetite for learning about *data management and analysis*.
 
-A few highlights from this role included:
+A few highlights from this role includes:
 
 - I designed and delivered a tracking database and spearheaded a focus group that changed a business process.  This reduced abortive and additional costs of over £5m nationally in the first year alone after implementation.<br><br>
 
@@ -303,7 +303,7 @@ Some aspects of the role included:
 - Business process analysis and mapping using the [BPMN2.0](http://www.bpmn.org) standard
 - Bespoke network analysis and supporting media for corporate customer sales pitches<br><br>
 
-My headline achievement was developing and producing automated packs for Sales and Marketing.  It classified opportunities using predictive clustering of network programme outcomes and associated existing and prospective customers geospatially.
+My headline achievement was developing and producing automated packs for Sales and Marketing.  It identified opportunities, using predictive clustering of network programme outcomes, which were then geospatially associated to existing and prospective customers.
 
 [^1]: <sub>A Multiple-Item Scale For Measuring Consumer Perception study (Parasuraman, Zeithaml and Berry)</sub>
 [^2]: <sub>**E2E:** end-to-end management</sub>
