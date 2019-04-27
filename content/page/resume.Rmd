@@ -230,7 +230,13 @@ Some key points from this position:
 <br><hr><br>
 
 ## Management Consultant & Data Scientist
-The next section covers the contracts that I took on as an independent management consultant.  
+The next section covers the contracts that I took on as an independent management consultant.<br><br>
+
+```{r echo=FALSE, fig.height=3.5, fig.width=8.2, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+create_plot_output("timeline_anjurad")
+
+```
 
 Some general observations about the role:<br><br>
 
@@ -250,15 +256,9 @@ I quickly moved to use SQL (exclusively for over 3 years) but eventually found R
 During 2016 I started using python more extensively leading up to an [8-week course](https://www.dataschool.io/learn/) in [Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing) in preparation to create a classification algorithm. Today [scikit-learn](https://scikit-learn.org/stable/) is my default machine learning library.<br><br>
 
 - **Continuous Learning**<br>
-I have spent a considerable time analysing data, focussing on prediction and inference.  It naturally led me to the emerging *Data Science* field which, at the same time, had been exploding with powerful and accessible tools and techniques.<br><br>
-Using an increasingly broader range of and more advanced solutions ultimately fuelled my a thirst for a comprehensive, more in-depth and thorough education in all key aspects of the discipline.<br><br>
-Data Science is a vast and evolving field with many disciplines.  I can never know enough, so continous learning has become a way of life.<br><br><hr><br>
-
-```{r echo=FALSE, fig.height=3.5, fig.width=8.2, message=FALSE, warning=FALSE, paged.print=FALSE}
-
-create_plot_output("timeline_anjurad")
-
-```
+I have spent considerable time analysing data, focussing on prediction and inference.  It naturally led me to the [emerging *Data Science* field](https://www.forbes.com/sites/gilpress/2013/05/28/a-very-short-history-of-data-science/) which, at the same time, had been exploding with powerful and accessible tools and techniques.<br><br>
+Using an increasingly broader range of and more advanced solutions ultimately fuelled my a thirst for a comprehensive, more in-depth and thorough education in all crucial aspects of the discipline.  I took a sabbatical to complete a decent grounding in [all foundational aspects of data science](/page/resources/#data_science_process_map).<br><br>
+Data Science is a vast and evolving field with many disciplines.  I can never know enough, so continuous learning has become a way of life.<br><br><hr><br>
 
 ### Nokia ***2011 - 2013***
 In 2011 Nokia approached me to help demystify a convoluted KPI improvement programme.  Its complexity made it difficult to demonstrate to the customer with sufficient confidence that the project was under control and on target.
