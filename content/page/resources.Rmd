@@ -103,6 +103,8 @@ The most widely used are [Descriptive Statistics](https://en.wikipedia.org/wiki/
 ### Probability
 [Probability](https://en.wikipedia.org/wiki/Probability) underpins statistics and deals with the likelihood of an event occurring.<br><br>
 
+<a id="mathematics"></a>
+
 ### Mathematics
 #### Linear Algebra
 [Linear algebra is the mathematics of data](https://machinelearningmastery.com/why-learn-linear-algebra-for-machine-learning/).  It is used to apply *operations[^6]* across [matrices](https://en.wikipedia.org/wiki/Matrix_(mathematics)) (tabular data) and [vectors](https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)) (lists) in parallel.

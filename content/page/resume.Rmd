@@ -213,7 +213,7 @@ This role, more than any other, honed my skills to *influence and persuade* and 
 
 In 2004 I took on responsibility for *Facilitation* (renamed as **Programme Control**) nationally, taking on direct reports and gaining *line management* experience.<br><br>
 
-I used modelling more widely to plan and forecast programmes and quantify risk.  It kick-started an initiative to apply marketing segmentation to London boroughs in a bid to prioritise delivery.  It served as a precursor to the *Value to Cost Ratio*, a weighted set of attributes resulting in a ranking score.  It was used to determine budgetary spend on the Access Network to maximise benefit.<br><br><hr><br>
+I used modelling more widely to plan and forecast programmes and quantify risk.  It kick-started an initiative to apply marketing segmentation to London boroughs in a bid to prioritise delivery.  It served as a precursor to the *Value to Cost Ratio*, a weighted set of attributes resulting in a ranking score, used to determine budgetary spend on the Access Network to maximise benefit.<br><br><hr><br>
 
 ### Convergys ***2007 - 2010***
 I was responsible for managing multi-million-pound programmes developing, customising and implementing SS7 and SIGTRAN based IVR systems and Value Added Solutions (SMSC, Voicemail, MMS) throughout the EMEA/ APAC regions from inception to completion.
@@ -247,11 +247,12 @@ It executed serially, and some would often take 24 hours to complete!<br><br>
 I quickly moved to use SQL (exclusively for over 3 years) but eventually found R a lot more scalable and efficient, not just for modelling, but other deliverables too.  I progressively transitioned to R until it became my tool of choice for prototyping and rapid development.<br><br>
 
 - **Machine Learning**<br>
-During 2016 I started using python more extensively leading up to an [8-week course](https://www.dataschool.io/learn/) in [Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing) to create a classification algorithm. Today [scikit-learn](https://scikit-learn.org/stable/) is my default machine learning library.
+During 2016 I started using python more extensively leading up to an [8-week course](https://www.dataschool.io/learn/) in [Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing) in preparation to create a classification algorithm. Today [scikit-learn](https://scikit-learn.org/stable/) is my default machine learning library.<br><br>
 
 - **Continuous Learning**<br>
-
-<br><br><hr><br>
+I have spent a considerable time analysing data, focussing on prediction and inference.  It naturally led me to the emerging *Data Science* field which, at the same time, had been exploding with powerful and accessible tools and techniques.<br><br>
+Using an increasingly broader range of and more advanced solutions ultimately fuelled my a thirst for a comprehensive, more in-depth and thorough education in all key aspects of the discipline.<br><br>
+Data Science is a vast and evolving field with many disciplines.  I can never know enough, so continous learning has become a way of life.<br><br><hr><br>
 
 ```{r echo=FALSE, fig.height=3.5, fig.width=8.2, message=FALSE, warning=FALSE, paged.print=FALSE}
 
@@ -266,9 +267,15 @@ I created and maintained various modelled scenarios of programme delivery, and i
 
 I set up a reporting solution for the Joint Benefit Project (JBP500) and completed optimisation analysis to use existing spare transmission tactically to expedite the programme.  Using the spare capacity helped Nokia avoid significant liquidated damages and achieve the delivery target within the agreed time.
 
-I created a reporting suite to manage the London Olympic programmes.  An emphasis on *management by exception* allowed us to focus on the right things at the right time.<br><br>
+I created a reporting suite to manage the London Olympic programmes.  An emphasis on *management by exception* allowed us to focus on the right things at the right time.
 
-In 2013 Nokia commenced work on a significant, complex and large-scale programme without a suitable tool to manage the work. I got the ball rolling with a few tactical solutions but ended up designing, building and implementing ‘Nisaba’, a web-based workflow, data concentrator/ warehouse and reporting solution used to manage *2G Refresh* and *3UK programmes of work*.  The solution supported a few hundred users for almost 4 years, despite being introduced as a tactical solution only.<br><br><hr><br>
+In 2013 Nokia commenced work on a significant, complex and large-scale programme without a suitable tool to manage the work. I got the ball rolling with a few tactical solutions but ended up designing, building and implementing ‘Nisaba’, a web-based workflow, data concentrator/ warehouse and reporting solution used to manage *2G Refresh* and *3UK programmes of work*.  
+
+Nisaba was built using a LAMP stack and hosted on AWS, using a RabbitMQ as messaging and queuing solution for exports.
+
+I specialised in MySQL, creating and configuring databases, provisioning users and setting privileges.  I designed database structures and created normalised tables and queries.  I wrote Stored Procedures, Triggers and Functions to automate the solution and add features in conjunction with the application.<br><br>
+
+My team and I continued to provide the [SAAS](https://en.wikipedia.org/wiki/Software_as_a_service) solution after I left Nokia as a consultant.  It supported a few hundred users for almost 4 years, despite being introduced as a tactical solution only.<br><br><hr><br>
 
 ### CTIL ***2013 - 2016***
 Towards the end of 2013, I was headhunted to take over from Accenture as their contract came to an end.  As part of the Beacon PMO, my primary and first project was to model programme delivery and create *scenario and baseline plans* of the [Beacon](https://blog.vodafone.co.uk/2012/11/20/better-coverage-fewer-masts-your-complete-guide-to-our-network-joint-venture/) and London programmes.
@@ -307,7 +314,20 @@ Some aspects of the role included:
 - Business process analysis and mapping using the [BPMN2.0](http://www.bpmn.org) standard
 - Bespoke network analysis and supporting media for corporate customer sales pitches<br><br>
 
-My headline achievement was developing and producing automated packs for Sales and Marketing.  It identified and classified opportunities, using predictive clustering of network programme outcomes, which were then geospatially associated with existing and prospective customers.
+My headline achievement was developing and producing automated packs for Sales and Marketing.  It identified and classified opportunities, using predictive clustering of network programme outcomes, which were then geospatially associated with existing and prospective customers.<br><br><hr><br>
+
+### Sabbatical ***2018 - 2019***
+In December 2018 I took a sabbatical and completed training that gave me a thorough and exhaustive foundation in [all essential aspects of data science](/page/resources/#data_science_process_map).  It marked the culmination of a journey that started many years ago.
+
+I did not read mathematics at university even though majoring in highly numerate subjects like *Statistical Research* and *Financial Management*. [Linear Algebra and Multivariate Calculus](/page/resources/#mathematics), in particular, are essential for a deep understanding of algorithms.  Additionally, I aimed to refresh and update my knowledge of Statistics and broaden and deepen other machine learning aspects too.
+
+Some of the courses and training included:
+
+- [Mathematics for Machine Learning by Imperial College London on Coursera](https://www.coursera.org/specializations/mathematics-machine-learning)
+- [Statistical Learning, by Stanford University](https://lagunita.stanford.edu/courses/HumanitiesSciences/StatLearning/Winter2016/about), which I completed **with distinction**.
+- Refreshed and updated my knowledge on statistics and probability, focussing on using programming to perform calculations and tests.<br><br>
+
+<hr><br>
 
 [^1]: <sub>A Multiple-Item Scale For Measuring Consumer Perception study (Parasuraman, Zeithaml and Berry)</sub>
 [^2]: <sub>**E2E:** end-to-end management</sub>
