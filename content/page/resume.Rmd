@@ -211,7 +211,7 @@ I won an award for leading the successful, cross-functional and end-to-end deliv
 
 This role, more than any other, honed my skills to *influence and persuade* and *managing upwards*.
 
-In 2004 took on responsibility for *Facilitation* (renamed as **Programme Control**) nationally, taking on direct reports and gaining *line management* experience.<br><br>
+In 2004 I took on responsibility for *Facilitation* (renamed as **Programme Control**) nationally, taking on direct reports and gaining *line management* experience.<br><br>
 
 I used modelling more widely to plan and forecast programmes and quantify risk.  It kick-started an initiative to apply marketing segmentation to London boroughs in a bid to prioritise delivery.  It served as a precursor to the *Value to Cost Ratio*, a weighted set of attributes resulting in a ranking score.  It was used to determine budgetary spend on the Access Network to maximise benefit.<br><br><hr><br>
 
@@ -247,7 +247,11 @@ It executed serially, and some would often take 24 hours to complete!<br><br>
 I quickly moved to use SQL (exclusively for over 3 years) but eventually found R a lot more scalable and efficient, not just for modelling, but other deliverables too.  I progressively transitioned to R until it became my tool of choice for prototyping and rapid development.<br><br>
 
 - **Machine Learning**<br>
-During 2006 I started using python more extensively leading up to an [8-week course](https://www.dataschool.io/learn/) in [Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing) to create a classification algorithm. Today [scikit-learn](https://scikit-learn.org/stable/) is my default machine learning library.<br><br><hr><br>
+During 2016 I started using python more extensively leading up to an [8-week course](https://www.dataschool.io/learn/) in [Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing) to create a classification algorithm. Today [scikit-learn](https://scikit-learn.org/stable/) is my default machine learning library.
+
+- **Continuous Learning**<br>
+
+<br><br><hr><br>
 
 ```{r echo=FALSE, fig.height=3.5, fig.width=8.2, message=FALSE, warning=FALSE, paged.print=FALSE}
 
@@ -299,11 +303,11 @@ Some aspects of the role included:
 - Regional governance Reporting and Analytics
 - ETL solutions to import and transform high volume and complex 3rd party Network Performance Data.  This activity would complete within minutes, previously taking several engineers a week to perform.
 - Network metrics anomaly detection and association with *potentially causal* events
-- Financial, planning, budgeting and reporting, including auditing a completed bill of material schedules to find anomalous entries, recouping several million pounds.
+- Financial, planning, budgeting and reporting.  Vodafone was able to recoup several million pounds of overspend.  I contributed by algorithmically auditing and classifying anomalous entries in extensive itemised purchase order schedules.
 - Business process analysis and mapping using the [BPMN2.0](http://www.bpmn.org) standard
 - Bespoke network analysis and supporting media for corporate customer sales pitches<br><br>
 
-My headline achievement was developing and producing automated packs for Sales and Marketing.  It identified opportunities, using predictive clustering of network programme outcomes, which were then geospatially associated with existing and prospective customers.
+My headline achievement was developing and producing automated packs for Sales and Marketing.  It identified and classified opportunities, using predictive clustering of network programme outcomes, which were then geospatially associated with existing and prospective customers.
 
 [^1]: <sub>A Multiple-Item Scale For Measuring Consumer Perception study (Parasuraman, Zeithaml and Berry)</sub>
 [^2]: <sub>**E2E:** end-to-end management</sub>
