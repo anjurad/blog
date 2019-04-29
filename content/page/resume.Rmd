@@ -301,7 +301,7 @@ Highlighting a few other projects:
 ### Huawei ***2016 - 2017***
 My primary role was to interface with the customer and provide reporting and analytics.  I mapped all major operational processes using the [BPMN2.0](http://www.bpmn.org) standard.<br><br>
 
-My main achievement during this time was providing management information and steer to a successful turn-around project dealing with a backlog of quality issues.  By the end of the calendar year, we closed down 92% of quality issues, with performance and status well within acceptable tolerances and work-in-progress pots.<br><br><hr><br>
+My main achievement during this time was providing management information and steer to a successful turn-around project dealing with a significant backlog of quality issues.  By the end of the calendar year, we closed down 92% of quality issues, with performance and status well within acceptable tolerances and work-in-progress pots.<br><br><hr><br>
 
 ### Vodafone ***2017 - 2018***
 Vodafone headhunted me for the position.
@@ -309,11 +309,11 @@ Vodafone headhunted me for the position.
 Some aspects of the role included:
 
 - Regional governance Reporting and Analytics
-- ETL solutions to import and transform high volume and complex 3rd party Network Performance Data.  This activity would complete within minutes, previously taking several engineers a week to perform.
+- ETL solutions to import and transform high volume and complex 3rd party Network Performance Data every fortnight, and more frequently during the annual [P3 drive surveys](http://p3-networkanalytics.com/portfolio-item/uk-2-2/).  This activity would complete within minutes, previously taking several engineers a week to perform, with savings estimated at c. £200k p.a.
 - Network metrics anomaly detection and association with *potentially causal* events
-- Financial, planning, budgeting and reporting.  Vodafone was able to recoup several million pounds of overspend.  I contributed by algorithmically auditing and classifying anomalous entries in extensive itemised purchase order schedules.
+- Financial, planning, budgeting and reporting.  Vodafone was able to recoup at least £3m of overspend.  I contributed by algorithmically auditing and classifying anomalous entries in extensive itemised purchase order schedules.
 - Business process analysis and mapping using the [BPMN2.0](http://www.bpmn.org) standard
-- Bespoke network analysis and supporting media for corporate customer sales pitches<br><br>
+- Bespoke network analysis and supporting media used in corporate customer sales pitches<br><br>
 
 My headline achievement was developing and producing automated packs for Sales and Marketing.  It identified and classified opportunities, using predictive clustering of network programme outcomes, which were then geospatially associated with existing and prospective customers.<br><br><hr><br>
 
@@ -326,7 +326,7 @@ Some of the courses and training included:
 
 - [Mathematics for Machine Learning by Imperial College London on Coursera](https://www.coursera.org/specializations/mathematics-machine-learning)
 - [Statistical Learning, by Stanford University](https://lagunita.stanford.edu/courses/HumanitiesSciences/StatLearning/Winter2016/about), which I completed **with distinction**.
-- Refreshed and updated my knowledge on statistics and probability, focussing on using programming to perform calculations and tests.<br><br>
+- Refreshed and updated my knowledge on statistics and probability, focussing on using programming libraries to perform statistical calculations and tests.<br><br>
 
 <hr><br>
 
