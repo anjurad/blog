@@ -326,7 +326,7 @@ My headline achievement was developing and producing automated packs for Sales a
 ### Sabbatical ***2018 - 2019***
 In December 2018 I took a sabbatical and completed training that gave me a thorough and exhaustive foundation in [all essential aspects of data science](/page/resources/#data_science_process_map).  It marked the culmination of a journey that started many years ago.
 
-I did not read mathematics at university even though majoring in highly numerate subjects like *Statistical Research* and *Financial Management*. [Linear Algebra and Multivariate Calculus](/page/resources/#mathematics), in particular, are essential for a deep understanding of algorithms.  Additionally, I aimed to refresh and update my knowledge of Statistics and broaden and deepen other machine learning aspects too.
+I did not read mathematics at university even though majoring in highly numerate subjects like *Statistical Research* and *Financial Management*. [Linear Algebra and Multivariate Calculus](/page/resources/#mathematics), in particular, are essential for a deep understanding of algorithms.  In addition to mathematics, I aimed to refresh and update my knowledge of Statistics and broaden and deepen other machine learning aspects too.
 
 Some of the courses and training included:
 
