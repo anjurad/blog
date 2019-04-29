@@ -212,11 +212,11 @@ df_files <-
   list.files(path = var_path,
              pattern = ".",
              recursive = TRUE) %>%
-  as_tibble() %>%
+  enframe(name = NULL) %>%
   rename(file_name_ext = value) %>%
   
   # remove the file extention to isolate the file name as a separate variable
-  mutate_at("file_name_ext", funs(file_name = str_remove), pattern = "\\.csv") %>% 
+  mutate_at("file_name_ext", list(file_name = str_remove), pattern = "\\.csv") %>% 
   
   # build a file path input for each file as used by the file parameter in the
   # read_csv function
@@ -357,7 +357,7 @@ df_customer_order_payment_data <-
   
   # simplify the order_purchase_timestamp to keep year only and store in a newly
   # created `Purchase_year` feature
-  mutate_at("order_purchase_timestamp", funs(Purchase_year = year)) %>%
+  mutate_at("order_purchase_timestamp", list(Purchase_year = year)) %>%
   
   # change all grouping variables to factor, grouping by all factors and
   # summarising payment_value for each combination of grouping variables
@@ -385,7 +385,7 @@ df_customer_order_payment_data <-
   
   # map each nested summary, gather the values and elongate the summary, summing
   # the content of the numeric field only
-  mutate_at("data", funs(total = map), function(df) {
+  mutate_at("data", list(total = map), function(df) {
     df %>%
       gather() %>%
       summarise_if(is.numeric, sum, na.rm = TRUE) %>%

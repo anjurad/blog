@@ -197,11 +197,11 @@ func_present_headers &lt;-
   list.files(path = var_path,
              pattern = &quot;.&quot;,
              recursive = TRUE) %&gt;%
-  as_tibble() %&gt;%
+  enframe(name = NULL) %&gt;%
   rename(file_name_ext = value) %&gt;%
   
   # remove the file extention to isolate the file name as a separate variable
-  mutate_at(&quot;file_name_ext&quot;, funs(file_name = str_remove), pattern = &quot;\\.csv&quot;) %&gt;% 
+  mutate_at(&quot;file_name_ext&quot;, list(file_name = str_remove), pattern = &quot;\\.csv&quot;) %&gt;% 
   
   # build a file path input for each file as used by the file parameter in the
   # read_csv function
@@ -222,19 +222,9 @@ func_present_headers &lt;-
   }) %&gt;% 
   
   # remove redundant variables to tidy up the datablock
-  select(-file_path, -file_name_ext)</code></pre>
-<pre><code>## Warning: Calling `as_tibble()` on a vector is discouraged, because the behavior is likely to change in the future. Use `tibble::enframe(name = NULL)` instead.
-## This warning is displayed once per session.</code></pre>
-<pre><code>## Warning: funs() is soft deprecated as of dplyr 0.8.0
-## please use list() instead
-## 
-## # Before:
-## funs(name = f(.)
-## 
-## # After: 
-## list(name = ~f(.))
-## This warning is displayed once per session.</code></pre>
-<pre class="r"><code># print new table to glance the imported product
+  select(-file_path, -file_name_ext)
+
+# print new table to glance the imported product
 df_files</code></pre>
 <pre><code>## # A tibble: 9 x 2
 ##   file_name                         file                    
@@ -739,7 +729,7 @@ SP
   
   # simplify the order_purchase_timestamp to keep year only and store in a newly
   # created `Purchase_year` feature
-  mutate_at(&quot;order_purchase_timestamp&quot;, funs(Purchase_year = year)) %&gt;%
+  mutate_at(&quot;order_purchase_timestamp&quot;, list(Purchase_year = year)) %&gt;%
   
   # change all grouping variables to factor, grouping by all factors and
   # summarising payment_value for each combination of grouping variables
@@ -767,7 +757,7 @@ SP
   
   # map each nested summary, gather the values and elongate the summary, summing
   # the content of the numeric field only
-  mutate_at(&quot;data&quot;, funs(total = map), function(df) {
+  mutate_at(&quot;data&quot;, list(total = map), function(df) {
     df %&gt;%
       gather() %&gt;%
       summarise_if(is.numeric, sum, na.rm = TRUE) %&gt;%
