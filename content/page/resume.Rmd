@@ -270,13 +270,19 @@ I set up a reporting solution for the Joint Benefit Project (JBP500) and complet
 
 I created a reporting suite to manage the London Olympic programmes.  An emphasis on *management by exception* allowed us to focus on the right things at the right time.
 
-In 2013 Nokia commenced work on a significant, complex and large-scale programme without a suitable tool to manage the work. I got the ball rolling with a few tactical solutions but ended up designing, building and implementing ‘Nisaba’, a web-based workflow, data concentrator/ warehouse and reporting solution used to manage *2G Refresh* and *3UK programmes of work*.  
+In 2013 Nokia commenced work on a significant, complex and large-scale programme without a suitable tool to manage the work. I got the ball rolling with a few tactical solutions but ended up designing, building and implementing ‘Nisaba’, a web-based workflow, data concentrator/ warehouse and reporting solution used to manage the *2G Refresh* and the *3UK Buy-In and Free Carrier LTE (4G)* programmes.
 
 Nisaba was built using a LAMP stack and hosted on AWS, using a RabbitMQ as messaging and queuing solution for exports.
 
-I specialised in MySQL, creating and configuring databases, provisioning users and setting privileges.  I designed database structures and created normalised tables and queries.  I wrote Stored Procedures, Triggers and Functions to automate the solution and add features in conjunction with the application.<br><br>
+I specialised in MySQL, creating and configuring databases, provisioning users and setting privileges.  I designed database structures and created normalised tables and optimised queries.  I wrote Stored Procedures, Triggers and Functions to automate the solution and add features in conjunction with the application.
 
-My team and I continued to provide the [SAAS](https://en.wikipedia.org/wiki/Software_as_a_service) solution after I left Nokia as a consultant.  It supported a few hundred users for almost 4 years, despite being introduced as a tactical solution only.<br><br><hr><br>
+My team and I continued to provide the [SAAS](https://en.wikipedia.org/wiki/Software_as_a_service) solution after I left Nokia as a consultant.  It supported a few hundred users for almost 4 years, despite being introduced as a tactical solution only.<br><br>
+
+  > In 2015, Mobile Telecom customer MBNL praised the ease and speed of reporting generated from the Nisaba Database. The feedback was the tool provided, fast delivery with agility provided by changes of data input and output.<br><br>
+ For me as a PM, delivering customer reporting on mobile network multi technology projects, NISABA as a tool has allowed simple views from complex cross work stream data. The reporting functionality was very simply tailored to meet the customer needs with instant updates to many of the output reports. The ability to access the tool securely from a number of different devices means we can manage data on the go. The stability of the platform in the last 3 years has also been excellent.<br><br>
+[**Andy Scott, Customer Project Manager - Nokia Networks**](https://www.linkedin.com/in/andy-scott-2a579b90/)
+
+<br><br><hr><br>
 
 ### CTIL ***2013 - 2016***
 Towards the end of 2013, I was headhunted to take over from Accenture as their contract came to an end.  As part of the Beacon PMO, my primary and first project was to model programme delivery and create *scenario and baseline plans* of the [Beacon](https://blog.vodafone.co.uk/2012/11/20/better-coverage-fewer-masts-your-complete-guide-to-our-network-joint-venture/) and London programmes.
