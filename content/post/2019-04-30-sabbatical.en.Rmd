@@ -9,10 +9,12 @@ subtitle: 'an exhaustive review of data science fundamentals'
 comments: yes
 ---
 
+**I am now available for Management Consultant | Data Scientist roles.  Please [get in touch](https://www.linkedin.com/in/gerhardgroenewald/) if you need my help.**<br><br><hr><br>
+
 During the last eight years, I spent considerable time analysing data, with a focus on prediction and inference.  It naturally led me to the [emerging *Data Science* field](https://www.forbes.com/sites/gilpress/2013/05/28/a-very-short-history-of-data-science/)
 which, at the same time, had been exploding with powerful and accessible tools and techniques.
 
-Using an increasingly broader and more advanced range of solutions ultimately fuelled my a thirst to gain more extensive and in-depth knowledge in [all crucial aspects of the discipline](/page/resources).
+Using an increasingly broader and more advanced range of solutions ultimately fuelled a thirst to gain more extensive and in-depth knowledge in [all crucial aspects of the discipline](/page/resources).
 
 In November 2018 my contract ended with Vodafone.  It was an excellent opportunity to take some time out and study all the subjects and specialisations to the level that I had set out to achieve.
 
@@ -24,7 +26,7 @@ Data Science is a vast and fast evolving field with many disciplines.  It is the
 I've been busy with quite a bit, but would like to highlight the following aspects:<br><br>
 
 - **Mathematics for Machine Learning**<br>
-I did not read mathematics at university even though majoring in highly numerate subjects like Statistical Marketing Research and Financial Management.<br><br>
+I did not read mathematics at university even though majoring in highly numerate subjects at university.<br><br>
 I wanted a fundamental understanding of algorithms and completed [Mathematics for Machine Learning by Imperial College London on Coursera](https://www.coursera.org/specializations/mathematics-machine-learning).<br><br>
 
 - **Statistics & Probability**<br>
@@ -40,8 +42,6 @@ I supercharged my insight further by working through several books on *building 
 I've decided to focus on [Spark](https://spark.apache.org) rather than the more mature [Hadoop MapReduce](http://hadoop.apache.org).  I occasionally use [SparklyR](https://spark.rstudio.com) mainly because it is a doddle to set up locally within the RStudio IDE, making it easy to experiment with and learn.  I decided to focus more on the Python ecosystem and completed a few courses in [PySpark](https://spark.apache.org/docs/0.9.1/python-programming-guide.html).<br><br>
 
 For those interested in data science, I am maintaining a [page with a high-level outline of the process and associated resources](/page/resources).
-
-**I am now available for Management Consultant | Data Scientist roles.  Please [get in touch](https://www.linkedin.com/in/gerhardgroenewald/) if you need my help.**
 
 [^1]: <sub>A couple of excellent resources include:<br>
 ['Data Science from Scratch'](https://www.amazon.co.uk/Data-Science-Scratch-Principles-Python/dp/149190142X) by [Joel Grus](https://joelgrus.com) and ['Machine Learning Algorithms From Scratch'](https://machinelearningmastery.com/machine-learning-algorithms-from-scratch/) by [Jason Brownlee](https://machinelearningmastery.com/about/).</sub>
