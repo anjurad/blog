@@ -42,7 +42,7 @@
     <item>
       <title>Data Science</title>
       <link>/tags/data-science/</link>
-      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
       <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
       <guid>/tags/data-science/</guid>
       <description></description>
@@ -67,9 +67,18 @@
     </item>
     
     <item>
+      <title>Learning</title>
+      <link>/tags/learning/</link>
+      <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/learning/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Management</title>
       <link>/tags/management/</link>
-      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
       <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
       <guid>/tags/management/</guid>
       <description></description>

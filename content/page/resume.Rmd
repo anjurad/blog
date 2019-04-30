@@ -253,11 +253,11 @@ It executed serially, and some would often take 24 hours to complete!<br><br>
 I quickly moved to use SQL (exclusively for over 3 years) but eventually found R a lot more scalable and efficient, not just for modelling, but other deliverables too.  I progressively transitioned to R until it became my tool of choice for prototyping and rapid development.<br><br>
 
 - **Machine Learning**<br>
-During 2016 I started using python more extensively leading up to an [8-week course](https://www.dataschool.io/learn/) in [Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing) in preparation to create a classification algorithm. Today [scikit-learn](https://scikit-learn.org/stable/) is my default machine learning library.<br><br>
+During 2016 I started using python more extensively leading up to an [8-week course](https://www.dataschool.io/learn/) in [Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing) in preparation to create a classification algorithm. Today [scikit-learn](https://scikit-learn.org/stable/) is my default machine learning library although I am working towards using the [TensorFlow](https://www.tensorflow.org) framework.<br><br>
 
 - **Continuous Learning**<br>
 I have spent considerable time analysing data, focussing on prediction and inference.  It naturally led me to the [emerging *Data Science* field](https://www.forbes.com/sites/gilpress/2013/05/28/a-very-short-history-of-data-science/) which, at the same time, had been exploding with powerful and accessible tools and techniques.<br><br>
-Using an increasingly broader range of and more advanced solutions ultimately fuelled my a thirst for a comprehensive, more in-depth and thorough education in all crucial aspects of the discipline.  I took a sabbatical to complete a decent grounding in [all foundational aspects of data science](/page/resources/#data_science_process_map).<br><br>
+Using an increasingly broader and more advanced range of solutions ultimately fuelled my a thirst to gain extensive and more in-depth knowledge in all crucial aspects of the discipline.  I took a sabbatical to complete finish up courses in [all foundational aspects of data science](/page/resources/#data_science_process_map), bringing to an end a journey that started a few years ago.  More accurately, it marks the start of my education, albeit on a solid footing.<br><br>
 Data Science is a vast and evolving field with many disciplines.  I can never know enough, so continuous learning has become a way of life.<br><br>
 I am an active member of a few tech groups in Manchester and attend regular meetups in the city.<br><br><hr><br>
 

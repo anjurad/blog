@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>gerhard@anjurad.com (Gerhard Groenewald)</managingEditor>
     <webMaster>gerhard@anjurad.com (Gerhard Groenewald)</webMaster>
-    <lastBuildDate>Sun, 18 Nov 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 30 Apr 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Sabbatical</title>
+      <link>/post/sabbatical/</link>
+      <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/post/sabbatical/</guid>
+      <description>During the last eight years, I spent considerable time analysing data, with a focus on prediction and inference. It naturally led me to the emerging Data Science field which, at the same time, had been exploding with powerful and accessible tools and techniques.
+Using an increasingly broader and more advanced range of solutions ultimately fuelled my a thirst to gain more extensive and in-depth knowledge in all crucial aspects of the discipline.</description>
+    </item>
     
     <item>
       <title>Planning weekly food</title>
