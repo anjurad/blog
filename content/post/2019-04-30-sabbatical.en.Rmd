@@ -38,7 +38,7 @@ I studied the book a few years ago and fancied doing the associated online cours
 I supercharged my insight further by working through several books on *building machine learning algorithms from scratch*.[^1]<br><br>
 
 - **Big data**<br>
-[Big data is the future.](/post/2018-07-24-first-post)  Up to now, I've not needed big data technologies for my work because both Python and R can be manipulated to work with reasonably large datasets.<br><br>
+No data scientist's toolkit is complete without the ability to process big data.  It's fast becoming [widespread and commonplace](/post/2018-07-24-first-post).  Up to now, I've not needed big data technologies for my work because both Python and R can be manipulated to work with reasonably large datasets.<br><br>
 I've decided to focus on [Spark](https://spark.apache.org) rather than the more mature [Hadoop MapReduce](http://hadoop.apache.org).  I occasionally use [SparklyR](https://spark.rstudio.com) mainly because it is a doddle to set up locally within the RStudio IDE, making it easy to experiment with and learn.  I decided to focus more on the Python ecosystem and completed a few courses in [PySpark](https://spark.apache.org/docs/0.9.1/python-programming-guide.html).<br><br>
 
 For those interested in data science, I am maintaining a [page with a high-level outline of the process and associated resources](/page/resources).
