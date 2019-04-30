@@ -6,6 +6,7 @@ slug: sabbatical
 categories: []
 tags: ['data-science', 'management', 'learning']
 subtitle: 'an exhaustive review of data science fundamentals'
+bigimg: [{src: "/img/binary.jpeg"}]
 comments: yes
 ---
 
