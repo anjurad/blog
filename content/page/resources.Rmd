@@ -11,7 +11,7 @@ comments: false
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-I have a ‘go-to’ list of quality and up-to-date sources of information that I continuously draw upon either as a *reference*, for *training*, detecting *patterns* and *trends*, or *comparison* and *evaluation*.
+I have a ‘go-to’ list of quality and up-to-date [sources of information](#data_science_resources) that I continuously draw upon either as a *reference*, for *training*, detecting *patterns* and *trends*, or *comparison* and *evaluation*.
 
 I have mapped the list to the data science process, and the skills and knowledge supporting it. I hope that it saves you time and help focus on relevant and critical aspects using quality, vetted information.
 
@@ -131,6 +131,7 @@ The [Taylor/ Power Series](https://en.wikipedia.org/wiki/Taylor_series) is a met
 [^5]: <sub>[*Standardisation*](https://en.wikipedia.org/wiki/Standard_score), *Normalisation* & [*Box-Cox transformations*](https://en.wikipedia.org/wiki/Power_transform) for example</sub>
 [^6]: <sub>Matrix transformation, inversion, addition and multiplication</sub>
 
+<a id="data_science_resources"></a>
 
 <h2>Table of resources in relation to Data Science</h2>
 ```{r tables, echo=FALSE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
