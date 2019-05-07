@@ -13,7 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 I have a ‘go-to’ list of quality and up-to-date [sources of information](#data_science_resources) that I continuously draw upon either as a *reference*, for *training*, detecting *patterns* and *trends*, or *comparison* and *evaluation*.
 
-I have mapped the list to the data science process, and the skills and knowledge supporting it. I hope that it saves you time and help focus on relevant and critical aspects using quality, vetted information.
+The list covers [Python](https://www.python.org) and [R](https://www.r-project.org) environments, two common programming languages supporting a plethora of libraries used to solve data science problems.<br><br>
+
+I have mapped the list to the data science process, and the skills and knowledge supporting it. I hope that it saves you time and help focus on relevant and critical aspects using quality, vetted information.<br><br><hr><br>
 
 The following graph provides an outline of the data science process and the skills and knowledge required to practice it.<br><br>
 
@@ -71,6 +73,8 @@ It is also a useful approach when modelling.  Read more about it in [Hadley Wick
 <a id="visualisation"></a>
 
 ### Visualisation & Modelling
+Visualisation and Modelling is used to detect patterns in data.
+
 In Feburary 2013 Hadley Wickham gave a talk where he described the interaction between visualisation and modelling very well.  
 
 > Visualisation can surprise you, but it doesn’t scale well. Modelling scales well, but it can’t surprise you.<br><br>  Visualisation can show you something in your data that you didn’t expect. But some things are hard to see, and visualisation is a slow, human process.<br><br>
