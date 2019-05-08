@@ -1,0 +1,46 @@
+---
+title: Vroom
+author: Gerhard Groenewald
+date: '2019-05-08'
+slug: vroom
+categories:
+  - R
+tags:
+  - R
+  - tips tricks
+  - library
+  - review
+subtitle: 'Supercharge data import in R'
+---
+
+I'm very excited the learn about [vroom](http://vroom.r-lib.org), RStudio's latest [tidyverse](https://www.tidyverse.org/) offering.  **It imports data a lot faster compared with existing R solutions.**
+
+Check out the following [benchmark](http://vroom.r-lib.org/articles/benchmarks.html) that provides a comparison across a handful of similar functions and interactions between various libraries.<br><br>
+
+![Benchmark](http://vroom.r-lib.org/articles/benchmarks_files/figure-html/unnamed-chunk-2-1.png)
+
+The speed is already a game-changer, but the following features sweeten the deal:<br><br>
+
+- **Similar to readr**<br>
+`vroom` shares many features with `readr`, including nearly all of the parsing features of readr for delimited and fixed width files.<br><br>
+
+- **Reading multiple files**<br>
+Native support reading from multiple files and connections.  It reads sets of files with the same columns into one table.<br><br>
+
+- **Delimited files**<br>
+Automatically guesses the delimiter of a file.<br><br>
+
+- **Compressed files**<br>
+Automatically reads and writes zip, gzip, bz2 and xz compressed files with the standard file extensions.<br><br>
+
+- **Remote files**<br>
+Read files from the internet by passing the URL of the file to `vroom()`.<br><br>
+
+- **Reading and writing from pipe connections**<br>
+Provides efficient input and output from `pipe()` connections, which is useful for pre-filtering large inputs for example.<br><br>
+
+- **Column selection**<br>
+The `col_select` feature makes it easy to select columns to *retain or omit*.  It supports *selection helpers* and *renaming* too, including helper functions to repair names.<br><br>
+
+It significantly speeds up workflow, making it my default tool for importing files into R.  You can find the original article [here.](https://www.tidyverse.org/articles/2019/05/vroom-1-0-0/)
+

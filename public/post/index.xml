@@ -7,10 +7,24 @@
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>gerhard@anjurad.com (Gerhard Groenewald)</managingEditor>
     <webMaster>gerhard@anjurad.com (Gerhard Groenewald)</webMaster>
-    <lastBuildDate>Tue, 30 Apr 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 08 May 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Vroom</title>
+      <link>/post/vroom/</link>
+      <pubDate>Wed, 08 May 2019 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/post/vroom/</guid>
+      <description>I’m very excited the learn about vroom, RStudio’s latest tidyverse offering. It imports data a lot faster compared with existing R solutions.
+Check out the following benchmark that provides a comparison across a handful of similar functions and interactions between various libraries.
+Benchmark
+ The speed is already a game-changer, but the following features sweeten the deal:
+ Similar to readr
+vroom shares many features with readr, including nearly all of the parsing features of readr for delimited and fixed width files.</description>
+    </item>
     
     <item>
       <title>Sabbatical</title>

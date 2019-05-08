@@ -76,6 +76,15 @@
     </item>
     
     <item>
+      <title>Library</title>
+      <link>/tags/library/</link>
+      <pubDate>Wed, 08 May 2019 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/library/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Management</title>
       <link>/tags/management/</link>
       <pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate>
@@ -87,16 +96,25 @@
     <item>
       <title>R</title>
       <link>/tags/r/</link>
-      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 08 May 2019 00:00:00 +0000</pubDate>
       <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
       <guid>/tags/r/</guid>
       <description></description>
     </item>
     
     <item>
+      <title>Review</title>
+      <link>/tags/review/</link>
+      <pubDate>Wed, 08 May 2019 00:00:00 +0000</pubDate>
+      <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
+      <guid>/tags/review/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Tips Tricks</title>
       <link>/tags/tips-tricks/</link>
-      <pubDate>Sun, 18 Nov 2018 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 08 May 2019 00:00:00 +0000</pubDate>
       <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
       <guid>/tags/tips-tricks/</guid>
       <description></description>

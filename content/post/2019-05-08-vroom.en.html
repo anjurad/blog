@@ -1,0 +1,41 @@
+---
+title: Vroom
+author: Gerhard Groenewald
+date: '2019-05-08'
+slug: vroom
+categories:
+  - R
+tags:
+  - R
+  - tips tricks
+  - library
+  - review
+subtitle: 'Supercharge data import in R'
+---
+
+
+
+<p>I’m very excited the learn about <a href="http://vroom.r-lib.org">vroom</a>, RStudio’s latest <a href="https://www.tidyverse.org/">tidyverse</a> offering. <strong>It imports data a lot faster compared with existing R solutions.</strong></p>
+<p>Check out the following <a href="http://vroom.r-lib.org/articles/benchmarks.html">benchmark</a> that provides a comparison across a handful of similar functions and interactions between various libraries.<br><br></p>
+<div class="figure">
+<img src="http://vroom.r-lib.org/articles/benchmarks_files/figure-html/unnamed-chunk-2-1.png" alt="Benchmark" />
+<p class="caption">Benchmark</p>
+</div>
+<p>The speed is already a game-changer, but the following features sweeten the deal:<br><br></p>
+<ul>
+<li><p><strong>Similar to readr</strong><br>
+<code>vroom</code> shares many features with <code>readr</code>, including nearly all of the parsing features of readr for delimited and fixed width files.<br><br></p></li>
+<li><p><strong>Reading multiple files</strong><br>
+Native support reading from multiple files and connections. It reads sets of files with the same columns into one table.<br><br></p></li>
+<li><p><strong>Delimited files</strong><br>
+Automatically guesses the delimiter of a file.<br><br></p></li>
+<li><p><strong>Compressed files</strong><br>
+Automatically reads and writes zip, gzip, bz2 and xz compressed files with the standard file extensions.<br><br></p></li>
+<li><p><strong>Remote files</strong><br>
+Read files from the internet by passing the URL of the file to <code>vroom()</code>.<br><br></p></li>
+<li><p><strong>Reading and writing from pipe connections</strong><br>
+Provides efficient input and output from <code>pipe()</code> connections, which is useful for pre-filtering large inputs for example.<br><br></p></li>
+<li><p><strong>Column selection</strong><br>
+The <code>col_select</code> feature makes it easy to select columns to <em>retain or omit</em>. It supports <em>selection helpers</em> and <em>renaming</em> too, including helper functions to repair names.<br><br></p></li>
+</ul>
+<p>It significantly speeds up workflow, making it my default tool for importing files into R. You can find the original article <a href="https://www.tidyverse.org/articles/2019/05/vroom-1-0-0/">here.</a></p>
