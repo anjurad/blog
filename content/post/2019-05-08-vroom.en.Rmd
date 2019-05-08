@@ -17,7 +17,7 @@ I'm very excited the learn about [vroom](http://vroom.r-lib.org), RStudio's late
 
 Check out the following [benchmark](http://vroom.r-lib.org/articles/benchmarks.html) that provides a comparison across a handful of similar functions and interactions between various libraries.<br><br>
 
-![Benchmark](http://vroom.r-lib.org/articles/benchmarks_files/figure-html/unnamed-chunk-2-1.png)
+![Benchmark](https://vroom.r-lib.org/articles/benchmarks_files/figure-html/unnamed-chunk-2-1.png)
 
 The speed is already a game-changer, but the following features sweeten the deal:<br><br>
 
