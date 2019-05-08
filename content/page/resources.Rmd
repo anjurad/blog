@@ -83,9 +83,10 @@ So you iterate. Visualisation suggests a model, and then you use your model to f
 
 
 ### Communicate
-**Visualisation is a significant deliverable.**
 
 The result and product of the data science process is to *communicate* findings, typically to non-technical and busy recipients. It is the most important deliverable of the process, even if not the first thing that springs to mind when considering data science. Fantastic insights are of no use if the intended audience doesn’t understand or trust it. It is therefore vital to take care when presenting findings.
+
+**Visualisation is a significant deliverable.**
 
 Visualisation is an essential ingredient of communication.   It summarises and simplifies information, with the following guidelines applying:
 
