@@ -305,7 +305,7 @@ ref_days_join_meal <-
 ### Menu Items
 In this section we combine the menu list and the price list for each menu's ingredients, creating a `Menu_Cost` column summing the total value of all underlying ingredients for each meal.  
 
-Ingredients are nested within the `Ingredients` column for each meal.  The head the resulting nested table `df_menu_items` is printed below.<br><br>
+Ingredients are nested within the `Ingredients` column for each meal.  The head of the resulting nested table `df_menu_items` is printed below.<br><br>
 
 ```{r}
 df_menu_items <-
