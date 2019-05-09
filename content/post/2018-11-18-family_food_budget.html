@@ -217,7 +217,7 @@ options(digits=9)</code></pre>
   
   # remove redundant variables
   select(-file_path,-file_name_ext)</code></pre>
-<p>Let’s inspect the dataframe with the imported data.<br><br></p>
+<p>Let’s inspect the dataframe with the imported data and the delve into a sample of each nested tables too.<br><br></p>
 <pre class="r"><code>df_import</code></pre>
 <pre><code>## # A tibble: 2 x 2
 ##   file_tab   file             
@@ -227,6 +227,232 @@ options(digits=9)</code></pre>
 <p>The dataframe <code>df_import</code> reveals two imported tabs, including <code>price_list</code> and <code>menu</code>.</p>
 <p>The <code>price_list</code> data contains ingredients, units purchased according to the <em>packaging</em> and its purchase price.</p>
 <p>Tibble <code>menu</code> is a list of meals, listing the <code>Meal</code> time-of-day, including breakfast, lunch, dinner or a snack only. Each menu item (meal) contains a list of ingredients and units consumed in the associated menu meal.<br><br></p>
+<pre class="r"><code>df_import %&gt;% 
+  head(1) %&gt;%
+  unnest() %&gt;% 
+  head() %&gt;% 
+  mutate_at(&quot;Price&quot;, ~scales::dollar(., prefix = &quot;£&quot;)) %&gt;% 
+  rename_all(func_present_headers) %&gt;% 
+  kable(format = &quot;html&quot;) %&gt;% 
+  kableExtra::kable_styling(full_width = FALSE,
+                font_size = 9)</code></pre>
+<table class="table" style="font-size: 9px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+File Tab
+</th>
+<th style="text-align:left;">
+Item
+</th>
+<th style="text-align:left;">
+Price
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+price_list
+</td>
+<td style="text-align:left;">
+Baby Carrots
+</td>
+<td style="text-align:left;">
+£1.30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+price_list
+</td>
+<td style="text-align:left;">
+Bacon
+</td>
+<td style="text-align:left;">
+£2.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+price_list
+</td>
+<td style="text-align:left;">
+Baked Beans
+</td>
+<td style="text-align:left;">
+£2.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+price_list
+</td>
+<td style="text-align:left;">
+Bread
+</td>
+<td style="text-align:left;">
+£1.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+price_list
+</td>
+<td style="text-align:left;">
+Broccoli
+</td>
+<td style="text-align:left;">
+£1.30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+price_list
+</td>
+<td style="text-align:left;">
+Burger Buns
+</td>
+<td style="text-align:left;">
+£1.00
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>df_import %&gt;% 
+  tail(1) %&gt;%
+  unnest() %&gt;% 
+  head() %&gt;% 
+  rename_all(func_present_headers) %&gt;% 
+  kable(format = &quot;html&quot;) %&gt;% 
+  kableExtra::kable_styling(full_width = FALSE,
+                font_size = 9)</code></pre>
+<table class="table" style="font-size: 9px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+File Tab
+</th>
+<th style="text-align:left;">
+Meal
+</th>
+<th style="text-align:left;">
+Menu
+</th>
+<th style="text-align:left;">
+Item
+</th>
+<th style="text-align:right;">
+Unit
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+menu
+</td>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Fish fingers, Mash &amp; Beans
+</td>
+<td style="text-align:left;">
+Fish
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+menu
+</td>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Fish fingers, Mash &amp; Beans
+</td>
+<td style="text-align:left;">
+Potatoes
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+menu
+</td>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Fish fingers, Mash &amp; Beans
+</td>
+<td style="text-align:left;">
+Baked Beans
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+menu
+</td>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Sausage, Mash &amp; Beans
+</td>
+<td style="text-align:left;">
+Sausage
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+menu
+</td>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Sausage, Mash &amp; Beans
+</td>
+<td style="text-align:left;">
+Potatoes
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+menu
+</td>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Sausage, Mash &amp; Beans
+</td>
+<td style="text-align:left;">
+Baked Beans
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+</tr>
+</tbody>
+</table>
+<p><br><br></p>
 </div>
 <div id="reference-period" class="section level3">
 <h3>Reference Period</h3>
@@ -2011,7 +2237,7 @@ df_plot %&gt;%
   ) +
   labs(title = &quot;Monthly shopping costs by week&quot;,
        y = &quot;Purchases&quot;)</code></pre>
-<p><img src="/post/2018-11-18-family_food_budget_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+<p><img src="/post/2018-11-18-family_food_budget_files/figure-html/unnamed-chunk-12-1.png" width="672" />
 <br><br></p>
 </div>
 <div id="the-shopping-list" class="section level3">
@@ -2979,7 +3205,7 @@ Total
        fill = &quot;Cost/ Meal&quot;,
        y = &quot;Cost/ Meal&quot;,
        x = &quot;&quot;)</code></pre>
-<p><img src="/post/2018-11-18-family_food_budget_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="/post/2018-11-18-family_food_budget_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>The following visualisation contrasts a few meals to provide a side-by-side breakdown of costs per menu. It is clear that using meat and complexity is what increases the cost of meals.<br><br></p>
 <pre class="r"><code># Expensive Items ----
 df_menu_items %&gt;%
@@ -3006,7 +3232,7 @@ df_menu_items %&gt;%
   scale_y_continuous(labels = scales::dollar_format(prefix = &quot;£&quot;)) +
   theme_classic() +
   labs(title = &quot;Comparing the cost of ingredients for selected meals&quot;)</code></pre>
-<p><img src="/post/2018-11-18-family_food_budget_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="/post/2018-11-18-family_food_budget_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 </div>
 </div>
 <div id="summary" class="section level2">

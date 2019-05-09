@@ -233,7 +233,7 @@ df_import <-
 
 ```
 
-Let's inspect the dataframe with the imported data.<br><br>
+Let's inspect the dataframe with the imported data and the delve into a sample of each nested tables too.<br><br>
 
 ```{r}
 df_import
@@ -244,6 +244,28 @@ The dataframe `df_import` reveals two imported tabs, including `price_list` and 
 The `price_list` data contains ingredients, units purchased according to the *packaging* and its purchase price.  
 
 Tibble `menu` is a list of meals, listing the `Meal` time-of-day, including breakfast, lunch, dinner or a snack only. Each menu item (meal) contains a list of ingredients and units consumed in the associated menu meal.<br><br>
+
+```{r}
+df_import %>% 
+  head(1) %>%
+  unnest() %>% 
+  head() %>% 
+  mutate_at("Price", ~scales::dollar(., prefix = "£")) %>% 
+  rename_all(func_present_headers) %>% 
+  kable(format = "html") %>% 
+  kableExtra::kable_styling(full_width = FALSE,
+                font_size = 9)
+
+df_import %>% 
+  tail(1) %>%
+  unnest() %>% 
+  head() %>% 
+  rename_all(func_present_headers) %>% 
+  kable(format = "html") %>% 
+  kableExtra::kable_styling(full_width = FALSE,
+                font_size = 9)
+```
+<br><br>
 
 ### Reference Period
 Here we instantiate two reference tibbles, including the period or timeframe for which the meals are planned, and the meal time-of-day.  
