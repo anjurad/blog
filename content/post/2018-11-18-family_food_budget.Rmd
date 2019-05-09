@@ -555,7 +555,7 @@ df_plot %>%
     legend.position = "bottom",
     legend.key.width=unit(2.5,"cm")
   ) +
-  labs(title = "Montly shopping costs by week",
+  labs(title = "Monthly shopping costs by week",
        y = "Purchases")
 ```
 <br><br>
