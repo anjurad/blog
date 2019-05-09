@@ -34,7 +34,7 @@ Food planning, especially for a young family is essential, without which it can 
 
 I decided that it was not going to beat me!  I reached into my bag of tricks and conjured a helper to tackle this quest. A simple piece of R code creates a randomised 'inspiration' menu plan.  It meant that I had to document a few dozen recipes to start, but the effort soon paid off.
 
-It is now a tonne easier to plan our weekly menu plan, and we tend not to use the program anymore.  However, it served as a bootstrap, transforming food planning into what is now a routine and straightforward task.<br><br>
+It is now a ton easier to plan our weekly menu plan, and we tend not to use the program anymore.  However, it served as a bootstrap, transforming food planning into what is now a routine and straightforward task.<br><br>
 
 This post covers and explains the code, and how to use its output to tack on budgeting for example.<br><br><hr><br>
 
