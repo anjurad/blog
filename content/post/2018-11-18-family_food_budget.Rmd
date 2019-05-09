@@ -254,7 +254,7 @@ df_import %>%
   rename_all(func_present_headers) %>% 
   kable(format = "html", caption = "Prices") %>% 
   kableExtra::kable_styling(full_width = FALSE,
-                font_size = 10)
+                font_size = 12)
 
 df_import %>% 
   tail(1) %>%
@@ -263,7 +263,7 @@ df_import %>%
   rename_all(func_present_headers) %>% 
   kable(format = "html", caption = "Units") %>% 
   kableExtra::kable_styling(full_width = FALSE,
-                font_size = 10)
+                font_size = 12)
 ```
 <br><br>
 
