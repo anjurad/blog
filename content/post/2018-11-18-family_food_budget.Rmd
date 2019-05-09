@@ -714,7 +714,7 @@ df_menu_items %>%
 ```
 
 ## Summary
-This post doesn’t describe life-changing methods or insights. However, it demonstrates that coding can be used to solve simple, everyday problems, even having a meaningful impact on my little family.  **Imagine though what it can do for seemingly insignificant things in business.**
+This post doesn’t describe life-changing methods or insights. However, it demonstrates that coding can be used to solve simple, everyday problems, even having a meaningful impact on my little family.  **Imagine though what it can do for seemingly insignificant problems in business.**
 
 <hr>
 
