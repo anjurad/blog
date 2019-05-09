@@ -257,7 +257,7 @@ During 2016 I started using python more extensively leading up to an [8-week cou
 
 - **Continuous Learning**<br>
 I have spent considerable time analysing data, focussing on prediction and inference.  It naturally led me to the [emerging *Data Science* field](https://www.forbes.com/sites/gilpress/2013/05/28/a-very-short-history-of-data-science/) which, at the same time, had been exploding with powerful and accessible tools and techniques.<br><br>
-Using an increasingly broader and more advanced range of solutions ultimately fuelled my a thirst to gain extensive and more in-depth knowledge in all crucial aspects of the discipline.  I took a sabbatical to complete finish up courses in [all foundational aspects of data science](/page/resources/#data_science_process_map), bringing to an end a journey that started a few years ago.  More accurately, it marks the start of my education, albeit on a solid footing.<br><br>
+Using an increasingly broader and more advanced range of solutions ultimately fuelled my a thirst to gain extensive and more in-depth knowledge in all crucial aspects of the discipline.  I took a sabbatical to finish up courses in [all foundational aspects of data science](/page/resources/#data_science_process_map), bringing to an end a journey that started a few years ago.  More accurately, it marks the start of my education, albeit on a solid footing.<br><br>
 Data Science is a vast and evolving field with many disciplines.  I can never know enough, so continuous learning has become a way of life.<br><br>
 I am an active member of a few tech groups in Manchester and attend regular meetups in the city.<br><br><hr><br>
 
