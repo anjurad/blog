@@ -233,10 +233,13 @@ options(digits=9)</code></pre>
   head() %&gt;% 
   mutate_at(&quot;Price&quot;, ~scales::dollar(., prefix = &quot;£&quot;)) %&gt;% 
   rename_all(func_present_headers) %&gt;% 
-  kable(format = &quot;html&quot;) %&gt;% 
+  kable(format = &quot;html&quot;, caption = &quot;Prices&quot;) %&gt;% 
   kableExtra::kable_styling(full_width = FALSE,
-                font_size = 9)</code></pre>
-<table class="table" style="font-size: 9px; width: auto !important; margin-left: auto; margin-right: auto;">
+                font_size = 10)</code></pre>
+<table class="table" style="font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+<span id="tab:unnamed-chunk-6">Table 1: </span>Prices
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -324,10 +327,13 @@ Burger Buns
   unnest() %&gt;% 
   head() %&gt;% 
   rename_all(func_present_headers) %&gt;% 
-  kable(format = &quot;html&quot;) %&gt;% 
+  kable(format = &quot;html&quot;, caption = &quot;Units&quot;) %&gt;% 
   kableExtra::kable_styling(full_width = FALSE,
-                font_size = 9)</code></pre>
-<table class="table" style="font-size: 9px; width: auto !important; margin-left: auto; margin-right: auto;">
+                font_size = 10)</code></pre>
+<table class="table" style="font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">
+<span id="tab:unnamed-chunk-6">Table 1: </span>Units
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -529,8 +535,8 @@ df_menu_items %&gt;%
   rename_all(func_present_headers) %&gt;% 
   kable(format = &quot;html&quot;) %&gt;% 
   kableExtra::kable_styling(full_width = FALSE,
-                font_size = 9)</code></pre>
-<table class="table" style="font-size: 9px; width: auto !important; margin-left: auto; margin-right: auto;">
+                font_size = 10)</code></pre>
+<table class="table" style="font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">

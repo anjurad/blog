@@ -252,18 +252,18 @@ df_import %>%
   head() %>% 
   mutate_at("Price", ~scales::dollar(., prefix = "£")) %>% 
   rename_all(func_present_headers) %>% 
-  kable(format = "html") %>% 
+  kable(format = "html", caption = "Prices") %>% 
   kableExtra::kable_styling(full_width = FALSE,
-                font_size = 9)
+                font_size = 10)
 
 df_import %>% 
   tail(1) %>%
   unnest() %>% 
   head() %>% 
   rename_all(func_present_headers) %>% 
-  kable(format = "html") %>% 
+  kable(format = "html", caption = "Units") %>% 
   kableExtra::kable_styling(full_width = FALSE,
-                font_size = 9)
+                font_size = 10)
 ```
 <br><br>
 
@@ -348,7 +348,7 @@ df_menu_items %>%
   rename_all(func_present_headers) %>% 
   kable(format = "html") %>% 
   kableExtra::kable_styling(full_width = FALSE,
-                font_size = 9)
+                font_size = 10)
 
 ```
 <br><br>
