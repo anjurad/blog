@@ -54,6 +54,8 @@ library(knitr)
 library(kableExtra)
 ```
 
+<a id="functions"></a>
+
 ### Functions
 Keeping general functions towards the top of a document makes it easier to reuse throughout.  In larger projects, I tend to create function files that are `sourced` by other files, sourcing it upon setting up a document.  It promotes consistency, continuity, standardisation and simplification.
 
@@ -280,7 +282,7 @@ tmp_exercise_data <-
   param_days %>%
   
   # Map the list of days to the func_create_data function to simulate the data
-  mutate_at("Date", funs(data = map), func_create_data) %>% 
+  mutate_at("Date", list(data = map), func_create_data) %>% 
   
   # The unnest() function returns all iteratively nested cycled data to a top
   # param_days level
@@ -293,7 +295,7 @@ tmp_exercise_data <-
   complete(No, Date, Exercise) %>% 
   
   # Create a new variable by extracting the year value from the date
-  mutate_at("Date", funs(Year = year)) %>% 
+  mutate_at("Date", list(Year = year)) %>% 
   
   # Group by Player Number and nest the simulated data in the `training_data`
   # column
@@ -454,7 +456,7 @@ The *training log data* is grouped by year, data nested and exported to two file
 
 I use the `openxlsx` library to create and manipulate Excel files.  The aim is to create one Excel file for the 2017 data, creating tabs for each of the 22 players, and populating each sheet with relevant data.
 
-```{r Excel}
+```{r Excel, message=FALSE, warning=FALSE}
 library(openxlsx) 
 
 wb <- createWorkbook()
@@ -618,17 +620,17 @@ files_expanded <-
            recursive = TRUE) %>%
   
   # create a tibble of the files and rename the file name to fil_name
-  as_data_frame() %>%
+  enframe(name = NULL) %>%
   rename(file_name = value) %>% 
   
   # exclude the football file from the results
   filter(! grepl("football\\.csv$", file_name, ignore.case = TRUE)) %>% 
   
   # extract the file type for future processing
-  mutate_at("file_name", funs(file_source = str_extract), pattern = "\\.(csv|xlsx)$") %>% 
+  mutate_at("file_name", list(file_source = str_extract), pattern = "\\.(csv|xlsx)$") %>% 
   
   # dynamically import the files and nest the file column
-  mutate_at("file_name", funs(file = map), func_get_file_dynamic) %>% 
+  mutate_at("file_name", list(file = map), func_get_file_dynamic) %>% 
   
   # Unnest all files and consolidate columns, then only guess the data type.
   # This prevents any errors if there are columns with the same file-names but

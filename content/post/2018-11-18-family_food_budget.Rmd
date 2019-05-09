@@ -1,0 +1,736 @@
+---
+title: "Planning weekly food"
+subtitle: "using R to menu plan and create a food budget"
+author: "Gerhard Groenewald"
+date: '2018-12-15'
+output:
+  html_document: default
+  pdf_document: default
+layout: post
+# draft: true
+tags:
+- tips tricks
+- intermediate
+- R
+- development
+- data science
+- analysis
+- management
+
+comments: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+A few years ago I woke up to an epiphany, realising that I was becoming my dad.
+I had started a campaign of dealing with **wastefulness**, switching off lights and eating leftovers to name but a few examples.  I set out to transform our *menu planning* and *the weekly food shop* as part of this crusade.
+
+Menu planning is a chore which comes easily to some. For others like me, though, it is just another thing to think about on top of an already busy life.  Admittedly, it gets easier once establishing a routine, but holidays and the like upsets the momentum and things move back to square one. 
+
+Food planning, especially for a young family is essential, without which it can get out of hand and quickly become expensive and wasteful.  
+
+I decided that it was not going to beat me!  I reached into my bag of tricks and conjured a helper to tackle this quest. A simple piece of R code creates a randomised 'inspiration' menu plan.  It meant that I had to document a few dozen recipes to start, but the effort soon paid off.
+
+It is now a tonne easier to plan our weekly menu plan, and we tend not to use the program anymore.  However, it served as a bootstrap, transforming food planning into what is now a routine and straightforward task.<br><br>
+
+This post covers and explains the code, and how to use its output to tack on budgeting for example.<br><br><hr><br>
+
+## Code
+
+### Library
+Load the packages used in the demonstration.<br><br>
+
+```{r}
+package_list <- c("tidyverse", "readxl", "lubridate", "knitr", "kableExtra")
+invisible(suppressPackageStartupMessages(lapply(package_list, library, character.only = TRUE)))
+rm(package_list)
+
+```
+
+### Functions
+The functions below primarily helps with presentation and formatting.  The inline comments below describe the working and sequence of each function.  I have [previously written](/post/2018-11-08-summarising_tables/#functions) about these functions and how they are used.<br><br>
+
+```{r}
+func_rename <-
+  function(x) {
+    
+    # sequence is important here
+    # regex removing all chars not alpha-numeric, underscore or period
+    gsub("[^[:alnum:] \\_\\.]", "", x) %>%
+      
+      # replace any space or period with underscore
+      str_replace_all(pattern = " |\\.", replacement = "\\_") %>%
+      
+      # replace multiple underscores with one
+      str_replace_all(pattern = "\\_+", replacement = "\\_") %>%
+      
+      # remove trailing underscores and period
+      str_remove(pattern = "\\_$|\\.$")
+  }
+
+func_legible_boolean <-
+  
+  # returns `feature name` when TRUE and "Not_" + `feature name` otherwise
+  function(df) {
+    
+    # add row numbers to input dataframe
+    df <-
+      df %>%
+      ungroup() %>%
+      mutate(row_id = row_number())
+    
+    # select row_id and other logical fields
+    tmp <-
+      df %>%
+      select(row_id, select_if(., is.logical) %>% names(.)) %>%
+      
+      # gather all logical fields and keep row_id to retain identity
+      gather(key, value,-row_id) %>%
+      
+      # when value is TRUE then return the feature name else "Not_" pasted in
+      # front of it
+      mutate(value = case_when(
+        value ~ key,
+        TRUE ~ paste("Not", key, sep = "_")
+      )) %>%
+      
+      # return the feature names back to header positions
+      spread(key, value)
+    
+    vars <- 
+      df %>%
+      select_if(is.logical) %>%
+      names()
+    
+    df %>% 
+      
+      # return all values from the table after excluding the original logical
+      # fields and join the newly adjuted features back into the table using the
+      # row_id
+      select(-(!!vars)) %>%
+      inner_join(tmp,
+                 by = "row_id") %>%
+      
+      # remove the row_id as the join is complete
+      select(-row_id)
+  }
+
+func_create_summary <-
+  
+  # group by factors, summarising numeric fields to sum total
+  function(df) {
+    
+    # create a list of factors from the input dataframe
+    tmp_factors <- df %>% select_if(is.factor) %>% names()
+    
+    # mutate all factors in the dataframe to characters
+    df <- df %>% ungroup() %>% mutate_if(is.factor, as.character)
+    
+    
+    # list original dataframe with a newly created summary row
+    list(
+      
+      # original input dataframe
+      df,
+      
+      # summary row, replaceing each factor value to "Total"
+      df %>%
+        mutate_at(tmp_factors, ~"Total") %>%
+        
+        # group by for each of the original factor features
+        group_by_at(tmp_factors) %>%
+        
+        # summarise all numeric values to sum total, ignoring NULL values
+        summarise_if(is.numeric, sum, na.rm = TRUE)
+    ) %>% 
+      
+      # union all tables contained in the list, including original dataframe and
+      # newly created summary row
+      reduce(union_all) %>%
+      
+      # change factors back into factors
+      mutate_at(tmp_factors, factor) %>% 
+      return()
+  }
+
+func_present_headers <-
+  function(.) {
+    
+    # replace all `spaceholder underscores` with spaces
+    str_replace_all(., pattern = "_", replacement = " ") %>%
+      
+      # change all words in string to title text
+      str_to_title() %>%
+      return()
+  }
+
+func_change_order <-
+  function(df) {
+    
+    # please note this function is relatively simple, assuming a split between
+    # character and numeric fields only.  the function can easily be amended, or
+    # easier still is to coerce the calling dataframe fields to support the use
+    # of this function
+    df %>% 
+      
+      # select the calling dataframe character fields first
+      select_if(is.character) %>% 
+      cbind(
+        
+        # add numeric fields behind the character fields
+        df %>% 
+          select_if(is.numeric)
+      ) %>%
+      return()
+  }
+
+```
+
+### Parameters and Configuration
+The following code block sets configurable parameters, pointing to the source data file location and the decimal accuracy when parsing numbers.<br><br>
+
+```{r}
+var_path <- "../../resources/family_food_budget/"
+options(digits=9)
+
+```
+
+### Import
+I've previously created a spreadsheet with menu items, underlying ingredients and associated information.  Next we import each tab from the Excel file as per the `var_path` parameter into the `df_import` dataframe, nesting each tab in the `file` column.<br><br>
+
+```{r}
+df_import <-
+  
+  # list all files matching the pattern in the parametarised set location
+  list.files(path = var_path,
+             pattern = "^family.+",
+             recursive = TRUE) %>%
+  
+  # move the list of files into a tibble, changing the default column name
+  # `value` to file_name_ext, representing the file name and extention
+  enframe(name=NULL) %>%
+  rename(file_name_ext = value) %>%
+  
+  # complete the file path used by the read_excel function
+  mutate(file_path = paste(var_path, file_name_ext, sep = "/")) %>%
+  
+  # read all file tabs for the file and unnest
+  mutate_at("file_path", list(file_tab = map), readxl::excel_sheets) %>%
+  unnest() %>%
+  
+  # import the file using the file_path and file_tab as parameters
+  mutate(file = map2(file_path, file_tab, function(file_path, file_tab) {
+    readxl::read_excel(path = file_path,
+                       sheet = file_tab,
+                       guess_max = 100000)
+  })) %>%
+  
+  # remove redundant variables
+  select(-file_path,-file_name_ext)
+
+```
+
+Let's inspect the dataframe with the imported data.<br><br>
+
+```{r}
+df_import
+```
+
+The dataframe `df_import` reveals two imported tabs, including `price_list` and `menu`.
+
+The `price_list` data contains ingredients, units purchased according to the *packaging* and its purchase price.  
+
+Tibble `menu` is a list of meals, listing the `Meal` time-of-day, including breakfast, lunch, dinner or a snack only. Each menu item (meal) contains a list of ingredients and units consumed in the associated menu meal.<br><br>
+
+### Reference Period
+Here we instantiate two reference tibbles, including the period or timeframe for which the meals are planned, and the meal time-of-day.  
+
+Tibble `ref_days_join_meal` is a cartesian product of `ref_days`, expanding meal times for each day, as listed in the `ref_meal_time` tibble.<br><br>
+
+```{r}
+ref_days <-
+  seq.Date(from = ymd("2019-06-01"),
+           to = ymd("2019-06-30"),
+           by = "day") %>% 
+  enframe(name=NULL) %>% 
+  rename(Day = value)
+
+ref_meal_time <-
+  c("Breakfast", "Snack", "Lunch", "Dinner") %>% 
+  factor(ordered = TRUE) %>% 
+  enframe(name=NULL) %>% 
+  rename(Meal = value)
+
+ref_days_join_meal <-
+  ref_days %>%
+  
+  # expand each day with the 4 mealtimes, creating a dataframe with combinations
+  # of all days and mealtimes.
+  expand(Day, Meal = ref_meal_time$Meal) %>% 
+  
+  # extract some attributes from the days, including the weekday, and the first
+  # day of the week `SOW`
+  mutate(Weekday = wday(Day,  label = TRUE)) %>% 
+  mutate(SOW = floor_date(Day, week_start = 1, unit = "week")) %>% 
+  mutate_at("Weekday",
+            ~fct_relevel(., "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+
+```
+
+### Menu Items
+In this section we combine the menu list and the price list for each menu's ingredients, creating a `Menu_Cost` column summing the total value of all underlying ingredients for each meal.  
+
+Ingredients are nested within the `Ingredients` column for each meal.  The head the resulting nested table `df_menu_items` is printed below.<br><br>
+
+```{r}
+df_menu_items <-
+  
+  # unnest the menu nested file, containing each meal and its ingredients
+  df_import %>%
+  filter(file_tab == "menu") %>%
+  unnest() %>%
+  
+  # coerse the meal to a factor
+  mutate_at("Meal", factor, levels = ref_meal_time$Meal, ordered = TRUE) %>%
+  
+  # unnest and join the price list tibble by the Item, keeping the Item
+  # (ingredient) and Price
+  left_join(df_import %>%
+              filter(file_tab == "price_list") %>%
+              unnest() %>%
+              select(Item, Price),
+            by = "Item") %>%
+  
+  # calculate the cost of the ingredient, a product of the price and unit
+  mutate(Cost = Price * Unit) %>%
+  
+  # calculate the total cost of the meal by summing the cost of all underlying
+  # ingredients
+  group_by(Meal, Menu) %>%
+  mutate(Menu_Cost = sum(Cost)) %>%
+  
+  # regroup the the Meal, Menu adding Menu_Cost and nest ingredients
+  group_by(Menu_Cost, add = TRUE) %>%
+  nest(.key = "Ingredients") %>%
+  
+  # group by Meal and remove other groupings, adding a Meal_item row number
+  group_by(Meal, add = FALSE) %>%
+  mutate(Meal_item = row_number())
+
+df_menu_items %>% 
+  head() %>% 
+  mutate_at("Menu_Cost", ~scales::dollar(., prefix = "£")) %>% 
+  rename_all(func_present_headers) %>% 
+  kable(format = "html") %>% 
+  kableExtra::kable_styling(full_width = FALSE,
+                font_size = 9)
+
+```
+<br><br>
+
+### Function
+The function `func_random_meal` randomises meals for each mealtime, the size matching the number of days by week (`SOW`) in the `ref_days` tibble.  
+
+The function draws randomly from meals for each mealtime.  For example, dinners will only sample from meals classified as *dinner*.  
+
+It avoids sampling `with replacement` from the available menu meals unless there are fewer meals than the calling days.<br><br>
+
+```{r}
+func_random_meal <-
+  function(param_meal, param_days) {
+    # create a parameter with the number of days in the param_days parameter
+    param_sample_size <- count(param_days) %>% as.integer()
+    
+    # create a parameter, returning the count of items in the meal
+    param_menu_item_size <- 
+      df_menu_items %>%
+      
+      # filter by the calling param_meal
+      filter(Meal == param_meal) %>%
+      nrow()
+    
+    # function that returns TRUE if the param_menu_item_size <
+    # param_sample_size, enabling the `tmp_meals` function to sample with
+    # replacement
+    param_replace <-
+    if (param_menu_item_size < param_sample_size) {
+      TRUE %>% return()
+    } else {
+      FALSE %>% return()
+    }
+    
+    # Sample ----
+    tmp_meals <-
+      df_menu_items %>%
+      
+      # filter by the calling param_meal
+      filter(Meal == param_meal) %>%
+      
+      # create a sample size according the the parameter param_sample_size,
+      # enabling replacement if the param_menu_item_size < param_sample_size
+      sample_n(size = param_sample_size, replace = param_replace) %>%
+      ungroup() %>%
+      
+      # remove unecessary attributes
+      select(-Meal,-Meal_item) %>%
+      
+      # add row number
+      mutate(Day_order = row_number())
+
+    # Join ----
+    param_days %>%
+      
+      # join the newly created tibble `tmp_meals` to the param_days tibble,
+      # using the Day_order as key to join
+      mutate(Day_order = row_number()) %>%
+      inner_join(tmp_meals, by = "Day_order") %>%
+      return()
+  }
+
+```
+
+### Randomise Meals
+We start of by setting a seed, thus making results repeatable.  
+
+Next, we create a new tibble `df_meal_plan` by passing the meals for each week to the `func_random_meal` function, generating and returning a random list of meals to the `Menu` column.
+
+`Menu_Cost` summarises the total cost of all underlying ingredients for the meal.
+
+Executing the code block outputs the head of the new tibble for inspection.<br><br>
+
+```{r}
+set.seed(567)
+# set seed to make the results repeatable
+
+df_meal_plan <-
+  # for each day and mealtime combination
+  ref_days_join_meal %>%
+  
+  # group by week and mealtime, and nest all days within it
+  group_by(SOW, Meal) %>%
+  nest(Weekday, Day) %>% 
+  
+  # map the meal and nested days to the `func_random_meal` function and return
+  # result to the Menu column
+  mutate(Menu  = map2(Meal, data, func_random_meal)) %>%
+  
+  # unnest the result and arrange the output
+  unnest(Menu) %>%
+  arrange(SOW, Weekday, Meal) %>% 
+  mutate_at("SOW", ~ paste0(format(., "%yW%W: "),
+                           format(., "%d %b - "), 
+                           format(. + 6, "%d %b")) %>%
+              factor(., ordered = TRUE))
+
+# check the results by printing the first day worth of meals
+df_meal_plan %>% 
+  head(4) %>% 
+  
+  # change the date formatting for improved presentation
+  mutate_if(is.Date, format, format = "%d-%b") %>% 
+  
+  # presentation options
+  mutate_at("Menu_Cost", ~scales::dollar(., prefix = "£")) %>% 
+  rename_all(func_present_headers) %>% 
+  kable(format = "html") %>% 
+  kableExtra::kable_styling(full_width = FALSE, font_size = 10)
+```
+<br><br>
+
+### Month Lookahead
+This section is really what this whole exercise is about!  
+
+We've created random meals for a period, ready to print a copy of the *first* output and pin it to the family whiteboard.  We now have a menu plan for the month ahead - **result**.
+
+The *second* output is used for budgeting the food bill once we have taken stock, and calculate what is to be purchased to satisfy the newly created budget plan.<br><br>
+
+```{r}
+# Meal ----
+df_meal_plan %>% 
+  select(SOW, Weekday, Meal, Menu) %>% 
+  spread(Weekday, Menu, fill = "--") %>% 
+  ungroup() %>% 
+  mutate_at("SOW", format, format = "%yW%W") %>% 
+  mutate_at("Meal", factor, levels = ref_meal_time$Meal) %>%
+  arrange(SOW, Meal) %>%
+  kable(format = "html", align = "c") %>% 
+  kable_styling("striped", full_width = FALSE, font_size = 10) %>%
+  column_spec(1, bold = TRUE) %>%
+  collapse_rows(columns = 1:2, valign = "top")
+
+# Money ----
+df_meal_plan %>% 
+  group_by(SOW, Weekday, Meal) %>% 
+  summarise_at("Menu_Cost", sum, na.rm = TRUE) %>% 
+  spread(Weekday, Menu_Cost) %>% 
+  ungroup() %>% 
+  mutate_at("SOW", format, format = "%yW%W") %>% 
+  mutate_at("Meal", factor, levels = ref_meal_time$Meal) %>%
+  arrange(SOW, Meal) %>% 
+  func_create_summary() %>% 
+  mutate_at(c("SOW", "Meal"), as.character) %>% 
+  group_by_if(is.character) %>% 
+  nest(.key = "Total") %>% 
+  mutate(data = Total) %>% 
+  mutate_at("Total", map, rowSums, na.rm = TRUE) %>% 
+  unnest() %>%
+  mutate_if(is.numeric, ~scales::dollar(., prefix = "£")) %>% 
+  mutate_if(is.character, str_replace, pattern = "£NA", replacement = "--") %>% 
+  kable(format = "html", align = "c") %>% 
+  kable_styling("striped", full_width = FALSE, font_size = 10) %>%
+  column_spec(1, bold = TRUE) %>%
+  collapse_rows(columns = 1:2, valign = "top")
+```
+
+### Purchasing
+The following section is creating *output* that helps to manage the newly created menu plan.
+
+The newly created menu plans now enables one to project spend and even create a shopping list for each week[^1].<br><br>
+
+```{r}
+df_meal_plan_purchases <-
+  df_meal_plan %>%
+  unnest() %>%
+  select(Day, Item, Unit, Price, Cost) %>%
+  mutate(Meals = 1) %>%
+  group_by(Item) %>%
+  mutate_at(c("Unit", "Meals"), list(cum = cumsum)) %>%
+  mutate_at("Unit_cum", ceiling) %>%
+  mutate_at("Unit_cum", list(buy = ~. != lead(.),
+                             buy_volume = ~lead(.) - .)) %>%
+  mutate(Cost_cum = Unit_cum * Price) %>%
+  mutate_at("Day",
+            list(SOW = floor_date),
+            unit = "week",
+            week_start = 1) %>% 
+  group_by(SOW, add = TRUE) %>% 
+  summarise_at("buy_volume", sum, na.rm = TRUE)
+
+df_plot <-
+  df_meal_plan_purchases %>% 
+  inner_join(
+    df_import %>%
+      filter(file_tab == "price_list") %>%
+      unnest(),
+    by = "Item"
+  ) %>% 
+  filter(buy_volume > 0) %>% 
+  mutate(Cost = Price * buy_volume) %>% 
+  ungroup() %>% 
+  mutate(Total_Cost = sum(Cost, na.rm = TRUE)) %>% 
+  arrange(desc(Total_Cost)) %>% 
+  mutate_at("Item", fct_inorder) %>% 
+  group_by(SOW, add = FALSE) %>% 
+  mutate_at("Cost", list(Cost_Cum = cumsum)) %>% 
+  ungroup() %>% 
+  arrange(SOW) %>% 
+  mutate_at("SOW", ~ paste0(format(., "%yW%W: "),
+                           format(., "%d %b - "), 
+                           format(. + 6, "%d %b")) %>%
+              factor(., ordered = TRUE))
+
+df_plot %>% 
+  ggplot(aes(x = Item, y = Cost, fill = Cost)) +
+  geom_col() +
+  geom_line(aes(y = Cost_Cum, group = SOW)) +
+  ggrepel::geom_label_repel(
+    data = df_plot %>%
+      group_by(SOW, add = FALSE) %>%
+      top_n(n = 1, wt = Cost_Cum),
+    aes(y = Cost_Cum, label = scales::dollar(Cost_Cum, prefix = "£")),
+    fill = "white"
+  ) +
+  facet_grid(SOW ~ ., switch = "y") +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "£")) +
+  scale_fill_continuous(labels = scales::dollar_format(prefix = "£")) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    strip.placement = "outside",
+    strip.text.y = element_text(angle = 180, vjust = 1),
+    strip.background.y = element_blank(), 
+    legend.position = "bottom",
+    legend.key.width=unit(2.5,"cm")
+  ) +
+  labs(title = "Montly shopping costs by week",
+       y = "Purchases")
+```
+<br><br>
+
+### The Shopping List
+Being able to estimate my food bill is a result.  However, having a prospective shopping list is practical and useful.<br><br>
+
+```{r , echo=TRUE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
+
+func_output_group_item_table <-
+  function(param_group, param_group_selector) {
+    # print the distinct grouping category as header
+    cat(paste0(
+      "<h4>",
+      str_replace_all(param_group, pattern = "_", replacement = " "),
+      "</h4>"
+    ))
+    
+    df_plot <-
+      df_plot %>%
+      select(SOW, Item, volume = buy_volume, Price, Cost, Cost_Cum)
+    
+    df_plot %>%
+      # filter the master data by the grouping category parameter
+      filter(!!param_group_selector == param_group) %>%
+      ungroup() %>%
+      
+      #  remove the grouping category from it
+      select(-!!param_group_selector) %>%
+      
+      # create a row with a sum total for each numeric column
+      mutate_at("Cost_Cum", as.character) %>% 
+      func_create_summary() %>%
+      
+      # styling and presentation options executed next, as described in the
+      # previous code block
+      mutate_at("volume", as.character) %>% 
+      mutate_at("Cost_Cum", as.numeric) %>% 
+      rename_all(func_present_headers) %>%
+      mutate_if(is.numeric, ~ round(., 2) %>% scales::dollar(., prefix = "£")) %>%
+      mutate_if(is.character, str_remove, pattern = "\\£NA") %>%
+      mutate_if(is.factor,
+                str_replace_all,
+                pattern = "_",
+                replacement = " ") %>%
+      kable(align = "r", format = "html") %>%
+      kableExtra::kable_styling(full_width = FALSE,
+                                font_size = 12) %>%
+      kableExtra::collapse_rows(columns = 1:4, valign = "middle") %>%
+      return()
+  }
+
+func_output_group_item_table_iterator <-
+  function(param_group_selector) {
+    for (param_group in (df_plot %>%
+                         distinct(!!param_group_selector) %>%
+                         pull()))  {
+      func_output_group_item_table(param_group, param_group_selector) %>% print()
+    }
+  }
+
+func_output_group_item_table_iterator(quo(SOW))
+```
+
+### EDA
+This section explores our menu by mealtime, visualising the ranked cost of menus.<br><br>
+
+```{r}
+df_meal_plan %>% 
+  distinct(Meal, Menu, Menu_Cost) %>% 
+  arrange(Meal, desc(Menu_Cost)) %>% 
+  mutate_at("Menu", fct_inorder) %>% 
+  ggplot(aes(x = Menu, y = Menu_Cost, fill = Menu_Cost)) +
+  geom_col() +
+  geom_label(aes(label = format(Menu_Cost, digits = 2, big.mark = ",", format = "#.##") %>%
+                   paste0("£", .)),
+             col = "white", 
+             size = 3) +
+  coord_flip() +
+  theme_classic() +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "£")) +
+  facet_grid(Meal ~ ., 
+             scales = "free_y", 
+             space = "free", 
+             switch = "y") +
+  theme(strip.placement = "outside",
+        strip.text.y = element_text(angle = 180, 
+                                    face = "bold", 
+                                    size = 10,
+                                    hjust = 0, 
+                                    vjust = 1), 
+        strip.background.y = element_blank(),
+        plot.subtitle = element_text(size = 8, face = "italic"),
+        legend.key.height=unit(0.5,"line"),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 8),
+        legend.position = "bottom") +
+  labs(title = "Cost of meals", 
+       subtitle = "Grouped by mealtime - Ordered by Cost",
+       fill = "Cost/ Meal",
+       y = "Cost/ Meal",
+       x = "")
+
+```
+
+The following visualisation contrasts a few meals to provide a side-by-side breakdown of costs per menu.  It is clear that using meat and complexity is what increases the cost of meals.<br><br>
+
+```{r}
+# Expensive Items ----
+df_menu_items %>%
+  filter(grepl("curry|roast|spag|carb", Menu, ignore.case = TRUE)) %>%
+  unnest() %>%
+  arrange(desc(Cost)) %>%
+  mutate_at("Item", fct_inorder) %>%
+  ggplot(aes(Menu, Cost, fill = Item)) +
+  geom_col(position = "stack", show.legend = FALSE) +
+  geom_label(
+    aes(
+      label = format(
+        Cost,
+        digits = 2,
+        big.mark = ",",
+        format = "#.##"
+      ) %>% paste0("£", .) %>% paste(Item, .)
+    ),
+    position = "stack",
+    col = "white",
+    size = 3,
+    show.legend = FALSE
+  ) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "£")) +
+  theme_classic() +
+  labs(title = "Comparing the cost of ingredients for selected meals")
+```
+
+## Summary
+This post doesn’t describe life-changing methods or insights. However, it demonstrates that coding can be used to solve simple, everyday problems, even having a meaningful impact on my little family.  **Imagine though what it can do for seemingly insignificant things in business.**
+
+<hr>
+
+## Session
+
+```{r}
+sessionInfo()
+
+```
+
+
+[^1]: <sub>assuming that the cupboard is one unit up on all required items</sub>
+
+<!-- <div class="fab"> -->
+<!-- <script type="text/javascript"> -->
+
+<!-- // toggle visibility of R source blocks in R Markdown output -->
+<!-- function toggle_R() { -->
+<!--   var x = document.getElementsByClassName('r'); -->
+<!--   if (x.length == 0) return; -->
+<!--   function toggle_vis(o) { -->
+<!--     var d = o.style.display; -->
+<!--     o.style.display = (d == 'block' || d == '') ? 'none':'block'; -->
+<!--   } -->
+
+<!--   for (i = 0; i < x.length; i++) { -->
+<!--     var y = x[i]; -->
+<!--     if (y.tagName.toLowerCase() === 'pre') toggle_vis(y); -->
+<!--   } -->
+
+<!--     var elem = document.getElementById("fab"); -->
+<!--     if (elem.value === "Hide Code Blocks") elem.value = "Show Code Blocks"; -->
+<!--     else elem.value = "Hide Code Blocks"; -->
+<!-- } -->
+
+
+<!-- document.write('<input onclick="toggle_R()" type="button" id="fab" value="Hide Code Blocks"</input>') -->
+
+<!-- </script> -->
+<!-- </div> -->
+

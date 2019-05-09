@@ -58,6 +58,8 @@ rm(package_list)
 options(digits=9)
 ```
 
+<a id="functions"></a>
+
 ### Functions
 The functions instantiated in following code block addresses the scenarios listed above.  The inline comments below describe the working and sequence of each function.
 

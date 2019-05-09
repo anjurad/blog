@@ -1,0 +1,3086 @@
+---
+title: "Planning weekly food"
+subtitle: "using R to menu plan and create a food budget"
+author: "Gerhard Groenewald"
+date: '2018-12-15'
+output:
+  html_document: default
+  pdf_document: default
+layout: post
+# draft: true
+tags:
+- tips tricks
+- intermediate
+- R
+- development
+- data science
+- analysis
+- management
+
+comments: yes
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>A few years ago I woke up to an epiphany, realising that I was becoming my dad.
+I had started a campaign of dealing with <strong>wastefulness</strong>, switching off lights and eating leftovers to name but a few examples. I set out to transform our <em>menu planning</em> and <em>the weekly food shop</em> as part of this crusade.</p>
+<p>Menu planning is a chore which comes easily to some. For others like me, though, it is just another thing to think about on top of an already busy life. Admittedly, it gets easier once establishing a routine, but holidays and the like upsets the momentum and things move back to square one.</p>
+<p>Food planning, especially for a young family is essential, without which it can get out of hand and quickly become expensive and wasteful.</p>
+<p>I decided that it was not going to beat me! I reached into my bag of tricks and conjured a helper to tackle this quest. A simple piece of R code creates a randomised ‘inspiration’ menu plan. It meant that I had to document a few dozen recipes to start, but the effort soon paid off.</p>
+<p>It is now a tonne easier to plan our weekly menu plan, and we tend not to use the program anymore. However, it served as a bootstrap, transforming food planning into what is now a routine and straightforward task.<br><br></p>
+This post covers and explains the code, and how to use its output to tack on budgeting for example.<br><br>
+<hr>
+<p><br></p>
+</div>
+<div id="code" class="section level2">
+<h2>Code</h2>
+<div id="library" class="section level3">
+<h3>Library</h3>
+<p>Load the packages used in the demonstration.<br><br></p>
+<pre class="r"><code>package_list &lt;- c(&quot;tidyverse&quot;, &quot;readxl&quot;, &quot;lubridate&quot;, &quot;knitr&quot;, &quot;kableExtra&quot;)
+invisible(suppressPackageStartupMessages(lapply(package_list, library, character.only = TRUE)))
+rm(package_list)</code></pre>
+</div>
+<div id="functions" class="section level3">
+<h3>Functions</h3>
+<p>The functions below primarily helps with presentation and formatting. The inline comments below describe the working and sequence of each function. I have <a href="/post/2018-11-08-summarising_tables/#functions">previously written</a> about these functions and how they are used.<br><br></p>
+<pre class="r"><code>func_rename &lt;-
+  function(x) {
+    
+    # sequence is important here
+    # regex removing all chars not alpha-numeric, underscore or period
+    gsub(&quot;[^[:alnum:] \\_\\.]&quot;, &quot;&quot;, x) %&gt;%
+      
+      # replace any space or period with underscore
+      str_replace_all(pattern = &quot; |\\.&quot;, replacement = &quot;\\_&quot;) %&gt;%
+      
+      # replace multiple underscores with one
+      str_replace_all(pattern = &quot;\\_+&quot;, replacement = &quot;\\_&quot;) %&gt;%
+      
+      # remove trailing underscores and period
+      str_remove(pattern = &quot;\\_$|\\.$&quot;)
+  }
+
+func_legible_boolean &lt;-
+  
+  # returns `feature name` when TRUE and &quot;Not_&quot; + `feature name` otherwise
+  function(df) {
+    
+    # add row numbers to input dataframe
+    df &lt;-
+      df %&gt;%
+      ungroup() %&gt;%
+      mutate(row_id = row_number())
+    
+    # select row_id and other logical fields
+    tmp &lt;-
+      df %&gt;%
+      select(row_id, select_if(., is.logical) %&gt;% names(.)) %&gt;%
+      
+      # gather all logical fields and keep row_id to retain identity
+      gather(key, value,-row_id) %&gt;%
+      
+      # when value is TRUE then return the feature name else &quot;Not_&quot; pasted in
+      # front of it
+      mutate(value = case_when(
+        value ~ key,
+        TRUE ~ paste(&quot;Not&quot;, key, sep = &quot;_&quot;)
+      )) %&gt;%
+      
+      # return the feature names back to header positions
+      spread(key, value)
+    
+    vars &lt;- 
+      df %&gt;%
+      select_if(is.logical) %&gt;%
+      names()
+    
+    df %&gt;% 
+      
+      # return all values from the table after excluding the original logical
+      # fields and join the newly adjuted features back into the table using the
+      # row_id
+      select(-(!!vars)) %&gt;%
+      inner_join(tmp,
+                 by = &quot;row_id&quot;) %&gt;%
+      
+      # remove the row_id as the join is complete
+      select(-row_id)
+  }
+
+func_create_summary &lt;-
+  
+  # group by factors, summarising numeric fields to sum total
+  function(df) {
+    
+    # create a list of factors from the input dataframe
+    tmp_factors &lt;- df %&gt;% select_if(is.factor) %&gt;% names()
+    
+    # mutate all factors in the dataframe to characters
+    df &lt;- df %&gt;% ungroup() %&gt;% mutate_if(is.factor, as.character)
+    
+    
+    # list original dataframe with a newly created summary row
+    list(
+      
+      # original input dataframe
+      df,
+      
+      # summary row, replaceing each factor value to &quot;Total&quot;
+      df %&gt;%
+        mutate_at(tmp_factors, ~&quot;Total&quot;) %&gt;%
+        
+        # group by for each of the original factor features
+        group_by_at(tmp_factors) %&gt;%
+        
+        # summarise all numeric values to sum total, ignoring NULL values
+        summarise_if(is.numeric, sum, na.rm = TRUE)
+    ) %&gt;% 
+      
+      # union all tables contained in the list, including original dataframe and
+      # newly created summary row
+      reduce(union_all) %&gt;%
+      
+      # change factors back into factors
+      mutate_at(tmp_factors, factor) %&gt;% 
+      return()
+  }
+
+func_present_headers &lt;-
+  function(.) {
+    
+    # replace all `spaceholder underscores` with spaces
+    str_replace_all(., pattern = &quot;_&quot;, replacement = &quot; &quot;) %&gt;%
+      
+      # change all words in string to title text
+      str_to_title() %&gt;%
+      return()
+  }
+
+func_change_order &lt;-
+  function(df) {
+    
+    # please note this function is relatively simple, assuming a split between
+    # character and numeric fields only.  the function can easily be amended, or
+    # easier still is to coerce the calling dataframe fields to support the use
+    # of this function
+    df %&gt;% 
+      
+      # select the calling dataframe character fields first
+      select_if(is.character) %&gt;% 
+      cbind(
+        
+        # add numeric fields behind the character fields
+        df %&gt;% 
+          select_if(is.numeric)
+      ) %&gt;%
+      return()
+  }</code></pre>
+</div>
+<div id="parameters-and-configuration" class="section level3">
+<h3>Parameters and Configuration</h3>
+<p>The following code block sets configurable parameters, pointing to the source data file location and the decimal accuracy when parsing numbers.<br><br></p>
+<pre class="r"><code>var_path &lt;- &quot;../../resources/family_food_budget/&quot;
+options(digits=9)</code></pre>
+</div>
+<div id="import" class="section level3">
+<h3>Import</h3>
+<p>I’ve previously created a spreadsheet with menu items, underlying ingredients and associated information. Next we import each tab from the Excel file as per the <code>var_path</code> parameter into the <code>df_import</code> dataframe, nesting each tab in the <code>file</code> column.<br><br></p>
+<pre class="r"><code>df_import &lt;-
+  
+  # list all files matching the pattern in the parametarised set location
+  list.files(path = var_path,
+             pattern = &quot;^family.+&quot;,
+             recursive = TRUE) %&gt;%
+  
+  # move the list of files into a tibble, changing the default column name
+  # `value` to file_name_ext, representing the file name and extention
+  enframe(name=NULL) %&gt;%
+  rename(file_name_ext = value) %&gt;%
+  
+  # complete the file path used by the read_excel function
+  mutate(file_path = paste(var_path, file_name_ext, sep = &quot;/&quot;)) %&gt;%
+  
+  # read all file tabs for the file and unnest
+  mutate_at(&quot;file_path&quot;, list(file_tab = map), readxl::excel_sheets) %&gt;%
+  unnest() %&gt;%
+  
+  # import the file using the file_path and file_tab as parameters
+  mutate(file = map2(file_path, file_tab, function(file_path, file_tab) {
+    readxl::read_excel(path = file_path,
+                       sheet = file_tab,
+                       guess_max = 100000)
+  })) %&gt;%
+  
+  # remove redundant variables
+  select(-file_path,-file_name_ext)</code></pre>
+<p>Let’s inspect the dataframe with the imported data.<br><br></p>
+<pre class="r"><code>df_import</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   file_tab   file             
+##   &lt;chr&gt;      &lt;list&gt;           
+## 1 price_list &lt;tibble [46 × 2]&gt;
+## 2 menu       &lt;tibble [60 × 4]&gt;</code></pre>
+<p>The dataframe <code>df_import</code> reveals two imported tabs, including <code>price_list</code> and <code>menu</code>.</p>
+<p>The <code>price_list</code> data contains ingredients, units purchased according to the <em>packaging</em> and its purchase price.</p>
+<p>Tibble <code>menu</code> is a list of meals, listing the <code>Meal</code> time-of-day, including breakfast, lunch, dinner or a snack only. Each menu item (meal) contains a list of ingredients and units consumed in the associated menu meal.<br><br></p>
+</div>
+<div id="reference-period" class="section level3">
+<h3>Reference Period</h3>
+<p>Here we instantiate two reference tibbles, including the period or timeframe for which the meals are planned, and the meal time-of-day.</p>
+<p>Tibble <code>ref_days_join_meal</code> is a cartesian product of <code>ref_days</code>, expanding meal times for each day, as listed in the <code>ref_meal_time</code> tibble.<br><br></p>
+<pre class="r"><code>ref_days &lt;-
+  seq.Date(from = ymd(&quot;2019-06-01&quot;),
+           to = ymd(&quot;2019-06-30&quot;),
+           by = &quot;day&quot;) %&gt;% 
+  enframe(name=NULL) %&gt;% 
+  rename(Day = value)
+
+ref_meal_time &lt;-
+  c(&quot;Breakfast&quot;, &quot;Snack&quot;, &quot;Lunch&quot;, &quot;Dinner&quot;) %&gt;% 
+  factor(ordered = TRUE) %&gt;% 
+  enframe(name=NULL) %&gt;% 
+  rename(Meal = value)
+
+ref_days_join_meal &lt;-
+  ref_days %&gt;%
+  
+  # expand each day with the 4 mealtimes, creating a dataframe with combinations
+  # of all days and mealtimes.
+  expand(Day, Meal = ref_meal_time$Meal) %&gt;% 
+  
+  # extract some attributes from the days, including the weekday, and the first
+  # day of the week `SOW`
+  mutate(Weekday = wday(Day,  label = TRUE)) %&gt;% 
+  mutate(SOW = floor_date(Day, week_start = 1, unit = &quot;week&quot;)) %&gt;% 
+  mutate_at(&quot;Weekday&quot;,
+            ~fct_relevel(., &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;))</code></pre>
+</div>
+<div id="menu-items" class="section level3">
+<h3>Menu Items</h3>
+<p>In this section we combine the menu list and the price list for each menu’s ingredients, creating a <code>Menu_Cost</code> column summing the total value of all underlying ingredients for each meal.</p>
+<p>Ingredients are nested within the <code>Ingredients</code> column for each meal. The head the resulting nested table <code>df_menu_items</code> is printed below.<br><br></p>
+<pre class="r"><code>df_menu_items &lt;-
+  
+  # unnest the menu nested file, containing each meal and its ingredients
+  df_import %&gt;%
+  filter(file_tab == &quot;menu&quot;) %&gt;%
+  unnest() %&gt;%
+  
+  # coerse the meal to a factor
+  mutate_at(&quot;Meal&quot;, factor, levels = ref_meal_time$Meal, ordered = TRUE) %&gt;%
+  
+  # unnest and join the price list tibble by the Item, keeping the Item
+  # (ingredient) and Price
+  left_join(df_import %&gt;%
+              filter(file_tab == &quot;price_list&quot;) %&gt;%
+              unnest() %&gt;%
+              select(Item, Price),
+            by = &quot;Item&quot;) %&gt;%
+  
+  # calculate the cost of the ingredient, a product of the price and unit
+  mutate(Cost = Price * Unit) %&gt;%
+  
+  # calculate the total cost of the meal by summing the cost of all underlying
+  # ingredients
+  group_by(Meal, Menu) %&gt;%
+  mutate(Menu_Cost = sum(Cost)) %&gt;%
+  
+  # regroup the the Meal, Menu adding Menu_Cost and nest ingredients
+  group_by(Menu_Cost, add = TRUE) %&gt;%
+  nest(.key = &quot;Ingredients&quot;) %&gt;%
+  
+  # group by Meal and remove other groupings, adding a Meal_item row number
+  group_by(Meal, add = FALSE) %&gt;%
+  mutate(Meal_item = row_number())
+
+df_menu_items %&gt;% 
+  head() %&gt;% 
+  mutate_at(&quot;Menu_Cost&quot;, ~scales::dollar(., prefix = &quot;£&quot;)) %&gt;% 
+  rename_all(func_present_headers) %&gt;% 
+  kable(format = &quot;html&quot;) %&gt;% 
+  kableExtra::kable_styling(full_width = FALSE,
+                font_size = 9)</code></pre>
+<table class="table" style="font-size: 9px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Meal
+</th>
+<th style="text-align:left;">
+Menu
+</th>
+<th style="text-align:left;">
+Menu Cost
+</th>
+<th style="text-align:left;">
+Ingredients
+</th>
+<th style="text-align:right;">
+Meal Item
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Fish fingers, Mash &amp; Beans
+</td>
+<td style="text-align:left;">
+£2.88
+</td>
+<td style="text-align:left;">
+list(file_tab = c(“menu”, “menu”, “menu”), Item = c(“Fish”, “Potatoes”, “Baked Beans”), Unit = c(0.5, 0.25, 0.25), Price = c(4, 1, 2.5), Cost = c(2, 0.25, 0.625))
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Sausage, Mash &amp; Beans
+</td>
+<td style="text-align:left;">
+£3.38
+</td>
+<td style="text-align:left;">
+list(file_tab = c(“menu”, “menu”, “menu”), Item = c(“Sausage”, “Potatoes”, “Baked Beans”), Unit = c(1, 0.25, 0.25), Price = c(2.5, 1, 2.5), Cost = c(2.5, 0.25, 0.625))
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Spag Bol
+</td>
+<td style="text-align:left;">
+£3.16
+</td>
+<td style="text-align:left;">
+list(file_tab = c(“menu”, “menu”, “menu”, “menu”, “menu”, “menu”), Item = c(“Mince”, “Bacon”, “Dolmio”, “Onion”, “Mushrooms”, “Spaghetti”), Unit = c(0.2, 0.33, 1, 0.15, 0.33, 0.33), Price = c(4.75, 2, 0.65, 1.5, 1, 1.05), Cost = c(0.95, 0.66, 0.65, 0.225, 0.33, 0.3465))
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Rice, Chicken &amp; Sauce
+</td>
+<td style="text-align:left;">
+£2.78
+</td>
+<td style="text-align:left;">
+list(file_tab = c(“menu”, “menu”, “menu”), Item = c(“Chicken”, “Sauce”, “Rice”), Unit = c(0.35, 0.35, 0.05), Price = c(6.5, 0.65, 5.5), Cost = c(2.275, 0.2275, 0.275))
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Baked Potato &amp; Humous
+</td>
+<td style="text-align:left;">
+£2.15
+</td>
+<td style="text-align:left;">
+list(file_tab = c(“menu”, “menu”, “menu”), Item = c(“Humous”, “Cheese”, “Potatoes”), Unit = c(1, 0.2, 0.35), Price = c(1, 4, 1), Cost = c(1, 0.8, 0.35))
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Rice Dish Chicken
+</td>
+<td style="text-align:left;">
+£3.24
+</td>
+<td style="text-align:left;">
+list(file_tab = c(“menu”, “menu”, “menu”, “menu”, “menu”), Item = c(“Chicken”, “Mushrooms”, “Peppers”, “Rice”, “Eggs”), Unit = c(0.35, 0.35, 0.17, 0.05, 0.12), Price = c(6.5, 1, 1.2, 5.5, 1.15), Cost = c(2.275, 0.35, 0.204, 0.275, 0.138))
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+</tbody>
+</table>
+<p><br><br></p>
+</div>
+<div id="function" class="section level3">
+<h3>Function</h3>
+<p>The function <code>func_random_meal</code> randomises meals for each mealtime, the size matching the number of days by week (<code>SOW</code>) in the <code>ref_days</code> tibble.</p>
+<p>The function draws randomly from meals for each mealtime. For example, dinners will only sample from meals classified as <em>dinner</em>.</p>
+<p>It avoids sampling <code>with replacement</code> from the available menu meals unless there are fewer meals than the calling days.<br><br></p>
+<pre class="r"><code>func_random_meal &lt;-
+  function(param_meal, param_days) {
+    # create a parameter with the number of days in the param_days parameter
+    param_sample_size &lt;- count(param_days) %&gt;% as.integer()
+    
+    # create a parameter, returning the count of items in the meal
+    param_menu_item_size &lt;- 
+      df_menu_items %&gt;%
+      
+      # filter by the calling param_meal
+      filter(Meal == param_meal) %&gt;%
+      nrow()
+    
+    # function that returns TRUE if the param_menu_item_size &lt;
+    # param_sample_size, enabling the `tmp_meals` function to sample with
+    # replacement
+    param_replace &lt;-
+    if (param_menu_item_size &lt; param_sample_size) {
+      TRUE %&gt;% return()
+    } else {
+      FALSE %&gt;% return()
+    }
+    
+    # Sample ----
+    tmp_meals &lt;-
+      df_menu_items %&gt;%
+      
+      # filter by the calling param_meal
+      filter(Meal == param_meal) %&gt;%
+      
+      # create a sample size according the the parameter param_sample_size,
+      # enabling replacement if the param_menu_item_size &lt; param_sample_size
+      sample_n(size = param_sample_size, replace = param_replace) %&gt;%
+      ungroup() %&gt;%
+      
+      # remove unecessary attributes
+      select(-Meal,-Meal_item) %&gt;%
+      
+      # add row number
+      mutate(Day_order = row_number())
+
+    # Join ----
+    param_days %&gt;%
+      
+      # join the newly created tibble `tmp_meals` to the param_days tibble,
+      # using the Day_order as key to join
+      mutate(Day_order = row_number()) %&gt;%
+      inner_join(tmp_meals, by = &quot;Day_order&quot;) %&gt;%
+      return()
+  }</code></pre>
+</div>
+<div id="randomise-meals" class="section level3">
+<h3>Randomise Meals</h3>
+<p>We start of by setting a seed, thus making results repeatable.</p>
+<p>Next, we create a new tibble <code>df_meal_plan</code> by passing the meals for each week to the <code>func_random_meal</code> function, generating and returning a random list of meals to the <code>Menu</code> column.</p>
+<p><code>Menu_Cost</code> summarises the total cost of all underlying ingredients for the meal.</p>
+<p>Executing the code block outputs the head of the new tibble for inspection.<br><br></p>
+<pre class="r"><code>set.seed(567)
+# set seed to make the results repeatable
+
+df_meal_plan &lt;-
+  # for each day and mealtime combination
+  ref_days_join_meal %&gt;%
+  
+  # group by week and mealtime, and nest all days within it
+  group_by(SOW, Meal) %&gt;%
+  nest(Weekday, Day) %&gt;% 
+  
+  # map the meal and nested days to the `func_random_meal` function and return
+  # result to the Menu column
+  mutate(Menu  = map2(Meal, data, func_random_meal)) %&gt;%
+  
+  # unnest the result and arrange the output
+  unnest(Menu) %&gt;%
+  arrange(SOW, Weekday, Meal) %&gt;% 
+  mutate_at(&quot;SOW&quot;, ~ paste0(format(., &quot;%yW%W: &quot;),
+                           format(., &quot;%d %b - &quot;), 
+                           format(. + 6, &quot;%d %b&quot;)) %&gt;%
+              factor(., ordered = TRUE))
+
+# check the results by printing the first day worth of meals
+df_meal_plan %&gt;% 
+  head(4) %&gt;% 
+  
+  # change the date formatting for improved presentation
+  mutate_if(is.Date, format, format = &quot;%d-%b&quot;) %&gt;% 
+  
+  # presentation options
+  mutate_at(&quot;Menu_Cost&quot;, ~scales::dollar(., prefix = &quot;£&quot;)) %&gt;% 
+  rename_all(func_present_headers) %&gt;% 
+  kable(format = &quot;html&quot;) %&gt;% 
+  kableExtra::kable_styling(full_width = FALSE, font_size = 10)</code></pre>
+<table class="table" style="font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Sow
+</th>
+<th style="text-align:left;">
+Meal
+</th>
+<th style="text-align:left;">
+Weekday
+</th>
+<th style="text-align:left;">
+Day
+</th>
+<th style="text-align:right;">
+Day Order
+</th>
+<th style="text-align:left;">
+Menu
+</th>
+<th style="text-align:left;">
+Menu Cost
+</th>
+<th style="text-align:left;">
+Ingredients
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+19W21: 27 May - 02 Jun
+</td>
+<td style="text-align:left;">
+Breakfast
+</td>
+<td style="text-align:left;">
+Sat
+</td>
+<td style="text-align:left;">
+01-Jun
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+Rice Pops
+</td>
+<td style="text-align:left;">
+£0.25
+</td>
+<td style="text-align:left;">
+list(file_tab = “menu”, Item = “Rice Pops”, Unit = 0.25, Price = 1, Cost = 0.25)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+19W21: 27 May - 02 Jun
+</td>
+<td style="text-align:left;">
+Dinner
+</td>
+<td style="text-align:left;">
+Sat
+</td>
+<td style="text-align:left;">
+01-Jun
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+Carbonara
+</td>
+<td style="text-align:left;">
+£3.36
+</td>
+<td style="text-align:left;">
+list(file_tab = c(“menu”, “menu”, “menu”, “menu”, “menu”), Item = c(“Bacon”, “Mushrooms”, “Cheese”, “Onion”, “Pasta”), Unit = c(0.66, 0.35, 0.33, 0.15, 0.05), Price = c(2, 1, 4, 1.5, 3), Cost = c(1.32, 0.35, 1.32, 0.225, 0.15))
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+19W21: 27 May - 02 Jun
+</td>
+<td style="text-align:left;">
+Lunch
+</td>
+<td style="text-align:left;">
+Sat
+</td>
+<td style="text-align:left;">
+01-Jun
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+Sandwich Ham &amp; Cheese
+</td>
+<td style="text-align:left;">
+£1.85
+</td>
+<td style="text-align:left;">
+list(file_tab = c(“menu”, “menu”, “menu”), Item = c(“Bread”, “Ham”, “Cheese”), Unit = c(0.35, 0.35, 0.2), Price = c(1, 2, 4), Cost = c(0.35, 0.7, 0.8))
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+19W21: 27 May - 02 Jun
+</td>
+<td style="text-align:left;">
+Snack
+</td>
+<td style="text-align:left;">
+Sat
+</td>
+<td style="text-align:left;">
+01-Jun
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+Fruit
+</td>
+<td style="text-align:left;">
+£0.62
+</td>
+<td style="text-align:left;">
+list(file_tab = “menu”, Item = “Fruit”, Unit = 0.125, Price = 5, Cost = 0.625)
+</td>
+</tr>
+</tbody>
+</table>
+<p><br><br></p>
+</div>
+<div id="month-lookahead" class="section level3">
+<h3>Month Lookahead</h3>
+<p>This section is really what this whole exercise is about!</p>
+<p>We’ve created random meals for a period, ready to print a copy of the <em>first</em> output and pin it to the family whiteboard. We now have a menu plan for the month ahead - <strong>result</strong>.</p>
+<p>The <em>second</em> output is used for budgeting the food bill once we have taken stock, and calculate what is to be purchased to satisfy the newly created budget plan.<br><br></p>
+<pre class="r"><code># Meal ----
+df_meal_plan %&gt;% 
+  select(SOW, Weekday, Meal, Menu) %&gt;% 
+  spread(Weekday, Menu, fill = &quot;--&quot;) %&gt;% 
+  ungroup() %&gt;% 
+  mutate_at(&quot;SOW&quot;, format, format = &quot;%yW%W&quot;) %&gt;% 
+  mutate_at(&quot;Meal&quot;, factor, levels = ref_meal_time$Meal) %&gt;%
+  arrange(SOW, Meal) %&gt;%
+  kable(format = &quot;html&quot;, align = &quot;c&quot;) %&gt;% 
+  kable_styling(&quot;striped&quot;, full_width = FALSE, font_size = 10) %&gt;%
+  column_spec(1, bold = TRUE) %&gt;%
+  collapse_rows(columns = 1:2, valign = &quot;top&quot;)</code></pre>
+<table class="table table-striped" style="font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:center;">
+SOW
+</th>
+<th style="text-align:center;">
+Meal
+</th>
+<th style="text-align:center;">
+Mon
+</th>
+<th style="text-align:center;">
+Tue
+</th>
+<th style="text-align:center;">
+Wed
+</th>
+<th style="text-align:center;">
+Thu
+</th>
+<th style="text-align:center;">
+Fri
+</th>
+<th style="text-align:center;">
+Sat
+</th>
+<th style="text-align:center;">
+Sun
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;font-weight: bold;vertical-align: top !important;" rowspan="4">
+19W21: 27 May - 02 Jun
+</td>
+<td style="text-align:center;">
+Breakfast
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+Rice Pops
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Snack
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Lunch
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+Sandwich Ham &amp; Cheese
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Dinner
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+Carbonara
+</td>
+<td style="text-align:center;">
+Baked Potato &amp; Humous
+</td>
+</tr>
+<tr>
+<td style="text-align:center;font-weight: bold;vertical-align: top !important;" rowspan="4">
+19W22: 03 Jun - 09 Jun
+</td>
+<td style="text-align:center;">
+Breakfast
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Snack
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Lunch
+</td>
+<td style="text-align:center;">
+Sandwich Ham &amp; Cheese
+</td>
+<td style="text-align:center;">
+Sandwich Gammon
+</td>
+<td style="text-align:center;">
+Sandwich Ham &amp; Cheese
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Gammon
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Dinner
+</td>
+<td style="text-align:center;">
+Fish fingers, Mash &amp; Beans
+</td>
+<td style="text-align:center;">
+Rice Dish Chicken
+</td>
+<td style="text-align:center;">
+Carbonara
+</td>
+<td style="text-align:center;">
+Roast Dinner
+</td>
+<td style="text-align:center;">
+Spag Bol
+</td>
+<td style="text-align:center;">
+Rice Dish Gammon
+</td>
+<td style="text-align:center;">
+Daddy’s Chicken &amp; Curry
+</td>
+</tr>
+<tr>
+<td style="text-align:center;font-weight: bold;vertical-align: top !important;" rowspan="4">
+19W23: 10 Jun - 16 Jun
+</td>
+<td style="text-align:center;">
+Breakfast
+</td>
+<td style="text-align:center;">
+Rice Pops
+</td>
+<td style="text-align:center;">
+Rice Pops
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+<td style="text-align:center;">
+Rice Pops
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Snack
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Lunch
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Gammon
+</td>
+<td style="text-align:center;">
+Sandwich Gammon
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Gammon
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Dinner
+</td>
+<td style="text-align:center;">
+Baked Potato &amp; Humous
+</td>
+<td style="text-align:center;">
+Rice Dish Gammon
+</td>
+<td style="text-align:center;">
+Spag Bol
+</td>
+<td style="text-align:center;">
+Daddy’s Chicken &amp; Curry
+</td>
+<td style="text-align:center;">
+Fish fingers, Mash &amp; Beans
+</td>
+<td style="text-align:center;">
+Roast Dinner
+</td>
+<td style="text-align:center;">
+Carbonara
+</td>
+</tr>
+<tr>
+<td style="text-align:center;font-weight: bold;vertical-align: top !important;" rowspan="4">
+19W24: 17 Jun - 23 Jun
+</td>
+<td style="text-align:center;">
+Breakfast
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+<td style="text-align:center;">
+Rice Pops
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Snack
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Lunch
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Gammon
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Gammon
+</td>
+<td style="text-align:center;">
+Sandwich Gammon
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Dinner
+</td>
+<td style="text-align:center;">
+Fish fingers, Mash &amp; Beans
+</td>
+<td style="text-align:center;">
+Burgers &amp; Hotdogs
+</td>
+<td style="text-align:center;">
+Rice Dish Gammon
+</td>
+<td style="text-align:center;">
+Rice Dish Chicken
+</td>
+<td style="text-align:center;">
+Daddy’s Chicken &amp; Curry
+</td>
+<td style="text-align:center;">
+Roast Dinner
+</td>
+<td style="text-align:center;">
+Sausage, Mash &amp; Beans
+</td>
+</tr>
+<tr>
+<td style="text-align:center;font-weight: bold;vertical-align: top !important;" rowspan="4">
+19W25: 24 Jun - 30 Jun
+</td>
+<td style="text-align:center;">
+Breakfast
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Rice Pops
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+<td style="text-align:center;">
+Honey Hoops
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+<td style="text-align:center;">
+Weetabix
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Snack
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+<td style="text-align:center;">
+Fruit
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Lunch
+</td>
+<td style="text-align:center;">
+Sandwich Gammon
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Tuna
+</td>
+<td style="text-align:center;">
+Sandwich Ham &amp; Cheese
+</td>
+<td style="text-align:center;">
+Sandwich Ham &amp; Cheese
+</td>
+<td style="text-align:center;">
+Sandwich Gammon
+</td>
+<td style="text-align:center;">
+Sandwich Ham &amp; Cheese
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Dinner
+</td>
+<td style="text-align:center;">
+Carbonara
+</td>
+<td style="text-align:center;">
+Burgers &amp; Hotdogs
+</td>
+<td style="text-align:center;">
+Rice Dish Chicken
+</td>
+<td style="text-align:center;">
+Baked Potato &amp; Humous
+</td>
+<td style="text-align:center;">
+Roast Dinner
+</td>
+<td style="text-align:center;">
+Fish fingers, Mash &amp; Beans
+</td>
+<td style="text-align:center;">
+Sausage, Mash &amp; Beans
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Money ----
+df_meal_plan %&gt;% 
+  group_by(SOW, Weekday, Meal) %&gt;% 
+  summarise_at(&quot;Menu_Cost&quot;, sum, na.rm = TRUE) %&gt;% 
+  spread(Weekday, Menu_Cost) %&gt;% 
+  ungroup() %&gt;% 
+  mutate_at(&quot;SOW&quot;, format, format = &quot;%yW%W&quot;) %&gt;% 
+  mutate_at(&quot;Meal&quot;, factor, levels = ref_meal_time$Meal) %&gt;%
+  arrange(SOW, Meal) %&gt;% 
+  func_create_summary() %&gt;% 
+  mutate_at(c(&quot;SOW&quot;, &quot;Meal&quot;), as.character) %&gt;% 
+  group_by_if(is.character) %&gt;% 
+  nest(.key = &quot;Total&quot;) %&gt;% 
+  mutate(data = Total) %&gt;% 
+  mutate_at(&quot;Total&quot;, map, rowSums, na.rm = TRUE) %&gt;% 
+  unnest() %&gt;%
+  mutate_if(is.numeric, ~scales::dollar(., prefix = &quot;£&quot;)) %&gt;% 
+  mutate_if(is.character, str_replace, pattern = &quot;£NA&quot;, replacement = &quot;--&quot;) %&gt;% 
+  kable(format = &quot;html&quot;, align = &quot;c&quot;) %&gt;% 
+  kable_styling(&quot;striped&quot;, full_width = FALSE, font_size = 10) %&gt;%
+  column_spec(1, bold = TRUE) %&gt;%
+  collapse_rows(columns = 1:2, valign = &quot;top&quot;)</code></pre>
+<table class="table table-striped" style="font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:center;">
+SOW
+</th>
+<th style="text-align:center;">
+Meal
+</th>
+<th style="text-align:center;">
+Total
+</th>
+<th style="text-align:center;">
+Mon
+</th>
+<th style="text-align:center;">
+Tue
+</th>
+<th style="text-align:center;">
+Wed
+</th>
+<th style="text-align:center;">
+Thu
+</th>
+<th style="text-align:center;">
+Fri
+</th>
+<th style="text-align:center;">
+Sat
+</th>
+<th style="text-align:center;">
+Sun
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;font-weight: bold;vertical-align: top !important;" rowspan="4">
+19W21: 27 May - 02 Jun
+</td>
+<td style="text-align:center;">
+Breakfast
+</td>
+<td style="text-align:center;">
+£0.50
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Snack
+</td>
+<td style="text-align:center;">
+£1.25
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Lunch
+</td>
+<td style="text-align:center;">
+£4.70
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+£1.85
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Dinner
+</td>
+<td style="text-align:center;">
+£5.52
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+–
+</td>
+<td style="text-align:center;">
+£3.36
+</td>
+<td style="text-align:center;">
+£2.15
+</td>
+</tr>
+<tr>
+<td style="text-align:center;font-weight: bold;vertical-align: top !important;" rowspan="4">
+19W22: 03 Jun - 09 Jun
+</td>
+<td style="text-align:center;">
+Breakfast
+</td>
+<td style="text-align:center;">
+£1.90
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Snack
+</td>
+<td style="text-align:center;">
+£4.38
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Lunch
+</td>
+<td style="text-align:center;">
+£14.45
+</td>
+<td style="text-align:center;">
+£1.85
+</td>
+<td style="text-align:center;">
+£1.10
+</td>
+<td style="text-align:center;">
+£1.85
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£1.10
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Dinner
+</td>
+<td style="text-align:center;">
+£27.70
+</td>
+<td style="text-align:center;">
+£2.88
+</td>
+<td style="text-align:center;">
+£3.24
+</td>
+<td style="text-align:center;">
+£3.36
+</td>
+<td style="text-align:center;">
+£6.32
+</td>
+<td style="text-align:center;">
+£3.16
+</td>
+<td style="text-align:center;">
+£1.97
+</td>
+<td style="text-align:center;">
+£6.77
+</td>
+</tr>
+<tr>
+<td style="text-align:center;font-weight: bold;vertical-align: top !important;" rowspan="4">
+19W23: 10 Jun - 16 Jun
+</td>
+<td style="text-align:center;">
+Breakfast
+</td>
+<td style="text-align:center;">
+£2.05
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Snack
+</td>
+<td style="text-align:center;">
+£4.38
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Lunch
+</td>
+<td style="text-align:center;">
+£14.70
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£1.10
+</td>
+<td style="text-align:center;">
+£1.10
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£1.10
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Dinner
+</td>
+<td style="text-align:center;">
+£26.61
+</td>
+<td style="text-align:center;">
+£2.15
+</td>
+<td style="text-align:center;">
+£1.97
+</td>
+<td style="text-align:center;">
+£3.16
+</td>
+<td style="text-align:center;">
+£6.77
+</td>
+<td style="text-align:center;">
+£2.88
+</td>
+<td style="text-align:center;">
+£6.32
+</td>
+<td style="text-align:center;">
+£3.36
+</td>
+</tr>
+<tr>
+<td style="text-align:center;font-weight: bold;vertical-align: top !important;" rowspan="4">
+19W24: 17 Jun - 23 Jun
+</td>
+<td style="text-align:center;">
+Breakfast
+</td>
+<td style="text-align:center;">
+£1.90
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Snack
+</td>
+<td style="text-align:center;">
+£4.38
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Lunch
+</td>
+<td style="text-align:center;">
+£14.70
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£1.10
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£1.10
+</td>
+<td style="text-align:center;">
+£1.10
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Dinner
+</td>
+<td style="text-align:center;">
+£29.55
+</td>
+<td style="text-align:center;">
+£2.88
+</td>
+<td style="text-align:center;">
+£5.00
+</td>
+<td style="text-align:center;">
+£1.97
+</td>
+<td style="text-align:center;">
+£3.24
+</td>
+<td style="text-align:center;">
+£6.77
+</td>
+<td style="text-align:center;">
+£6.32
+</td>
+<td style="text-align:center;">
+£3.38
+</td>
+</tr>
+<tr>
+<td style="text-align:center;font-weight: bold;vertical-align: top !important;" rowspan="4">
+19W25: 24 Jun - 30 Jun
+</td>
+<td style="text-align:center;">
+Breakfast
+</td>
+<td style="text-align:center;">
+£2.05
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+<td style="text-align:center;">
+£0.25
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+<td style="text-align:center;">
+£0.32
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Snack
+</td>
+<td style="text-align:center;">
+£4.38
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+<td style="text-align:center;">
+£0.62
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Lunch
+</td>
+<td style="text-align:center;">
+£13.45
+</td>
+<td style="text-align:center;">
+£1.10
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£2.85
+</td>
+<td style="text-align:center;">
+£1.85
+</td>
+<td style="text-align:center;">
+£1.85
+</td>
+<td style="text-align:center;">
+£1.10
+</td>
+<td style="text-align:center;">
+£1.85
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Dinner
+</td>
+<td style="text-align:center;">
+£26.33
+</td>
+<td style="text-align:center;">
+£3.36
+</td>
+<td style="text-align:center;">
+£5.00
+</td>
+<td style="text-align:center;">
+£3.24
+</td>
+<td style="text-align:center;">
+£2.15
+</td>
+<td style="text-align:center;">
+£6.32
+</td>
+<td style="text-align:center;">
+£2.88
+</td>
+<td style="text-align:center;">
+£3.38
+</td>
+</tr>
+<tr>
+<td style="text-align:center;font-weight: bold;">
+NA
+</td>
+<td style="text-align:center;">
+Total
+</td>
+<td style="text-align:center;">
+£204.86
+</td>
+<td style="text-align:center;">
+£23.42
+</td>
+<td style="text-align:center;">
+£26.68
+</td>
+<td style="text-align:center;">
+£24.04
+</td>
+<td style="text-align:center;">
+£30.86
+</td>
+<td style="text-align:center;">
+£33.11
+</td>
+<td style="text-align:center;">
+£33.30
+</td>
+<td style="text-align:center;">
+£33.46
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="purchasing" class="section level3">
+<h3>Purchasing</h3>
+<p>The following section is creating <em>output</em> that helps to manage the newly created menu plan.</p>
+<p>The newly created menu plans now enables one to project spend and even create a shopping list for each week<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.<br><br></p>
+<pre class="r"><code>df_meal_plan_purchases &lt;-
+  df_meal_plan %&gt;%
+  unnest() %&gt;%
+  select(Day, Item, Unit, Price, Cost) %&gt;%
+  mutate(Meals = 1) %&gt;%
+  group_by(Item) %&gt;%
+  mutate_at(c(&quot;Unit&quot;, &quot;Meals&quot;), list(cum = cumsum)) %&gt;%
+  mutate_at(&quot;Unit_cum&quot;, ceiling) %&gt;%
+  mutate_at(&quot;Unit_cum&quot;, list(buy = ~. != lead(.),
+                             buy_volume = ~lead(.) - .)) %&gt;%
+  mutate(Cost_cum = Unit_cum * Price) %&gt;%
+  mutate_at(&quot;Day&quot;,
+            list(SOW = floor_date),
+            unit = &quot;week&quot;,
+            week_start = 1) %&gt;% 
+  group_by(SOW, add = TRUE) %&gt;% 
+  summarise_at(&quot;buy_volume&quot;, sum, na.rm = TRUE)
+
+df_plot &lt;-
+  df_meal_plan_purchases %&gt;% 
+  inner_join(
+    df_import %&gt;%
+      filter(file_tab == &quot;price_list&quot;) %&gt;%
+      unnest(),
+    by = &quot;Item&quot;
+  ) %&gt;% 
+  filter(buy_volume &gt; 0) %&gt;% 
+  mutate(Cost = Price * buy_volume) %&gt;% 
+  ungroup() %&gt;% 
+  mutate(Total_Cost = sum(Cost, na.rm = TRUE)) %&gt;% 
+  arrange(desc(Total_Cost)) %&gt;% 
+  mutate_at(&quot;Item&quot;, fct_inorder) %&gt;% 
+  group_by(SOW, add = FALSE) %&gt;% 
+  mutate_at(&quot;Cost&quot;, list(Cost_Cum = cumsum)) %&gt;% 
+  ungroup() %&gt;% 
+  arrange(SOW) %&gt;% 
+  mutate_at(&quot;SOW&quot;, ~ paste0(format(., &quot;%yW%W: &quot;),
+                           format(., &quot;%d %b - &quot;), 
+                           format(. + 6, &quot;%d %b&quot;)) %&gt;%
+              factor(., ordered = TRUE))
+
+df_plot %&gt;% 
+  ggplot(aes(x = Item, y = Cost, fill = Cost)) +
+  geom_col() +
+  geom_line(aes(y = Cost_Cum, group = SOW)) +
+  ggrepel::geom_label_repel(
+    data = df_plot %&gt;%
+      group_by(SOW, add = FALSE) %&gt;%
+      top_n(n = 1, wt = Cost_Cum),
+    aes(y = Cost_Cum, label = scales::dollar(Cost_Cum, prefix = &quot;£&quot;)),
+    fill = &quot;white&quot;
+  ) +
+  facet_grid(SOW ~ ., switch = &quot;y&quot;) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = &quot;£&quot;)) +
+  scale_fill_continuous(labels = scales::dollar_format(prefix = &quot;£&quot;)) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    strip.placement = &quot;outside&quot;,
+    strip.text.y = element_text(angle = 180, vjust = 1),
+    strip.background.y = element_blank(), 
+    legend.position = &quot;bottom&quot;,
+    legend.key.width=unit(2.5,&quot;cm&quot;)
+  ) +
+  labs(title = &quot;Montly shopping costs by week&quot;,
+       y = &quot;Purchases&quot;)</code></pre>
+<p><img src="/post/2018-11-18-family_food_budget_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+<br><br></p>
+</div>
+<div id="the-shopping-list" class="section level3">
+<h3>The Shopping List</h3>
+<p>Being able to estimate my food bill is a result. However, having a prospective shopping list is practical and useful.<br><br></p>
+<pre class="r"><code>func_output_group_item_table &lt;-
+  function(param_group, param_group_selector) {
+    # print the distinct grouping category as header
+    cat(paste0(
+      &quot;&lt;h4&gt;&quot;,
+      str_replace_all(param_group, pattern = &quot;_&quot;, replacement = &quot; &quot;),
+      &quot;&lt;/h4&gt;&quot;
+    ))
+    
+    df_plot &lt;-
+      df_plot %&gt;%
+      select(SOW, Item, volume = buy_volume, Price, Cost, Cost_Cum)
+    
+    df_plot %&gt;%
+      # filter the master data by the grouping category parameter
+      filter(!!param_group_selector == param_group) %&gt;%
+      ungroup() %&gt;%
+      
+      #  remove the grouping category from it
+      select(-!!param_group_selector) %&gt;%
+      
+      # create a row with a sum total for each numeric column
+      mutate_at(&quot;Cost_Cum&quot;, as.character) %&gt;% 
+      func_create_summary() %&gt;%
+      
+      # styling and presentation options executed next, as described in the
+      # previous code block
+      mutate_at(&quot;volume&quot;, as.character) %&gt;% 
+      mutate_at(&quot;Cost_Cum&quot;, as.numeric) %&gt;% 
+      rename_all(func_present_headers) %&gt;%
+      mutate_if(is.numeric, ~ round(., 2) %&gt;% scales::dollar(., prefix = &quot;£&quot;)) %&gt;%
+      mutate_if(is.character, str_remove, pattern = &quot;\\£NA&quot;) %&gt;%
+      mutate_if(is.factor,
+                str_replace_all,
+                pattern = &quot;_&quot;,
+                replacement = &quot; &quot;) %&gt;%
+      kable(align = &quot;r&quot;, format = &quot;html&quot;) %&gt;%
+      kableExtra::kable_styling(full_width = FALSE,
+                                font_size = 12) %&gt;%
+      kableExtra::collapse_rows(columns = 1:4, valign = &quot;middle&quot;) %&gt;%
+      return()
+  }
+
+func_output_group_item_table_iterator &lt;-
+  function(param_group_selector) {
+    for (param_group in (df_plot %&gt;%
+                         distinct(!!param_group_selector) %&gt;%
+                         pull()))  {
+      func_output_group_item_table(param_group, param_group_selector) %&gt;% print()
+    }
+  }
+
+func_output_group_item_table_iterator(quo(SOW))</code></pre>
+<h4>
+19W21: 27 May - 02 Jun
+</h4>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Item
+</th>
+<th style="text-align:right;">
+Volume
+</th>
+<th style="text-align:right;">
+Price
+</th>
+<th style="text-align:right;">
+Cost
+</th>
+<th style="text-align:right;">
+Cost Cum
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+Bacon
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="3">
+1
+</td>
+<td style="text-align:right;">
+£2
+</td>
+<td style="text-align:right;">
+£2
+</td>
+<td style="text-align:right;">
+£2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Bread
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£1
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£1
+</td>
+<td style="text-align:right;">
+£3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Humous
+</td>
+<td style="text-align:right;">
+£4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Total
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+£4
+</td>
+<td style="text-align:right;">
+£4
+</td>
+<td style="text-align:right;">
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+19W22: 03 Jun - 09 Jun
+</h4>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Item
+</th>
+<th style="text-align:right;">
+Volume
+</th>
+<th style="text-align:right;">
+Price
+</th>
+<th style="text-align:right;">
+Cost
+</th>
+<th style="text-align:right;">
+Cost Cum
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+Bread
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+£1.00
+</td>
+<td style="text-align:right;">
+£2.00
+</td>
+<td style="text-align:right;">
+£2.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Cheese
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="7">
+1
+</td>
+<td style="text-align:right;">
+£4.00
+</td>
+<td style="text-align:right;">
+£4.00
+</td>
+<td style="text-align:right;">
+£6.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Chicken
+</td>
+<td style="text-align:right;">
+£6.50
+</td>
+<td style="text-align:right;">
+£6.50
+</td>
+<td style="text-align:right;">
+£12.50
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Curry
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+<td style="text-align:right;">
+£15.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Dolmio
+</td>
+<td style="text-align:right;">
+£0.65
+</td>
+<td style="text-align:right;">
+£0.65
+</td>
+<td style="text-align:right;">
+£15.65
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Fruit
+</td>
+<td style="text-align:right;">
+£5.00
+</td>
+<td style="text-align:right;">
+£5.00
+</td>
+<td style="text-align:right;">
+£20.65
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Ham
+</td>
+<td style="text-align:right;">
+£2.00
+</td>
+<td style="text-align:right;">
+£2.00
+</td>
+<td style="text-align:right;">
+£22.65
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Honey Hoops
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£1.00
+</td>
+<td style="text-align:right;">
+£1.00
+</td>
+<td style="text-align:right;">
+£23.65
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Mushrooms
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+2
+</td>
+<td style="text-align:right;">
+£2.00
+</td>
+<td style="text-align:right;">
+£25.65
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Tuna
+</td>
+<td style="text-align:right;">
+£5.00
+</td>
+<td style="text-align:right;">
+£10.00
+</td>
+<td style="text-align:right;">
+£35.65
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Total
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+£28.65
+</td>
+<td style="text-align:right;">
+£35.65
+</td>
+<td style="text-align:right;">
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+19W23: 10 Jun - 16 Jun
+</h4>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Item
+</th>
+<th style="text-align:right;">
+Volume
+</th>
+<th style="text-align:right;">
+Price
+</th>
+<th style="text-align:right;">
+Cost
+</th>
+<th style="text-align:right;">
+Cost Cum
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+Bacon
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+2
+</td>
+<td style="text-align:right;">
+£2.00
+</td>
+<td style="text-align:right;">
+£4.00
+</td>
+<td style="text-align:right;">
+£4.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Bread
+</td>
+<td style="text-align:right;">
+£1.00
+</td>
+<td style="text-align:right;">
+£2.00
+</td>
+<td style="text-align:right;">
+£6.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Cheese
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="11">
+1
+</td>
+<td style="text-align:right;">
+£4.00
+</td>
+<td style="text-align:right;">
+£4.00
+</td>
+<td style="text-align:right;">
+£10.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Chicken
+</td>
+<td style="text-align:right;">
+£6.50
+</td>
+<td style="text-align:right;">
+£6.50
+</td>
+<td style="text-align:right;">
+£16.50
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Curry
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+<td style="text-align:right;">
+£19.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Fish
+</td>
+<td style="text-align:right;">
+£4.00
+</td>
+<td style="text-align:right;">
+£4.00
+</td>
+<td style="text-align:right;">
+£23.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Fruit
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£5.00
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£5.00
+</td>
+<td style="text-align:right;">
+£28.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Gammon
+</td>
+<td style="text-align:right;">
+£33.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Humous
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£1.00
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£1.00
+</td>
+<td style="text-align:right;">
+£34.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Mushrooms
+</td>
+<td style="text-align:right;">
+£35.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Peppers
+</td>
+<td style="text-align:right;">
+£1.20
+</td>
+<td style="text-align:right;">
+£1.20
+</td>
+<td style="text-align:right;">
+£36.20
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Potatoes
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£1.00
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£1.00
+</td>
+<td style="text-align:right;">
+£37.20
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Rice Pops
+</td>
+<td style="text-align:right;">
+£38.20
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Tuna
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+£5.00
+</td>
+<td style="text-align:right;">
+£10.00
+</td>
+<td style="text-align:right;">
+£48.20
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Weetabix
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+1
+</td>
+<td style="text-align:right;">
+£1.30
+</td>
+<td style="text-align:right;">
+£1.30
+</td>
+<td style="text-align:right;">
+£49.50
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Yorkshire Puds
+</td>
+<td style="text-align:right;">
+£2.60
+</td>
+<td style="text-align:right;">
+£2.60
+</td>
+<td style="text-align:right;">
+£52.10
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Total
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+£44.10
+</td>
+<td style="text-align:right;">
+£52.10
+</td>
+<td style="text-align:right;">
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+19W24: 17 Jun - 23 Jun
+</h4>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Item
+</th>
+<th style="text-align:right;">
+Volume
+</th>
+<th style="text-align:right;">
+Price
+</th>
+<th style="text-align:right;">
+Cost
+</th>
+<th style="text-align:right;">
+Cost Cum
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+Baked Beans
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Bread
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£1.00
+</td>
+<td style="text-align:right;">
+£3.00
+</td>
+<td style="text-align:right;">
+£5.50
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Burger Buns
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+1
+</td>
+<td style="text-align:right;">
+£1.00
+</td>
+<td style="text-align:right;">
+£6.50
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Burgers
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+<td style="text-align:right;">
+£9.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Chicken
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+£6.50
+</td>
+<td style="text-align:right;">
+£13.00
+</td>
+<td style="text-align:right;">
+£22.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Honey Hoops
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="5">
+1
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="3">
+£1.00
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="3">
+£1.00
+</td>
+<td style="text-align:right;">
+£23.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Mushrooms
+</td>
+<td style="text-align:right;">
+£24.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Potatoes
+</td>
+<td style="text-align:right;">
+£25.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Roast Potatoes
+</td>
+<td style="text-align:right;">
+£3.00
+</td>
+<td style="text-align:right;">
+£3.00
+</td>
+<td style="text-align:right;">
+£28.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Sausage
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+<td style="text-align:right;">
+£2.50
+</td>
+<td style="text-align:right;">
+£30.50
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Tuna
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+£5.00
+</td>
+<td style="text-align:right;">
+£10.00
+</td>
+<td style="text-align:right;">
+£40.50
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Weetabix
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+£1.30
+</td>
+<td style="text-align:right;">
+£1.30
+</td>
+<td style="text-align:right;">
+£41.80
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Total
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+£28.30
+</td>
+<td style="text-align:right;">
+£41.80
+</td>
+<td style="text-align:right;">
+</td>
+</tr>
+</tbody>
+</table>
+<h4>
+19W25: 24 Jun - 30 Jun
+</h4>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Item
+</th>
+<th style="text-align:right;">
+Volume
+</th>
+<th style="text-align:right;">
+Price
+</th>
+<th style="text-align:right;">
+Cost
+</th>
+<th style="text-align:right;">
+Cost Cum
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+Bread
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+£1
+</td>
+<td style="text-align:right;">
+£2
+</td>
+<td style="text-align:right;">
+£2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Cheese
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="5">
+1
+</td>
+<td style="text-align:right;">
+£4
+</td>
+<td style="text-align:right;">
+£4
+</td>
+<td style="text-align:right;">
+£6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Fruit
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£5
+</td>
+<td style="text-align:right;vertical-align: middle !important;" rowspan="2">
+£5
+</td>
+<td style="text-align:right;">
+£11
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Gammon
+</td>
+<td style="text-align:right;">
+£16
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Ham
+</td>
+<td style="text-align:right;">
+£2
+</td>
+<td style="text-align:right;">
+£2
+</td>
+<td style="text-align:right;">
+£18
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Mushrooms
+</td>
+<td style="text-align:right;">
+£1
+</td>
+<td style="text-align:right;">
+£1
+</td>
+<td style="text-align:right;">
+£19
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Total
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+£18
+</td>
+<td style="text-align:right;">
+£19
+</td>
+<td style="text-align:right;">
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="eda" class="section level3">
+<h3>EDA</h3>
+<p>This section explores our menu by mealtime, visualising the ranked cost of menus.<br><br></p>
+<pre class="r"><code>df_meal_plan %&gt;% 
+  distinct(Meal, Menu, Menu_Cost) %&gt;% 
+  arrange(Meal, desc(Menu_Cost)) %&gt;% 
+  mutate_at(&quot;Menu&quot;, fct_inorder) %&gt;% 
+  ggplot(aes(x = Menu, y = Menu_Cost, fill = Menu_Cost)) +
+  geom_col() +
+  geom_label(aes(label = format(Menu_Cost, digits = 2, big.mark = &quot;,&quot;, format = &quot;#.##&quot;) %&gt;%
+                   paste0(&quot;£&quot;, .)),
+             col = &quot;white&quot;, 
+             size = 3) +
+  coord_flip() +
+  theme_classic() +
+  scale_y_continuous(labels = scales::dollar_format(prefix = &quot;£&quot;)) +
+  facet_grid(Meal ~ ., 
+             scales = &quot;free_y&quot;, 
+             space = &quot;free&quot;, 
+             switch = &quot;y&quot;) +
+  theme(strip.placement = &quot;outside&quot;,
+        strip.text.y = element_text(angle = 180, 
+                                    face = &quot;bold&quot;, 
+                                    size = 10,
+                                    hjust = 0, 
+                                    vjust = 1), 
+        strip.background.y = element_blank(),
+        plot.subtitle = element_text(size = 8, face = &quot;italic&quot;),
+        legend.key.height=unit(0.5,&quot;line&quot;),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 8),
+        legend.position = &quot;bottom&quot;) +
+  labs(title = &quot;Cost of meals&quot;, 
+       subtitle = &quot;Grouped by mealtime - Ordered by Cost&quot;,
+       fill = &quot;Cost/ Meal&quot;,
+       y = &quot;Cost/ Meal&quot;,
+       x = &quot;&quot;)</code></pre>
+<p><img src="/post/2018-11-18-family_food_budget_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>The following visualisation contrasts a few meals to provide a side-by-side breakdown of costs per menu. It is clear that using meat and complexity is what increases the cost of meals.<br><br></p>
+<pre class="r"><code># Expensive Items ----
+df_menu_items %&gt;%
+  filter(grepl(&quot;curry|roast|spag|carb&quot;, Menu, ignore.case = TRUE)) %&gt;%
+  unnest() %&gt;%
+  arrange(desc(Cost)) %&gt;%
+  mutate_at(&quot;Item&quot;, fct_inorder) %&gt;%
+  ggplot(aes(Menu, Cost, fill = Item)) +
+  geom_col(position = &quot;stack&quot;, show.legend = FALSE) +
+  geom_label(
+    aes(
+      label = format(
+        Cost,
+        digits = 2,
+        big.mark = &quot;,&quot;,
+        format = &quot;#.##&quot;
+      ) %&gt;% paste0(&quot;£&quot;, .) %&gt;% paste(Item, .)
+    ),
+    position = &quot;stack&quot;,
+    col = &quot;white&quot;,
+    size = 3,
+    show.legend = FALSE
+  ) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = &quot;£&quot;)) +
+  theme_classic() +
+  labs(title = &quot;Comparing the cost of ingredients for selected meals&quot;)</code></pre>
+<p><img src="/post/2018-11-18-family_food_budget_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>This post doesn’t describe life-changing methods or insights. However, it demonstrates that coding can be used to solve simple, everyday problems, even having a meaningful impact on my little family. <strong>Imagine though what it can do for seemingly insignificant things in business.</strong></p>
+<hr>
+</div>
+<div id="session" class="section level2">
+<h2>Session</h2>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>## R version 3.5.3 (2019-03-11)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS Mojave 10.14.4
+## 
+## Matrix products: default
+## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] kableExtra_1.1.0 knitr_1.22       lubridate_1.7.4  readxl_1.3.1    
+##  [5] forcats_0.4.0    stringr_1.4.0    dplyr_0.8.0.1    purrr_0.3.2     
+##  [9] readr_1.3.1      tidyr_0.8.3      tibble_2.1.1     ggplot2_3.1.1   
+## [13] tidyverse_1.2.1 
+## 
+## loaded via a namespace (and not attached):
+##  [1] tidyselect_0.2.5  xfun_0.6          reshape2_1.4.3   
+##  [4] haven_2.1.0       lattice_0.20-38   colorspace_1.4-1 
+##  [7] generics_0.0.2    htmltools_0.3.6   viridisLite_0.3.0
+## [10] yaml_2.2.0        utf8_1.1.4        rlang_0.3.4      
+## [13] pillar_1.3.1      glue_1.3.1        withr_2.1.2.9000 
+## [16] selectr_0.4-1     modelr_0.1.4      plyr_1.8.4       
+## [19] munsell_0.5.0     blogdown_0.12     gtable_0.3.0     
+## [22] cellranger_1.1.0  rvest_0.3.3       evaluate_0.13    
+## [25] labeling_0.3      fansi_0.4.0       highr_0.8        
+## [28] broom_0.5.2       Rcpp_1.0.1.2      scales_1.0.0     
+## [31] backports_1.1.4   webshot_0.5.1     jsonlite_1.6     
+## [34] hms_0.4.2         digest_0.6.18     stringi_1.4.3    
+## [37] ggrepel_0.8.1     bookdown_0.9      grid_3.5.3       
+## [40] cli_1.1.0         tools_3.5.3       magrittr_1.5     
+## [43] lazyeval_0.2.2    crayon_1.3.4      pkgconfig_2.0.2  
+## [46] xml2_1.2.0        assertthat_0.2.1  rmarkdown_1.12   
+## [49] httr_1.4.0        rstudioapi_0.10   R6_2.4.0         
+## [52] nlme_3.1-139      compiler_3.5.3</code></pre>
+<!-- <div class="fab"> -->
+<!-- <script type="text/javascript"> -->
+<!-- // toggle visibility of R source blocks in R Markdown output -->
+<!-- function toggle_R() { -->
+<!--   var x = document.getElementsByClassName('r'); -->
+<!--   if (x.length == 0) return; -->
+<!--   function toggle_vis(o) { -->
+<!--     var d = o.style.display; -->
+<!--     o.style.display = (d == 'block' || d == '') ? 'none':'block'; -->
+<!--   } -->
+<!--   for (i = 0; i < x.length; i++) { -->
+<!--     var y = x[i]; -->
+<!--     if (y.tagName.toLowerCase() === 'pre') toggle_vis(y); -->
+<!--   } -->
+<!--     var elem = document.getElementById("fab"); -->
+<!--     if (elem.value === "Hide Code Blocks") elem.value = "Show Code Blocks"; -->
+<!--     else elem.value = "Hide Code Blocks"; -->
+<!-- } -->
+<!-- document.write('<input onclick="toggle_R()" type="button" id="fab" value="Hide Code Blocks"</input>') -->
+<!-- </script> -->
+<!-- </div> -->
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><sub>assuming that the cupboard is one unit up on all required items</sub><a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>

@@ -45,6 +45,7 @@ library(lubridate)
 library(readxl)
 library(knitr)
 library(kableExtra)</code></pre>
+<p><a id="functions"></a></p>
 </div>
 <div id="functions" class="section level3">
 <h3>Functions</h3>
@@ -78,7 +79,7 @@ df &lt;-
   rename_all(func_rename_tidy)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
-##   No. = col_integer(),
+##   No. = col_double(),
 ##   Player = col_character(),
 ##   `Date of birth (age)` = col_character()
 ## )</code></pre>
@@ -206,17 +207,17 @@ Harry Maguire
 <thead>
 <tr>
 <th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
-<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
 Common fields
 </div>
 </th>
 <th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="1">
-<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
 Initial field<br>with multi-values
 </div>
 </th>
 <th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
-<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
 New<br>split fields
 </div>
 </th>
@@ -247,14 +248,14 @@ Age
 <td style="text-align:left;">
 Jordan Pickford
 </td>
-<td style="text-align:left;color: white;background-color: red;">
+<td style="text-align:left;color: white !important;background-color: red !important;">
 7 March 1994 (age 24)
 </td>
-<td style="text-align:left;background-color: lightgreen;">
+<td style="text-align:left;background-color: lightgreen !important;">
 1994-03-07
 </td>
-<td style="text-align:right;background-color: lightgreen;">
-24
+<td style="text-align:right;background-color: lightgreen !important;">
+25
 </td>
 </tr>
 <tr>
@@ -264,13 +265,13 @@ Jordan Pickford
 <td style="text-align:left;">
 Trent Alexander-Arnold
 </td>
-<td style="text-align:left;color: white;background-color: red;">
+<td style="text-align:left;color: white !important;background-color: red !important;">
 7 October 1998 (age 19)
 </td>
-<td style="text-align:left;background-color: lightgreen;">
+<td style="text-align:left;background-color: lightgreen !important;">
 1998-10-07
 </td>
-<td style="text-align:right;background-color: lightgreen;">
+<td style="text-align:right;background-color: lightgreen !important;">
 20
 </td>
 </tr>
@@ -281,13 +282,13 @@ Trent Alexander-Arnold
 <td style="text-align:left;">
 Danny Rose
 </td>
-<td style="text-align:left;color: white;background-color: red;">
+<td style="text-align:left;color: white !important;background-color: red !important;">
 2 July 1990 (age 28)
 </td>
-<td style="text-align:left;background-color: lightgreen;">
+<td style="text-align:left;background-color: lightgreen !important;">
 1990-07-02
 </td>
-<td style="text-align:right;background-color: lightgreen;">
+<td style="text-align:right;background-color: lightgreen !important;">
 28
 </td>
 </tr>
@@ -298,13 +299,13 @@ Danny Rose
 <td style="text-align:left;">
 Kyle Walker
 </td>
-<td style="text-align:left;color: white;background-color: red;">
+<td style="text-align:left;color: white !important;background-color: red !important;">
 28 May 1990 (age 28)
 </td>
-<td style="text-align:left;background-color: lightgreen;">
+<td style="text-align:left;background-color: lightgreen !important;">
 1990-05-28
 </td>
-<td style="text-align:right;background-color: lightgreen;">
+<td style="text-align:right;background-color: lightgreen !important;">
 28
 </td>
 </tr>
@@ -315,14 +316,14 @@ Kyle Walker
 <td style="text-align:left;">
 James Tarkowski
 </td>
-<td style="text-align:left;color: white;background-color: red;">
+<td style="text-align:left;color: white !important;background-color: red !important;">
 19 November 1992 (age 25)
 </td>
-<td style="text-align:left;background-color: lightgreen;">
+<td style="text-align:left;background-color: lightgreen !important;">
 1992-11-19
 </td>
-<td style="text-align:right;background-color: lightgreen;">
-25
+<td style="text-align:right;background-color: lightgreen !important;">
+26
 </td>
 </tr>
 <tr>
@@ -332,14 +333,14 @@ James Tarkowski
 <td style="text-align:left;">
 Harry Maguire
 </td>
-<td style="text-align:left;color: white;background-color: red;">
+<td style="text-align:left;color: white !important;background-color: red !important;">
 5 March 1993 (age 25)
 </td>
-<td style="text-align:left;background-color: lightgreen;">
+<td style="text-align:left;background-color: lightgreen !important;">
 1993-03-05
 </td>
-<td style="text-align:right;background-color: lightgreen;">
-25
+<td style="text-align:right;background-color: lightgreen !important;">
+26
 </td>
 </tr>
 </tbody>
@@ -479,7 +480,7 @@ param_days &lt;-
   param_days %&gt;%
   
   # Map the list of days to the func_create_data function to simulate the data
-  mutate_at(&quot;Date&quot;, funs(data = map), func_create_data) %&gt;% 
+  mutate_at(&quot;Date&quot;, list(data = map), func_create_data) %&gt;% 
   
   # The unnest() function returns all iteratively nested cycled data to a top
   # param_days level
@@ -492,7 +493,7 @@ param_days &lt;-
   complete(No, Date, Exercise) %&gt;% 
   
   # Create a new variable by extracting the year value from the date
-  mutate_at(&quot;Date&quot;, funs(Year = year)) %&gt;% 
+  mutate_at(&quot;Date&quot;, list(Year = year)) %&gt;% 
   
   # Group by Player Number and nest the simulated data in the `training_data`
   # column
@@ -1050,17 +1051,17 @@ list(
            recursive = TRUE) %&gt;%
   
   # create a tibble of the files and rename the file name to fil_name
-  as_data_frame() %&gt;%
+  enframe(name = NULL) %&gt;%
   rename(file_name = value) %&gt;% 
   
   # exclude the football file from the results
   filter(! grepl(&quot;football\\.csv$&quot;, file_name, ignore.case = TRUE)) %&gt;% 
   
   # extract the file type for future processing
-  mutate_at(&quot;file_name&quot;, funs(file_source = str_extract), pattern = &quot;\\.(csv|xlsx)$&quot;) %&gt;% 
+  mutate_at(&quot;file_name&quot;, list(file_source = str_extract), pattern = &quot;\\.(csv|xlsx)$&quot;) %&gt;% 
   
   # dynamically import the files and nest the file column
-  mutate_at(&quot;file_name&quot;, funs(file = map), func_get_file_dynamic) %&gt;% 
+  mutate_at(&quot;file_name&quot;, list(file = map), func_get_file_dynamic) %&gt;% 
   
   # Unnest all files and consolidate columns, then only guess the data type.
   # This prevents any errors if there are columns with the same file-names but
@@ -1134,7 +1135,7 @@ Jordan Pickford
 1994-03-07
 </td>
 <td style="text-align:right;">
-24
+25
 </td>
 <td style="text-align:left;">
 2018-03-01
@@ -1172,7 +1173,7 @@ Jordan Pickford
 1994-03-07
 </td>
 <td style="text-align:right;">
-24
+25
 </td>
 <td style="text-align:left;">
 2018-03-02
@@ -1210,7 +1211,7 @@ Jordan Pickford
 1994-03-07
 </td>
 <td style="text-align:right;">
-24
+25
 </td>
 <td style="text-align:left;">
 2018-03-03
@@ -1248,7 +1249,7 @@ Jordan Pickford
 1994-03-07
 </td>
 <td style="text-align:right;">
-24
+25
 </td>
 <td style="text-align:left;">
 2018-03-04
@@ -1286,7 +1287,7 @@ Jordan Pickford
 1994-03-07
 </td>
 <td style="text-align:right;">
-24
+25
 </td>
 <td style="text-align:left;">
 2018-03-05
@@ -1324,7 +1325,7 @@ Jordan Pickford
 1994-03-07
 </td>
 <td style="text-align:right;">
-24
+25
 </td>
 <td style="text-align:left;">
 2018-03-06
@@ -1443,9 +1444,9 @@ files_expanded %&gt;%
 </div>
 <div id="session-info" class="section level2">
 <h2>Session Info</h2>
-<pre><code>## R version 3.5.1 (2018-07-02)
+<pre><code>## R version 3.5.3 (2019-03-11)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS  10.14
+## Running under: macOS Mojave 10.14.4
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
@@ -1458,30 +1459,30 @@ files_expanded %&gt;%
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] openxlsx_4.1.0   bindrcpp_0.2.2   kableExtra_0.9.0 knitr_1.20      
-##  [5] readxl_1.1.0     lubridate_1.7.4  forcats_0.3.0    stringr_1.3.1   
-##  [9] dplyr_0.7.8      purrr_0.2.5      readr_1.1.1      tidyr_0.8.2     
-## [13] tibble_1.4.2     ggplot2_3.1.0    tidyverse_1.2.1 
+##  [1] openxlsx_4.1.0   kableExtra_1.1.0 knitr_1.22       readxl_1.3.1    
+##  [5] lubridate_1.7.4  forcats_0.4.0    stringr_1.4.0    dplyr_0.8.0.1   
+##  [9] purrr_0.3.2      readr_1.3.1      tidyr_0.8.3      tibble_2.1.1    
+## [13] ggplot2_3.1.1    tidyverse_1.2.1 
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] tidyselect_0.2.5  xfun_0.4          reshape2_1.4.3   
-##  [4] haven_1.1.2       lattice_0.20-38   colorspace_1.3-2 
-##  [7] htmltools_0.3.6   viridisLite_0.3.0 yaml_2.2.0       
-## [10] rlang_0.3.0.1     pillar_1.3.0      glue_1.3.0       
-## [13] withr_2.1.2       selectr_0.4-1     modelr_0.1.2     
-## [16] bindr_0.1.1       plyr_1.8.4        munsell_0.5.0    
-## [19] blogdown_0.9      gtable_0.2.0      cellranger_1.1.0 
-## [22] zip_1.0.0         rvest_0.3.2       evaluate_0.12    
-## [25] labeling_0.3      highr_0.7         broom_0.5.0      
-## [28] Rcpp_1.0.0        scales_1.0.0      backports_1.1.2  
-## [31] jsonlite_1.5      gridExtra_2.3     hms_0.4.2        
-## [34] digest_0.6.18     stringi_1.2.4     bookdown_0.7     
-## [37] grid_3.5.1        rprojroot_1.3-2   cli_1.0.1        
-## [40] tools_3.5.1       magrittr_1.5      lazyeval_0.2.1   
+##  [1] tidyselect_0.2.5  xfun_0.6          reshape2_1.4.3   
+##  [4] haven_2.1.0       lattice_0.20-38   colorspace_1.4-1 
+##  [7] generics_0.0.2    htmltools_0.3.6   viridisLite_0.3.0
+## [10] yaml_2.2.0        rlang_0.3.4       pillar_1.3.1     
+## [13] glue_1.3.1        withr_2.1.2.9000  selectr_0.4-1    
+## [16] modelr_0.1.4      plyr_1.8.4        munsell_0.5.0    
+## [19] blogdown_0.12     gtable_0.3.0      cellranger_1.1.0 
+## [22] zip_2.0.1         rvest_0.3.3       evaluate_0.13    
+## [25] labeling_0.3      highr_0.8         broom_0.5.2      
+## [28] Rcpp_1.0.1.2      scales_1.0.0      backports_1.1.4  
+## [31] webshot_0.5.1     jsonlite_1.6      gridExtra_2.3    
+## [34] hms_0.4.2         digest_0.6.18     stringi_1.4.3    
+## [37] bookdown_0.9      grid_3.5.3        cli_1.1.0        
+## [40] tools_3.5.3       magrittr_1.5      lazyeval_0.2.2   
 ## [43] crayon_1.3.4      pkgconfig_2.0.2   xml2_1.2.0       
-## [46] viridis_0.5.1     assertthat_0.2.0  rmarkdown_1.10   
-## [49] httr_1.3.1        rstudioapi_0.8    R6_2.3.0         
-## [52] nlme_3.1-137      compiler_3.5.1</code></pre>
+## [46] viridis_0.5.1     assertthat_0.2.1  rmarkdown_1.12   
+## [49] httr_1.4.0        rstudioapi_0.10   R6_2.4.0         
+## [52] nlme_3.1-139      compiler_3.5.3</code></pre>
 </div>
 <div class="footnotes">
 <hr />
