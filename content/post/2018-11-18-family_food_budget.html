@@ -46,7 +46,7 @@ rm(package_list)</code></pre>
 </div>
 <div id="functions" class="section level3">
 <h3>Functions</h3>
-<p>The functions below primarily helps with presentation and formatting. The inline comments below describe the working and sequence of each function. I have <a href="/post/2018-11-08-summarising_tables/#functions">previously written</a> about these functions and how they are used.<br><br></p>
+<p>The functions below primarily helps with presentation and formatting. The embedded comments describe the working and sequence of each function. I have <a href="/post/2018-11-08-summarising_tables/#functions">previously written</a> about these functions and how they are used.<br><br></p>
 <pre class="r"><code>func_rename &lt;-
   function(x) {
     
@@ -225,119 +225,65 @@ options(digits=9)</code></pre>
 ## 1 price_list &lt;tibble [46 × 2]&gt;
 ## 2 menu       &lt;tibble [60 × 4]&gt;</code></pre>
 <p>The dataframe <code>df_import</code> reveals two imported tabs, including <code>price_list</code> and <code>menu</code>.</p>
-<p>The <code>price_list</code> data contains ingredients, units purchased according to the <em>packaging</em> and its purchase price.</p>
-<p>Tibble <code>menu</code> is a list of meals, listing the <code>Meal</code> time-of-day, including breakfast, lunch, dinner or a snack only. Each menu item (meal) contains a list of ingredients and units consumed in the associated menu meal.<br><br></p>
-<pre class="r"><code>df_import %&gt;% 
-  head(1) %&gt;%
-  unnest() %&gt;% 
-  head() %&gt;% 
-  mutate_at(&quot;Price&quot;, ~scales::dollar(., prefix = &quot;£&quot;)) %&gt;% 
-  rename_all(func_present_headers) %&gt;% 
-  kable(format = &quot;html&quot;, caption = &quot;Prices&quot;) %&gt;% 
-  kableExtra::kable_styling(full_width = FALSE,
-                font_size = 12)</code></pre>
-<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
-<caption style="font-size: initial !important;">
-<span id="tab:unnamed-chunk-6">Table 1: </span>Prices
-</caption>
+<p>The <code>price_list</code> data <em>(File Tab = <strong>Price List</strong>)</em> contains ingredients, units purchased according to the <em>packaging</em> and its purchase price.</p>
+<p>Tibble <code>menu</code> <em>(File Tab = <strong>Menu</strong>)</em> is a list of meals, listing the <code>Meal</code> time-of-day, including breakfast, lunch, dinner or a snack only. Each menu item (meal) contains a list of ingredients and units consumed in the associated menu meal.</p>
+<p>The head of each table shown below, corresponding with the <em>File Tab</em> reference shown above.<br><br></p>
+<pre class="r"><code>list(
+  df_import %&gt;%
+    head(1) %&gt;%
+    unnest() %&gt;%
+    select(-file_tab) %&gt;%
+    rename_all(func_present_headers) %&gt;%
+    mutate_at(&quot;Price&quot;, ~ scales::dollar(., prefix = &quot;£&quot;)) %&gt;%
+    head(),
+  df_import %&gt;%
+    tail(1) %&gt;%
+    unnest() %&gt;%
+    select(-file_tab) %&gt;%
+    rename_all(func_present_headers) %&gt;%
+    head()
+) %&gt;%
+  reduce(dplyr::bind_cols) %&gt;%
+  kable(
+    format = &quot;html&quot;,
+    col.names = c(
+      &quot;Item&quot;,
+      &quot;Price&quot;,
+      &quot;Meal&quot;,
+      &quot;Menu&quot;,
+      &quot;Item&quot;,
+      &quot;Unit&quot;
+    )
+  ) %&gt;%
+  kableExtra::kable_styling(full_width = TRUE, font_size = 12) %&gt;%
+  kableExtra::collapse_rows(columns = 3:4,  valign = &quot;top&quot;) %&gt;% 
+  add_header_above(
+    c(&quot;Price List&quot; = 2, &quot;Menu&quot; = 4),
+    align = &quot;c&quot;,
+    color = &quot;white&quot;,
+    bold = TRUE,
+    background = &quot;grey&quot;
+  )</code></pre>
+<table class="table" style="font-size: 12px; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
-<th style="text-align:left;">
-File Tab
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; font-weight: bold; color: white !important;padding-right: 4px; padding-left: 4px; background-color: grey !important;" colspan="2">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Price List
+</div>
 </th>
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; font-weight: bold; color: white !important;padding-right: 4px; padding-left: 4px; background-color: grey !important;" colspan="4">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Menu
+</div>
+</th>
+</tr>
+<tr>
 <th style="text-align:left;">
 Item
 </th>
 <th style="text-align:left;">
 Price
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-price_list
-</td>
-<td style="text-align:left;">
-Baby Carrots
-</td>
-<td style="text-align:left;">
-£1.30
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-price_list
-</td>
-<td style="text-align:left;">
-Bacon
-</td>
-<td style="text-align:left;">
-£2.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-price_list
-</td>
-<td style="text-align:left;">
-Baked Beans
-</td>
-<td style="text-align:left;">
-£2.50
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-price_list
-</td>
-<td style="text-align:left;">
-Bread
-</td>
-<td style="text-align:left;">
-£1.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-price_list
-</td>
-<td style="text-align:left;">
-Broccoli
-</td>
-<td style="text-align:left;">
-£1.30
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-price_list
-</td>
-<td style="text-align:left;">
-Burger Buns
-</td>
-<td style="text-align:left;">
-£1.00
-</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>df_import %&gt;% 
-  tail(1) %&gt;%
-  unnest() %&gt;% 
-  head() %&gt;% 
-  rename_all(func_present_headers) %&gt;% 
-  kable(format = &quot;html&quot;, caption = &quot;Units&quot;) %&gt;% 
-  kableExtra::kable_styling(full_width = FALSE,
-                font_size = 12)</code></pre>
-<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
-<caption style="font-size: initial !important;">
-<span id="tab:unnamed-chunk-6">Table 1: </span>Units
-</caption>
-<thead>
-<tr>
-<th style="text-align:left;">
-File Tab
 </th>
 <th style="text-align:left;">
 Meal
@@ -356,12 +302,15 @@ Unit
 <tbody>
 <tr>
 <td style="text-align:left;">
-menu
+Baby Carrots
 </td>
 <td style="text-align:left;">
+£1.30
+</td>
+<td style="text-align:left;vertical-align: top !important;" rowspan="6">
 Dinner
 </td>
-<td style="text-align:left;">
+<td style="text-align:left;vertical-align: top !important;" rowspan="3">
 Fish fingers, Mash &amp; Beans
 </td>
 <td style="text-align:left;">
@@ -373,13 +322,10 @@ Fish
 </tr>
 <tr>
 <td style="text-align:left;">
-menu
+Bacon
 </td>
 <td style="text-align:left;">
-Dinner
-</td>
-<td style="text-align:left;">
-Fish fingers, Mash &amp; Beans
+£2.00
 </td>
 <td style="text-align:left;">
 Potatoes
@@ -390,13 +336,10 @@ Potatoes
 </tr>
 <tr>
 <td style="text-align:left;">
-menu
+Baked Beans
 </td>
 <td style="text-align:left;">
-Dinner
-</td>
-<td style="text-align:left;">
-Fish fingers, Mash &amp; Beans
+£2.50
 </td>
 <td style="text-align:left;">
 Baked Beans
@@ -407,12 +350,12 @@ Baked Beans
 </tr>
 <tr>
 <td style="text-align:left;">
-menu
+Bread
 </td>
 <td style="text-align:left;">
-Dinner
+£1.00
 </td>
-<td style="text-align:left;">
+<td style="text-align:left;vertical-align: top !important;" rowspan="3">
 Sausage, Mash &amp; Beans
 </td>
 <td style="text-align:left;">
@@ -424,13 +367,10 @@ Sausage
 </tr>
 <tr>
 <td style="text-align:left;">
-menu
+Broccoli
 </td>
 <td style="text-align:left;">
-Dinner
-</td>
-<td style="text-align:left;">
-Sausage, Mash &amp; Beans
+£1.30
 </td>
 <td style="text-align:left;">
 Potatoes
@@ -441,13 +381,10 @@ Potatoes
 </tr>
 <tr>
 <td style="text-align:left;">
-menu
+Burger Buns
 </td>
 <td style="text-align:left;">
-Dinner
-</td>
-<td style="text-align:left;">
-Sausage, Mash &amp; Beans
+£1.00
 </td>
 <td style="text-align:left;">
 Baked Beans

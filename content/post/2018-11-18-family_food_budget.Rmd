@@ -51,7 +51,7 @@ rm(package_list)
 ```
 
 ### Functions
-The functions below primarily helps with presentation and formatting.  The inline comments below describe the working and sequence of each function.  I have [previously written](/post/2018-11-08-summarising_tables/#functions) about these functions and how they are used.<br><br>
+The functions below primarily helps with presentation and formatting.  The embedded comments describe the working and sequence of each function.  I have [previously written](/post/2018-11-08-summarising_tables/#functions) about these functions and how they are used.<br><br>
 
 ```{r}
 func_rename <-
@@ -241,29 +241,49 @@ df_import
 
 The dataframe `df_import` reveals two imported tabs, including `price_list` and `menu`.
 
-The `price_list` data contains ingredients, units purchased according to the *packaging* and its purchase price.  
+The `price_list` data *(File Tab = **Price List**)* contains ingredients, units purchased according to the *packaging* and its purchase price.  
 
-Tibble `menu` is a list of meals, listing the `Meal` time-of-day, including breakfast, lunch, dinner or a snack only. Each menu item (meal) contains a list of ingredients and units consumed in the associated menu meal.<br><br>
+Tibble `menu` *(File Tab = **Menu**)* is a list of meals, listing the `Meal` time-of-day, including breakfast, lunch, dinner or a snack only. Each menu item (meal) contains a list of ingredients and units consumed in the associated menu meal.
+
+The head of each table shown below, corresponding with the *File Tab* reference shown above.<br><br>
 
 ```{r}
-df_import %>% 
-  head(1) %>%
-  unnest() %>% 
-  head() %>% 
-  mutate_at("Price", ~scales::dollar(., prefix = "£")) %>% 
-  rename_all(func_present_headers) %>% 
-  kable(format = "html", caption = "Prices") %>% 
-  kableExtra::kable_styling(full_width = FALSE,
-                font_size = 12)
-
-df_import %>% 
-  tail(1) %>%
-  unnest() %>% 
-  head() %>% 
-  rename_all(func_present_headers) %>% 
-  kable(format = "html", caption = "Units") %>% 
-  kableExtra::kable_styling(full_width = FALSE,
-                font_size = 12)
+list(
+  df_import %>%
+    head(1) %>%
+    unnest() %>%
+    select(-file_tab) %>%
+    rename_all(func_present_headers) %>%
+    mutate_at("Price", ~ scales::dollar(., prefix = "£")) %>%
+    head(),
+  df_import %>%
+    tail(1) %>%
+    unnest() %>%
+    select(-file_tab) %>%
+    rename_all(func_present_headers) %>%
+    head()
+) %>%
+  reduce(dplyr::bind_cols) %>%
+  kable(
+    format = "html",
+    col.names = c(
+      "Item",
+      "Price",
+      "Meal",
+      "Menu",
+      "Item",
+      "Unit"
+    )
+  ) %>%
+  kableExtra::kable_styling(full_width = TRUE, font_size = 12) %>%
+  kableExtra::collapse_rows(columns = 3:4,  valign = "top") %>% 
+  add_header_above(
+    c("Price List" = 2, "Menu" = 4),
+    align = "c",
+    color = "white",
+    bold = TRUE,
+    background = "grey"
+  )
 ```
 <br><br>
 
