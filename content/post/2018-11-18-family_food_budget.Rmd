@@ -245,7 +245,7 @@ The `price_list` data *(File Tab = **Price List**)* contains ingredients, units 
 
 Tibble `menu` *(File Tab = **Menu**)* is a list of meals, listing the `Meal` time-of-day, including breakfast, lunch, dinner or a snack only. Each menu item (meal) contains a list of ingredients and units consumed in the associated menu meal.
 
-The head of each table shown below, corresponding with the *File Tab* reference shown above.<br><br>
+The head of each table shown below, corresponding with the *File Tab* reference described above.<br><br>
 
 ```{r}
 list(
