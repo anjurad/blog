@@ -273,7 +273,7 @@ I found it very useful in consultations, specifically during *collaborative* [*m
 and [spdplyr](https://cran.r-project.org/web/packages/spdplyr/index.html)) and use the excellent [GQIS](https://qgis.org/en/site/) for on-the-go visualisation in addition to Tableau.  Tableau has an ongoing initiative to improve its mapping offering and have [released excellent features](https://www.tableau.com/solutions/maps) during the past few years.<br><br>
 
 - **Programming**<br>
-I initially ran simulations using MS Access, VBA and *ActiveX Data Objects*.
+At first I ran simulations using MS Access, VBA and *ActiveX Data Objects*.
 It executed serially, and some would often take 24 hours to complete!<br><br>
 I quickly moved to use SQL (exclusively for over 3 years) but eventually found R a lot more scalable and efficient, not just for modelling, but other deliverables too.  I progressively transitioned to R until it became my tool of choice for prototyping and rapid development.<br><br>
 
