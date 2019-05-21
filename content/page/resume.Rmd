@@ -214,7 +214,7 @@ It came naturally to me, and I developed an insatiable appetite for learning abo
 
 A few highlights from this role include:
 
-- I designed and delivered a tracking database and spearheaded a focus group that changed a business process.  This reduced abortive and additional costs of over £5m nationally in the first year alone after implementation.<br><br>
+- I designed and delivered a tracking database and spearheaded a focus group that improved a business process by following the [six sigma](https://en.wikipedia.org/wiki/Six_Sigma) approach.  This reduced abortive and additional costs of over £5m nationally in the first year alone after implementation.<br><br>
 
  - I developed a management reporting approach that improved the end-to-end delivery of the 3G programme of works.  It optimised overall benefit by *aligning delivery across multiple departments[^2]*, capitalising on [earned value](https://en.wikipedia.org/wiki/Earned_value_management).
 <br>
