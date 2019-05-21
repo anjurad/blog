@@ -10,21 +10,21 @@ comments: false
 ## Introduction
 This page provides a comprehensive narrative of my career to date.
 
-It covers three distinct stages, starting with *Education*.  The next stage is *Project and Programme Management*, and the last and current is Management Consulting and Data Science.<br>
+It covers three distinct stages, starting with *Education*.  The next stage is *Project and Programme Management*, followed by the last and current *Management Consulting and Data Science*.<br>
 
 Please click on the following links to jump to a relevant section:<br>
 
-- **[Early years & Education](#education)** covers schooling and early working life in *South Africa*.<br>
+- **[Early years & Education](#education)** covers **schooling** and early working life in *South Africa*.<br>
 
-- **[Programme Management](#programme_management)** decribes *project and programme management roles* at *Orange UK* and *Convergys*.<br>
+- **[Project & Programme Management](#programme_management)** decribes **project and programme management** roles at *Orange UK* and *Convergys*.<br>
 
-- **[Management Consultant & Data Scientist](#management_consultant)** describes various contract roles throughout the UK, where I increasingly specialised in Data Science as a core capability of my consultancy.
+- **[Management Consultant & Data Scientist](#management_consultant)** describes various contract roles throughout the UK, where I increasingly specialised in **data science** as a core capability of my consultancy.
 
 <hr><br>
 
 <a id="education"></a>
 
-## Schooling and Early Career
+## Early years & Education
 
 I was born and raised in Cape Town.
 
