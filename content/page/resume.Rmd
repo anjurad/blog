@@ -7,6 +7,23 @@ output: html_document
 comments: false
 ---
 
+## Introduction
+This page provides a comprehensive narrative of my career to date.
+
+It covers three distinct stages, starting with *Education*.  The next stage is *Project and Programme Management*, and the last and current is Management Consulting and Data Science.<br>
+
+Please click on the following links to jump to a relevant section:<br>
+
+- **[Early years & Education](#education)** covers schooling and early working life in *South Africa*.<br>
+
+- **[Programme Management](#programme_management)** decribes *project and programme management roles* at *Orange UK* and *Convergys*.<br>
+
+- **[Management Consultant & Data Scientist](#management_consultant)** describes various contract roles throughout the UK, where I increasingly specialised in Data Science as a core capability of my consultancy.
+
+<hr><br>
+
+<a id="education"></a>
+
 ## Schooling and Early Career
 
 I was born and raised in Cape Town.
@@ -169,9 +186,13 @@ I studied at the [University of Pretoria](https://www.up.ac.za) and majored in M
 I completed two **research projects** as part of this degree, including:
 
 - [*Capital Asset pricing models*](https://en.wikipedia.org/wiki/Capital_asset_pricing_model) as part of the [Financial Management track](https://www.up.ac.za/mobile/yearbooks/2019/pdf/module/FBS%20700) and, 
-- Specialisation in [*Marketing Research*](https://www.amazon.co.uk/Business-Research-Advantage-Computer-Education/dp/0256137773/ref=sr_1_1?keywords=9780256137774&linkCode=qs&qid=1555332370&s=books&sr=1-1) by conducting a [*Servqual*](https://en.wikipedia.org/wiki/SERVQUAL)[^1] study at a local health club.<br><hr><br>
+- Specialisation in [*Marketing Research*](https://www.amazon.co.uk/Business-Research-Advantage-Computer-Education/dp/0256137773/ref=sr_1_1?keywords=9780256137774&linkCode=qs&qid=1555332370&s=books&sr=1-1) by conducting a [*Servqual*](https://en.wikipedia.org/wiki/SERVQUAL)[^1] study at a local health club.
 
-## General
+<hr><br>
+
+<a id="programme_management"></a>
+
+## Project & Programme Management
 
 ```{r echo=FALSE, fig.height=3.5, fig.width=8.2, message=FALSE, warning=FALSE, paged.print=FALSE}
 
@@ -213,7 +234,7 @@ This role, more than any other, honed my skills to *influence and persuade* and 
 
 In 2004 I took on responsibility for *Facilitation* (renamed as **Programme Control**) nationally, taking on direct reports and gaining *line management* experience.<br><br>
 
-I used modelling more widely to plan and forecast programmes and quantify risk.  It kick-started an initiative to apply marketing segmentation to London boroughs in a bid to prioritise delivery.  It served as a precursor to the *Value to Cost Ratio*, a weighted set of attributes resulting in a ranking score, used to determine budgetary spend on the Access Network to maximise benefit.<br><br><hr><br>
+I used modelling more widely to plan and forecast programmes and quantify risk.  It kick-started an initiative to apply marketing segmentation to London boroughs in a bid to prioritise delivery.  It served as a precursor to the *Value to Cost Ratio*, a weighted set of attributes resulting in a ranking score, used to determine budgetary spend on the Access Network to maximise benefit.<br><hr><br>
 
 ### Convergys ***2007 - 2010***
 I was responsible for managing multi-million-pound programmes developing, customising and implementing SS7 and SIGTRAN based IVR systems and Value Added Solutions (SMSC, Voicemail, MMS) throughout the EMEA/ APAC regions from inception to completion.
@@ -227,7 +248,9 @@ Some key points from this position:
 - Producing Statements of Work and Business Cases to support pre-sales bids
 - Coordinating implementation of solutions with resellers, including Ericsson and Huawei’s complex and extensive core network rollout and upgrades
 
-<br><hr><br>
+<hr><br>
+
+<a id="management_consultant"></a>
 
 ## Management Consultant & Data Scientist
 The next section covers the contracts that I took on as an independent management consultant.<br><br>
@@ -238,6 +261,8 @@ create_plot_output("timeline_anjurad")
 
 ```
 
+
+### General
 Some general observations about the role:<br><br>
 
 - **Visualisation**<br>
@@ -259,7 +284,9 @@ During 2016 I started using python more extensively leading up to an [8-week cou
 I have spent considerable time analysing data, focussing on prediction and inference.  It naturally led me to the [emerging *Data Science* field](https://www.forbes.com/sites/gilpress/2013/05/28/a-very-short-history-of-data-science/) which, at the same time, had been exploding with powerful and accessible tools and techniques.<br><br>
 Using an increasingly broader and more advanced range of solutions ultimately fuelled my a thirst to gain extensive and more in-depth knowledge in all crucial aspects of the discipline.  I took a sabbatical to finish up courses in [all foundational aspects of data science](/page/resources/#data_science_process_map), bringing to an end a journey that started a few years ago.  More accurately, it marks the start of my education, albeit on a solid footing.<br><br>
 Data Science is a vast and evolving field with many disciplines.  I can never know enough, so continuous learning has become a way of life.<br><br>
-I am an active member of a few tech groups in Manchester and attend regular meetups in the city.<br><br><hr><br>
+I am an active member of a few tech groups in Manchester and attend regular meetups in the city.
+
+<hr><br>
 
 ### Nokia ***2011 - 2013***
 In 2011 Nokia approached me to help demystify a convoluted KPI improvement programme.  Its complexity made it difficult to demonstrate to the customer with sufficient confidence that the project was under control and on target.
@@ -282,7 +309,7 @@ My team and I continued to provide the [SAAS](https://en.wikipedia.org/wiki/Soft
  For me as a PM, delivering customer reporting on mobile network multi technology projects, NISABA as a tool has allowed simple views from complex cross work stream data. The reporting functionality was very simply tailored to meet the customer needs with instant updates to many of the output reports. The ability to access the tool securely from a number of different devices means we can manage data on the go. The stability of the platform in the last 3 years has also been excellent.<br><br>
 [**Andy Scott, Customer Project Manager - Nokia Networks**](https://www.linkedin.com/in/andy-scott-2a579b90/)
 
-<br><br><hr><br>
+<hr><br>
 
 ### CTIL ***2013 - 2016***
 Towards the end of 2013, I was headhunted to take over from Accenture as their contract came to an end.  As part of the Beacon PMO, my primary and first project was to model programme delivery and create *scenario and baseline plans* of the [Beacon](https://blog.vodafone.co.uk/2012/11/20/better-coverage-fewer-masts-your-complete-guide-to-our-network-joint-venture/) and London programmes.
@@ -300,14 +327,14 @@ Highlighting a few other projects:
 
 - Conducting an extensive and in-depth analysis of CTIL Estates rent and rates, producing time-series forecasts and providing information to set requirements for the network maintenance RFQ.<br><br>
 
-- Implementing 'AIR', a tactical IT solution which extracted, transformed, concentrated and combined data from various sources providing a feed to the CTIL Acquisition workflow tool (SOL). It exposed privileged and secure access via a web interface and was used by the CTIL London Acquisition team as a case management solution.<br><br>
+- Implementing 'AIR', a tactical IT solution which extracted, transformed, concentrated and combined data from various sources providing a feed to the CTIL Acquisition workflow tool (SOL). It exposed privileged and secure access via a web interface and was used by the CTIL London Acquisition team as a case management solution.
 
 <hr><br>
 
 ### Huawei ***2016 - 2017***
 My primary role was to interface with the customer and provide reporting and analytics.  I mapped all major operational processes using the [BPMN2.0](http://www.bpmn.org) standard.<br><br>
 
-My main achievement during this time was providing management information and steer to a successful turn-around project dealing with a significant backlog of quality issues.  By the end of the calendar year, we closed down 92% of quality issues, with performance and status well within acceptable tolerances and work-in-progress pots.<br><br><hr><br>
+My main achievement during this time was providing management information and steer to a successful turn-around project dealing with a significant backlog of quality issues.  By the end of the calendar year, we closed down 92% of quality issues, with performance and status well within acceptable tolerances and work-in-progress pots.<br><hr><br>
 
 ### Vodafone ***2017 - 2018***
 Vodafone headhunted me for the position.
@@ -321,7 +348,7 @@ Some aspects of the role included:
 - Business process analysis and mapping using the [BPMN2.0](http://www.bpmn.org) standard
 - Bespoke network analysis and supporting media used in corporate customer sales pitches<br><br>
 
-My headline achievement was developing and producing automated packs for Sales and Marketing.  It identified and classified opportunities, using predictive clustering of network programme outcomes, which were then geospatially associated with existing and prospective customers.<br><br><hr><br>
+My headline achievement was developing and producing automated packs for Sales and Marketing.  It identified and classified opportunities, using predictive clustering of network programme outcomes, which were then geospatially associated with existing and prospective customers.<br><hr><br>
 
 ### Sabbatical ***2018 - 2019***
 In December 2018 I took a sabbatical and completed training that gave me a thorough and exhaustive foundation in [all essential aspects of data science](/page/resources/#data_science_process_map).  It marked the culmination of a journey that started many years ago.
@@ -332,7 +359,8 @@ Some of the courses and training included:
 
 - [Mathematics for Machine Learning by Imperial College London on Coursera](https://www.coursera.org/specializations/mathematics-machine-learning)
 - [Statistical Learning, by Stanford University](https://lagunita.stanford.edu/courses/HumanitiesSciences/StatLearning/Winter2016/about), which I completed **with distinction**.
-- Refreshed and updated my knowledge on statistics and probability, focussing on using programming libraries to perform statistical calculations and tests.<br><br>
+- Refreshed and updated my knowledge on statistics and probability, focussing on using programming libraries to perform statistical calculations and tests.
+- Got familiar with *Spark and Python for Big Data with PySpark*
 
 <hr><br>
 
