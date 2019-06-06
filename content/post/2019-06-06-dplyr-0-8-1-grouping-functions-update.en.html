@@ -1,0 +1,604 @@
+---
+title: dplyr 0.8.1 grouping functions update
+author: Gerhard Groenewald
+date: '2019-06-06'
+slug: dplyr-0-8-1-update-to-grouping-functions
+categories: [R]
+tags: [R, tips tricks, library, review]
+subtitle: 'Changes to group_modify() and group_map()'
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<p><a href="https://www.rstudio.com">RStudio</a> has just released a minor update to <a href="https://dplyr.tidyverse.org">dplyr</a>. They had a rethink of new <a href="https://dplyr.tidyverse.org/reference/group_map.html">grouping <em>purrr-style</em> functions</a> used to iterate on grouped tibbles. Information about the update can be found <a href="https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/">here</a>.</p>
+<p>An extract from the wiki states that:</p>
+<blockquote>
+<p>group_modify() is an evolution of do(), if you have used that before.</p>
+</blockquote>
+<p>My typical implementation changes from <code>do(psych::describe(.$val))</code> to <code>group_modify( ~ {psych::describe(.$val)})</code>, both yielding the same result. The demonstration shows the change below.<br><br></p>
+<pre class="r"><code>iris_grouped &lt;-
+  iris %&gt;% 
+  
+  # Make the table long and thin by brinding numeric attributes describing Sepal
+  # and Petal lengh and width into one columns named `Field`.
+  gather(Field, val, -Species) %&gt;% 
+  
+  # group by Species and Field to execute an operation over the val data for
+  # each respective group
+  group_by(Species, Field)
+
+iris_grouped %&gt;%
+  
+  # The function returns the first 4 rows of the dataframe, formatting the output to
+  # HTML using knitr and kableextra, printing a passed header as shown below
+  func_tidy_present(., header = &quot;Tidied *Gathered &amp; Grouped* Dataframe&quot;)</code></pre>
+<br>
+<h5>
+Tidied <em>Gathered &amp; Grouped</em> Dataframe
+</h5>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Species
+</th>
+<th style="text-align:left;">
+Field
+</th>
+<th style="text-align:right;">
+val
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Sepal.Length
+</td>
+<td style="text-align:right;">
+5.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Sepal.Length
+</td>
+<td style="text-align:right;">
+4.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Sepal.Length
+</td>
+<td style="text-align:right;">
+4.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Sepal.Length
+</td>
+<td style="text-align:right;">
+4.6
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>iris_grouped %&gt;%
+  
+  # Apply the function for group using the do method
+  do(psych::describe(.$val)) %&gt;%
+  
+  # Tidyup to present
+  func_tidy_present(., header = &quot;Result of the *Do* method&quot;)</code></pre>
+<br>
+<h5>
+Result of the <em>Do</em> method
+</h5>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Species
+</th>
+<th style="text-align:left;">
+Field
+</th>
+<th style="text-align:right;">
+vars
+</th>
+<th style="text-align:right;">
+n
+</th>
+<th style="text-align:right;">
+mean
+</th>
+<th style="text-align:right;">
+sd
+</th>
+<th style="text-align:right;">
+median
+</th>
+<th style="text-align:right;">
+trimmed
+</th>
+<th style="text-align:right;">
+mad
+</th>
+<th style="text-align:right;">
+min
+</th>
+<th style="text-align:right;">
+max
+</th>
+<th style="text-align:right;">
+range
+</th>
+<th style="text-align:right;">
+skew
+</th>
+<th style="text-align:right;">
+kurtosis
+</th>
+<th style="text-align:right;">
+se
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Petal.Length
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+1.46
+</td>
+<td style="text-align:right;">
+0.17
+</td>
+<td style="text-align:right;">
+1.5
+</td>
+<td style="text-align:right;">
+1.46
+</td>
+<td style="text-align:right;">
+0.15
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+1.9
+</td>
+<td style="text-align:right;">
+0.9
+</td>
+<td style="text-align:right;">
+0.10
+</td>
+<td style="text-align:right;">
+0.65
+</td>
+<td style="text-align:right;">
+0.02
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Petal.Width
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+<td style="text-align:right;">
+0.11
+</td>
+<td style="text-align:right;">
+0.2
+</td>
+<td style="text-align:right;">
+0.24
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+0.1
+</td>
+<td style="text-align:right;">
+0.6
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+1.18
+</td>
+<td style="text-align:right;">
+1.26
+</td>
+<td style="text-align:right;">
+0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Sepal.Length
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+5.01
+</td>
+<td style="text-align:right;">
+0.35
+</td>
+<td style="text-align:right;">
+5.0
+</td>
+<td style="text-align:right;">
+5.00
+</td>
+<td style="text-align:right;">
+0.30
+</td>
+<td style="text-align:right;">
+4.3
+</td>
+<td style="text-align:right;">
+5.8
+</td>
+<td style="text-align:right;">
+1.5
+</td>
+<td style="text-align:right;">
+0.11
+</td>
+<td style="text-align:right;">
+-0.45
+</td>
+<td style="text-align:right;">
+0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Sepal.Width
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+3.43
+</td>
+<td style="text-align:right;">
+0.38
+</td>
+<td style="text-align:right;">
+3.4
+</td>
+<td style="text-align:right;">
+3.42
+</td>
+<td style="text-align:right;">
+0.37
+</td>
+<td style="text-align:right;">
+2.3
+</td>
+<td style="text-align:right;">
+4.4
+</td>
+<td style="text-align:right;">
+2.1
+</td>
+<td style="text-align:right;">
+0.04
+</td>
+<td style="text-align:right;">
+0.60
+</td>
+<td style="text-align:right;">
+0.05
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>iris_grouped %&gt;% 
+  
+  # Apply the function for group using the Group_Modify method
+  group_modify( ~ {psych::describe(.$val)}) %&gt;% 
+  
+  # Tidyup to present
+  func_tidy_present(., header = &quot;Result of the *Group Modify* method&quot;)</code></pre>
+<br>
+<h5>
+Result of the <em>Group Modify</em> method
+</h5>
+<table class="table" style="font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Species
+</th>
+<th style="text-align:left;">
+Field
+</th>
+<th style="text-align:right;">
+vars
+</th>
+<th style="text-align:right;">
+n
+</th>
+<th style="text-align:right;">
+mean
+</th>
+<th style="text-align:right;">
+sd
+</th>
+<th style="text-align:right;">
+median
+</th>
+<th style="text-align:right;">
+trimmed
+</th>
+<th style="text-align:right;">
+mad
+</th>
+<th style="text-align:right;">
+min
+</th>
+<th style="text-align:right;">
+max
+</th>
+<th style="text-align:right;">
+range
+</th>
+<th style="text-align:right;">
+skew
+</th>
+<th style="text-align:right;">
+kurtosis
+</th>
+<th style="text-align:right;">
+se
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Petal.Length
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+1.46
+</td>
+<td style="text-align:right;">
+0.17
+</td>
+<td style="text-align:right;">
+1.5
+</td>
+<td style="text-align:right;">
+1.46
+</td>
+<td style="text-align:right;">
+0.15
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+1.9
+</td>
+<td style="text-align:right;">
+0.9
+</td>
+<td style="text-align:right;">
+0.10
+</td>
+<td style="text-align:right;">
+0.65
+</td>
+<td style="text-align:right;">
+0.02
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Petal.Width
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+<td style="text-align:right;">
+0.11
+</td>
+<td style="text-align:right;">
+0.2
+</td>
+<td style="text-align:right;">
+0.24
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+0.1
+</td>
+<td style="text-align:right;">
+0.6
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+1.18
+</td>
+<td style="text-align:right;">
+1.26
+</td>
+<td style="text-align:right;">
+0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Sepal.Length
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+5.01
+</td>
+<td style="text-align:right;">
+0.35
+</td>
+<td style="text-align:right;">
+5.0
+</td>
+<td style="text-align:right;">
+5.00
+</td>
+<td style="text-align:right;">
+0.30
+</td>
+<td style="text-align:right;">
+4.3
+</td>
+<td style="text-align:right;">
+5.8
+</td>
+<td style="text-align:right;">
+1.5
+</td>
+<td style="text-align:right;">
+0.11
+</td>
+<td style="text-align:right;">
+-0.45
+</td>
+<td style="text-align:right;">
+0.05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+setosa
+</td>
+<td style="text-align:left;">
+Sepal.Width
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+3.43
+</td>
+<td style="text-align:right;">
+0.38
+</td>
+<td style="text-align:right;">
+3.4
+</td>
+<td style="text-align:right;">
+3.42
+</td>
+<td style="text-align:right;">
+0.37
+</td>
+<td style="text-align:right;">
+2.3
+</td>
+<td style="text-align:right;">
+4.4
+</td>
+<td style="text-align:right;">
+2.1
+</td>
+<td style="text-align:right;">
+0.04
+</td>
+<td style="text-align:right;">
+0.60
+</td>
+<td style="text-align:right;">
+0.05
+</td>
+</tr>
+</tbody>
+</table>

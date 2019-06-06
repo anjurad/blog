@@ -1,0 +1,84 @@
+---
+title: dplyr 0.8.1 grouping functions update
+author: Gerhard Groenewald
+date: '2019-06-06'
+slug: dplyr-0-8-1-update-to-grouping-functions
+categories: [R]
+tags: [R, tips tricks, library, review]
+subtitle: 'Changes to group_modify() and group_map()'
+---
+
+[RStudio](https://www.rstudio.com) has just released a minor update to [dplyr](https://dplyr.tidyverse.org).  They had a rethink of new [grouping *purrr-style* functions](https://dplyr.tidyverse.org/reference/group_map.html) used to iterate on grouped tibbles.  Information about the update can be found [here](https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/).
+
+An extract from the wiki states that:
+
+> group_modify() is an evolution of do(), if you have used that before.
+
+My typical implementation changes from `do(psych::describe(.$val))` to `group_modify( ~ {psych::describe(.$val)})`, both yielding the same result.  The demonstration shows the change below.<br><br>
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(magrittr)
+library(conflicted)
+
+# Implementing conflicted
+purrr::walk(c("filter", "lag", "intersect", "setdiff", "setequal", "union"), function(func) {
+  conflict_prefer(func, "dplyr")
+})
+```
+
+```{r, include=FALSE}
+func_tidy_present <-
+  function(data, header = NA) {
+    
+    cat(paste0("<br><h5>", header, "</h5>"))
+    
+    data %>% 
+      ungroup() %>%
+      head(4) %>% 
+      mutate_if(is.numeric, round, 2) %>% 
+      knitr::kable(format = "html") %>%
+      kableExtra::kable_styling(full_width = FALSE, font_size = 12) %>% 
+      return()
+  }
+```
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
+iris_grouped <-
+  iris %>% 
+  
+  # Make the table long and thin by brinding numeric attributes describing Sepal
+  # and Petal lengh and width into one columns named `Field`.
+  gather(Field, val, -Species) %>% 
+  
+  # group by Species and Field to execute an operation over the val data for
+  # each respective group
+  group_by(Species, Field)
+
+iris_grouped %>%
+  
+  # The function returns the first 4 rows of the dataframe, formatting the output to
+  # HTML using knitr and kableextra, printing a passed header as shown below
+  func_tidy_present(., header = "Tidied *Gathered & Grouped* Dataframe")
+```
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
+iris_grouped %>%
+  
+  # Apply the function for group using the do method
+  do(psych::describe(.$val)) %>%
+  
+  # Tidyup to present
+  func_tidy_present(., header = "Result of the *Do* method")
+
+iris_grouped %>% 
+  
+  # Apply the function for group using the Group_Modify method
+  group_modify( ~ {psych::describe(.$val)}) %>% 
+  
+  # Tidyup to present
+  func_tidy_present(., header = "Result of the *Group Modify* method")
+```
+
