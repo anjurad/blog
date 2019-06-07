@@ -621,7 +621,8 @@ Sepal.Width
 <p>An implentation of the <code>quantile</code> function returns a list that is subsequently <code>enframed</code> and spread before presentation.<br><br></p>
 <pre class="r"><code>iris_grouped %&gt;%
   
-  # Apply the function for group using the Group_Modify method
+  # Apply the function for each group and enframe results within the
+  # group_modify function
   group_modify( ~ {
     quantile(.x$val, probs = c(0.25, 0.5, 0.75)) %&gt;%
       tibble::enframe(name = &quot;prob&quot;, value = &quot;quantile&quot;)

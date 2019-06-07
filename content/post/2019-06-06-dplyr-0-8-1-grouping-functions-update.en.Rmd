@@ -102,7 +102,8 @@ An implentation of the `quantile` function returns a list that is subsequently `
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
 iris_grouped %>%
   
-  # Apply the function for group using the Group_Modify method
+  # Apply the function for each group and enframe results within the
+  # group_modify function
   group_modify( ~ {
     quantile(.x$val, probs = c(0.25, 0.5, 0.75)) %>%
       tibble::enframe(name = "prob", value = "quantile")
