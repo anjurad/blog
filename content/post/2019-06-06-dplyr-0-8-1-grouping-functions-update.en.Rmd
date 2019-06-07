@@ -10,6 +10,11 @@ subtitle: 'Changes to group_modify() and group_map()'
 
 [RStudio](https://www.rstudio.com) has just released a [minor update](https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/) to [dplyr](https://dplyr.tidyverse.org).  They had a rethink of new [grouping *purrr-style* functions](https://dplyr.tidyverse.org/reference/group_map.html) used to iterate on grouped tibbles.
 
+The changes include:
+
+- `group_map()` is now used for iterating on groups of grouped tibbles, characterised by .x and .y as before.  It however makes no assumptions about the return type of each operation, combining results in a list - similar to `purrr::map()`.
+- The previous behaviour was renamed to `group_modify()`, which always returns a grouped tibble, combining returned tibbles by evaluating each operation with a reconstructed grouping structure.
+
 An extract from the wiki states that:
 
 > group_modify() is an evolution of do(), if you have used that before.
@@ -32,13 +37,13 @@ purrr::walk(c("filter", "lag", "intersect", "setdiff", "setequal", "union"), fun
 
 ```{r, include=FALSE}
 func_tidy_present <-
-  function(data, header = NA) {
+  function(data, header = NA, return_row_count = 4) {
     
     cat(paste0("<br><h5>", header, "</h5>"))
     
     data %>% 
       ungroup() %>%
-      head(4) %>% 
+      head(return_row_count) %>% 
       mutate_if(is.numeric, round, 2) %>% 
       knitr::kable(format = "html") %>%
       kableExtra::kable_styling(full_width = FALSE, font_size = 12) %>% 
@@ -64,7 +69,8 @@ iris_grouped %>%
   # The function returns the first 4 rows of the dataframe, formatting the
   # output to HTML using knitr and kableextra, printing a passed header as shown
   # below
-  func_tidy_present(., header = "Tidied *Gathered & Grouped* Dataframe")
+  func_tidy_present(., 
+                    header = "Tidied *Gathered & Grouped* Dataframe")
 ```
 
 <br><hr><br>
@@ -89,3 +95,20 @@ iris_grouped %>%
   func_tidy_present(., header = "Result of the *Group Modify* method")
 ```
 
+<br><hr><br>
+
+An implentation of the `quantile` function returns a list that is subsequently `enframed` and spread before presentation.<br><br>
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
+iris_grouped %>% 
+  
+  # Apply the function for group using the Group_Modify method
+  group_modify(~ {
+    quantile(.x$val, probs = c(0.25, 0.5, 0.75)) %>%
+      tibble::enframe(name = "prob", value = "quantile")
+  }) %>% 
+  spread(Field, quantile) %>% 
+
+  # Tidyup to present
+  func_tidy_present(., header = "Result of the *Group Modify* method applying the *quantile* function")
+```
