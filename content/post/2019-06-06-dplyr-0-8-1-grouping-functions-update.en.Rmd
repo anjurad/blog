@@ -8,16 +8,15 @@ tags: [R, tips tricks, library, review]
 subtitle: 'Changes to group_modify() and group_map()'
 ---
 
-[RStudio](https://www.rstudio.com) has just released a minor update to [dplyr](https://dplyr.tidyverse.org).  They had a rethink of new [grouping *purrr-style* functions](https://dplyr.tidyverse.org/reference/group_map.html) used to iterate on grouped tibbles.  [Follow this link for more information about the update](https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/).
+[RStudio](https://www.rstudio.com) has just released a [minor update](https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/) to [dplyr](https://dplyr.tidyverse.org).  They had a rethink of new [grouping *purrr-style* functions](https://dplyr.tidyverse.org/reference/group_map.html) used to iterate on grouped tibbles.
 
 An extract from the wiki states that:
 
 > group_modify() is an evolution of do(), if you have used that before.
 
-My typical implementation changes from `do(function(.$column))` to `group_modify( ~ {function(.$column)})`, both yielding the same result.  The demonstration below shows the subtle change, which brings the application function closer in terms of syntatics.
+A typical implementation changes from `do(function(.$column))` to `group_modify( ~ {function(.$column)})`, both yielding the same result.  `group_map` similarly applies a function across each grouped tibble, albeit dropping the grouping variables and outputting lists for each group.
 
-
-`group_map` similarly applies a function across each grouped tibble, albeit dropping the grouping variables and outputting lists for each group.<br><br>
+The demonstration below shows the subtle change, bringing more syntactic cohesion to the coding flow.<br><br>
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}

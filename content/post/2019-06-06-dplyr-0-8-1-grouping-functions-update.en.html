@@ -11,13 +11,13 @@ subtitle: 'Changes to group_modify() and group_map()'
 <script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 
-<p><a href="https://www.rstudio.com">RStudio</a> has just released a minor update to <a href="https://dplyr.tidyverse.org">dplyr</a>. They had a rethink of new <a href="https://dplyr.tidyverse.org/reference/group_map.html">grouping <em>purrr-style</em> functions</a> used to iterate on grouped tibbles. <a href="https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/">Follow this link for more information about the update</a>.</p>
+<p><a href="https://www.rstudio.com">RStudio</a> has just released a <a href="https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/">minor update</a> to <a href="https://dplyr.tidyverse.org">dplyr</a>. They had a rethink of new <a href="https://dplyr.tidyverse.org/reference/group_map.html">grouping <em>purrr-style</em> functions</a> used to iterate on grouped tibbles.</p>
 <p>An extract from the wiki states that:</p>
 <blockquote>
 <p>group_modify() is an evolution of do(), if you have used that before.</p>
 </blockquote>
-<p>My typical implementation changes from <code>do(function(.$column))</code> to <code>group_modify( ~ {function(.$column)})</code>, both yielding the same result. The demonstration below shows the subtle change, which brings the application function closer in terms of syntatics.</p>
-<p><code>group_map</code> similarly applies a function across each grouped tibble, albeit dropping the grouping variables and outputting lists for each group.<br><br></p>
+<p>A typical implementation changes from <code>do(function(.$column))</code> to <code>group_modify( ~ {function(.$column)})</code>, both yielding the same result. <code>group_map</code> similarly applies a function across each grouped tibble, albeit dropping the grouping variables and outputting lists for each group.</p>
+<p>The demonstration below shows the subtle change, bringing more syntactic cohesion to the coding flow.<br><br></p>
 <pre class="r"><code>iris_grouped &lt;-
   iris %&gt;% 
   

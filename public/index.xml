@@ -18,10 +18,10 @@
       <pubDate>Thu, 06 Jun 2019 00:00:00 +0000</pubDate>
       <author>gerhard@anjurad.com (Gerhard Groenewald)</author>
       <guid>/post/dplyr-0-8-1-update-to-grouping-functions/</guid>
-      <description>RStudio has just released a minor update to dplyr. They had a rethink of new grouping purrr-style functions used to iterate on grouped tibbles. Follow this link for more information about the update.
+      <description>RStudio has just released a minor update to dplyr. They had a rethink of new grouping purrr-style functions used to iterate on grouped tibbles.
 An extract from the wiki states that:
  group_modify() is an evolution of do(), if you have used that before.
- My typical implementation changes from do(function(.$column)) to group_modify( ~ {function(.$column)}), both yielding the same result. The demonstration below shows the subtle change, which brings the application function closer in terms of syntatics.</description>
+ A typical implementation changes from do(function(.$column)) to group_modify( ~ {function(.$column)}), both yielding the same result. group_map similarly applies a function across each grouped tibble, albeit dropping the grouping variables and outputting lists for each group.</description>
     </item>
     
     <item>
