@@ -16,7 +16,7 @@ subtitle: 'Changes to group_modify() and group_map()'
 <blockquote>
 <p>group_modify() is an evolution of do(), if you have used that before.</p>
 </blockquote>
-<p>My typical implementation changes from <code>do(psych::describe(.$val))</code> to <code>group_modify( ~ {psych::describe(.$val)})</code>, both yielding the same result. The demonstration below shows the subtle change, which brings the application function closer in terms of syntatics.</p>
+<p>My typical implementation changes from <code>do(function(.$column))</code> to <code>group_modify( ~ {function(.$column)})</code>, both yielding the same result. The demonstration below shows the subtle change, which brings the application function closer in terms of syntatics.</p>
 <p><code>group_map</code> similarly applies a function across each grouped tibble, albeit dropping the grouping variables and outputting lists for each group.<br><br></p>
 <pre class="r"><code>iris_grouped &lt;-
   iris %&gt;% 

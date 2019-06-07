@@ -217,7 +217,7 @@ if (!doNotTrack) {
                   RStudio has just released a minor update to dplyr. They had a rethink of new grouping purrr-style functions used to iterate on grouped tibbles. Follow this link for more information about the update.
 An extract from the wiki states that:
  group_modify() is an evolution of do(), if you have used that before.
- My typical implementation changes from do(psych::describe(.$val)) to group_modify( ~ {psych::describe(.$val)}), both yielding the same result. The demonstration below shows the subtle change, which brings the application function closer in terms of syntatics.
+ My typical implementation changes from do(function(.$column)) to group_modify( ~ {function(.$column)}), both yielding the same result. The demonstration below shows the subtle change, which brings the application function closer in terms of syntatics.
                   <a href="/post/dplyr-0-8-1-update-to-grouping-functions/" class="post-read-more">[Read More]</a>
                 
               </div>
