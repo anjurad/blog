@@ -16,8 +16,7 @@ An extract from the wiki states that:
 
 A typical implementation changes from `do(function(.$column))` to `group_modify( ~ {function(.$column)})`, both yielding the same result.  `group_map` similarly applies a function across each grouped tibble, albeit dropping the grouping variables and outputting lists for each group.
 
-The demonstration below shows the subtle change, bringing more syntactic cohesion to the coding flow.<br><br>
-
+Let's prepare data for the brief demonstration.<br><br>
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(dplyr)
@@ -67,6 +66,10 @@ iris_grouped %>%
   # below
   func_tidy_present(., header = "Tidied *Gathered & Grouped* Dataframe")
 ```
+
+<br><hr><br>
+
+The demonstration below shows the subtle change, introducing more syntactic cohesion to the coding flow.<br><br>
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, results='asis', paged.print=TRUE}
 iris_grouped %>%
