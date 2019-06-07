@@ -8,13 +8,16 @@ tags: [R, tips tricks, library, review]
 subtitle: 'Changes to group_modify() and group_map()'
 ---
 
-[RStudio](https://www.rstudio.com) has just released a minor update to [dplyr](https://dplyr.tidyverse.org).  They had a rethink of new [grouping *purrr-style* functions](https://dplyr.tidyverse.org/reference/group_map.html) used to iterate on grouped tibbles.  Information about the update can be found [here](https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/).
+[RStudio](https://www.rstudio.com) has just released a minor update to [dplyr](https://dplyr.tidyverse.org).  They had a rethink of new [grouping *purrr-style* functions](https://dplyr.tidyverse.org/reference/group_map.html) used to iterate on grouped tibbles.  [Follow this link for more information about the update](https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/).
 
 An extract from the wiki states that:
 
 > group_modify() is an evolution of do(), if you have used that before.
 
-My typical implementation changes from `do(psych::describe(.$val))` to `group_modify( ~ {psych::describe(.$val)})`, both yielding the same result.  The demonstration shows the change below.<br><br>
+My typical implementation changes from `do(psych::describe(.$val))` to `group_modify( ~ {psych::describe(.$val)})`, both yielding the same result.  The demonstration below shows the subtle change, which brings the application function closer in terms of syntatics.
+
+
+`group_map` similarly applies a function across each grouped tibble, albeit dropping the grouping variables and outputting lists for each group.<br><br>
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
@@ -49,8 +52,8 @@ func_tidy_present <-
 iris_grouped <-
   iris %>% 
   
-  # Make the table long and thin by brinding numeric attributes describing Sepal
-  # and Petal lengh and width into one columns named `Field`.
+  # Make the table long and thin by collapsing numeric attributes describing
+  # Sepal and Petal lengh and width into the `Field` column.
   gather(Field, val, -Species) %>% 
   
   # group by Species and Field to execute an operation over the val data for
@@ -59,8 +62,9 @@ iris_grouped <-
 
 iris_grouped %>%
   
-  # The function returns the first 4 rows of the dataframe, formatting the output to
-  # HTML using knitr and kableextra, printing a passed header as shown below
+  # The function returns the first 4 rows of the dataframe, formatting the
+  # output to HTML using knitr and kableextra, printing a passed header as shown
+  # below
   func_tidy_present(., header = "Tidied *Gathered & Grouped* Dataframe")
 ```
 

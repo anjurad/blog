@@ -11,17 +11,18 @@ subtitle: 'Changes to group_modify() and group_map()'
 <script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 
-<p><a href="https://www.rstudio.com">RStudio</a> has just released a minor update to <a href="https://dplyr.tidyverse.org">dplyr</a>. They had a rethink of new <a href="https://dplyr.tidyverse.org/reference/group_map.html">grouping <em>purrr-style</em> functions</a> used to iterate on grouped tibbles. Information about the update can be found <a href="https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/">here</a>.</p>
+<p><a href="https://www.rstudio.com">RStudio</a> has just released a minor update to <a href="https://dplyr.tidyverse.org">dplyr</a>. They had a rethink of new <a href="https://dplyr.tidyverse.org/reference/group_map.html">grouping <em>purrr-style</em> functions</a> used to iterate on grouped tibbles. <a href="https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/">Follow this link for more information about the update</a>.</p>
 <p>An extract from the wiki states that:</p>
 <blockquote>
 <p>group_modify() is an evolution of do(), if you have used that before.</p>
 </blockquote>
-<p>My typical implementation changes from <code>do(psych::describe(.$val))</code> to <code>group_modify( ~ {psych::describe(.$val)})</code>, both yielding the same result. The demonstration shows the change below.<br><br></p>
+<p>My typical implementation changes from <code>do(psych::describe(.$val))</code> to <code>group_modify( ~ {psych::describe(.$val)})</code>, both yielding the same result. The demonstration below shows the subtle change, which brings the application function closer in terms of syntatics.</p>
+<p><code>group_map</code> similarly applies a function across each grouped tibble, albeit dropping the grouping variables and outputting lists for each group.<br><br></p>
 <pre class="r"><code>iris_grouped &lt;-
   iris %&gt;% 
   
-  # Make the table long and thin by brinding numeric attributes describing Sepal
-  # and Petal lengh and width into one columns named `Field`.
+  # Make the table long and thin by collapsing numeric attributes describing
+  # Sepal and Petal lengh and width into the `Field` column.
   gather(Field, val, -Species) %&gt;% 
   
   # group by Species and Field to execute an operation over the val data for
@@ -30,8 +31,9 @@ subtitle: 'Changes to group_modify() and group_map()'
 
 iris_grouped %&gt;%
   
-  # The function returns the first 4 rows of the dataframe, formatting the output to
-  # HTML using knitr and kableextra, printing a passed header as shown below
+  # The function returns the first 4 rows of the dataframe, formatting the
+  # output to HTML using knitr and kableextra, printing a passed header as shown
+  # below
   func_tidy_present(., header = &quot;Tidied *Gathered &amp; Grouped* Dataframe&quot;)</code></pre>
 <br>
 <h5>
