@@ -20,7 +20,7 @@
       <guid>/post/dplyr-0-8-1-update-to-grouping-functions/</guid>
       <description>RStudio has just released a minor update to dplyr. They had a rethink of new grouping purrr-style functions used to iterate on grouped tibbles.
 The changes include:
- group_map() is now used for iterating on groups of grouped tibbles, characterised by .x and .y as before. It however makes no assumptions about the return type of each operation, combining results in a list - similar to purrr::map(). The previous behaviour was renamed to group_modify(), which always returns a grouped tibble, combining returned tibbles by evaluating each operation with a reconstructed grouping structure.</description>
+ group_map() is now used for iterating on grouped tibbles. It however makes no assumptions about the return type of each operation, combining results in a list - similar to purrr::map(). The previous behaviour was renamed to group_modify(), always returning and combining grouped tibbles by evaluating each operation with a reconstructed grouping structure - similar to purrr::modify().</description>
     </item>
     
     <item>

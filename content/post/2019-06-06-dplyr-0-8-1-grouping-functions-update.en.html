@@ -14,8 +14,8 @@ subtitle: 'Changes to group_modify() and group_map()'
 <p><a href="https://www.rstudio.com">RStudio</a> has just released a <a href="https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/">minor update</a> to <a href="https://dplyr.tidyverse.org">dplyr</a>. They had a rethink of new <a href="https://dplyr.tidyverse.org/reference/group_map.html">grouping <em>purrr-style</em> functions</a> used to iterate on grouped tibbles.</p>
 <p>The changes include:</p>
 <ul>
-<li><code>group_map()</code> is now used for iterating on groups of grouped tibbles, characterised by .x and .y as before. It however makes no assumptions about the return type of each operation, combining results in a list - similar to <code>purrr::map()</code>.</li>
-<li>The previous behaviour was renamed to <code>group_modify()</code>, which always returns a grouped tibble, combining returned tibbles by evaluating each operation with a reconstructed grouping structure.<br><br></li>
+<li><code>group_map()</code> is now used for iterating on grouped tibbles. It however makes no assumptions about the return type of each operation, combining results in a list - similar to <code>purrr::map()</code>.</li>
+<li>The previous behaviour was renamed to <code>group_modify()</code>, always returning and combining grouped tibbles by evaluating each operation with a reconstructed grouping structure - similar to <code>purrr::modify()</code>.<br><br></li>
 </ul>
 <p>An extract from the wiki states that:</p>
 <blockquote>
