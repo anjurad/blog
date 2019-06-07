@@ -21,8 +21,9 @@ subtitle: 'Changes to group_modify() and group_map()'
 <pre class="r"><code>iris_grouped &lt;-
   iris %&gt;% 
   
-  # Make the table long and thin by collapsing numeric attributes describing
-  # Sepal and Petal lengh and width into the `Field` column.
+  # Make the table long and thin by collapsing numeric attributes and associated
+  # values describing Sepal and Petal lengh and width into the `Field` and `val`
+  # columns respectively.
   gather(Field, val, -Species) %&gt;% 
   
   # group by Species and Field to execute an operation over the val data for

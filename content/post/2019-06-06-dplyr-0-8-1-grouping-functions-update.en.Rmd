@@ -51,8 +51,9 @@ func_tidy_present <-
 iris_grouped <-
   iris %>% 
   
-  # Make the table long and thin by collapsing numeric attributes describing
-  # Sepal and Petal lengh and width into the `Field` column.
+  # Make the table long and thin by collapsing numeric attributes and associated
+  # values describing Sepal and Petal lengh and width into the `Field` and `val`
+  # columns respectively.
   gather(Field, val, -Species) %>% 
   
   # group by Species and Field to execute an operation over the val data for
