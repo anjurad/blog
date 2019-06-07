@@ -15,7 +15,7 @@ subtitle: 'Changes to group_modify() and group_map()'
 <p>The changes include:</p>
 <ul>
 <li><code>group_map()</code> is now used for iterating on groups of grouped tibbles, characterised by .x and .y as before. It however makes no assumptions about the return type of each operation, combining results in a list - similar to <code>purrr::map()</code>.</li>
-<li>The previous behaviour was renamed to <code>group_modify()</code>, which always returns a grouped tibble, combining returned tibbles by evaluating each operation with a reconstructed grouping structure.</li>
+<li>The previous behaviour was renamed to <code>group_modify()</code>, which always returns a grouped tibble, combining returned tibbles by evaluating each operation with a reconstructed grouping structure.<br><br></li>
 </ul>
 <p>An extract from the wiki states that:</p>
 <blockquote>
