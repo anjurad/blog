@@ -180,7 +180,7 @@ Harry Maguire
 <pre class="r"><code>df &lt;-
   df %&gt;%
   rename(DOB = Date_of_birth_age) %&gt;% 
-  mutate_at(&quot;DOB&quot;, ~
+  mutate_at(vars(DOB), ~
               str_remove(., pattern = &quot;\\(age \\d+\\)&quot;) %&gt;% 
               str_trim(., side = &quot;both&quot;) %&gt;% 
               dmy(.)) %&gt;% 
@@ -447,12 +447,12 @@ param_days &lt;-
              size = training_group_size) %&gt;%
       
       # Map each sampled player in the distribution to all 6 exercises
-      map(function(param_player_number) {
+      purrr::map(function(param_player_number) {
        param_exercises[1:6] %&gt;%
 
           # for each one of the exercises, create a random sample between 0 and
           # 20 repetitions
-          map(function(param_excercise) {
+          purrr::map(function(param_excercise) {
           
               # Populate a tibble with all parameters used within the daily
               # cycle simulation.  This part is truly random and will be
@@ -480,7 +480,7 @@ param_days &lt;-
   param_days %&gt;%
   
   # Map the list of days to the func_create_data function to simulate the data
-  mutate_at(&quot;Date&quot;, list(data = map), func_create_data) %&gt;% 
+  mutate_at(vars(Date), list(data = purrr::map), func_create_data) %&gt;% 
   
   # The unnest() function returns all iteratively nested cycled data to a top
   # param_days level
@@ -493,7 +493,7 @@ param_days &lt;-
   complete(No, Date, Exercise) %&gt;% 
   
   # Create a new variable by extracting the year value from the date
-  mutate_at(&quot;Date&quot;, list(Year = year)) %&gt;% 
+  mutate_at(vars(Date), list(Year = year)) %&gt;% 
   
   # Group by Player Number and nest the simulated data in the `training_data`
   # column
@@ -513,7 +513,7 @@ param_days &lt;-
   # Join the player information (DOB) with the latest year (2018) from the
   # simulated exercise log
   inner_join(tmp_exercise_data %&gt;% 
-               unnest() %&gt;% 
+               unnest(training_data) %&gt;% 
                filter(Year == max(Year)) %&gt;% # 2018 in this example
                filter(! is.na(Volume)) %&gt;% 
                select(-Year)
@@ -522,7 +522,7 @@ param_days &lt;-
   select(-No) %&gt;%
   
   # Spread the exercises as columns and populate Volume as its value
-  spread(Exercise, Volume) %&gt;%
+  pivot_wider(names_from = Exercise, values_from = Volume) %&gt;%
   group_by(Player) %&gt;% 
   
   # select the top three dates for each of the first three players
@@ -532,8 +532,6 @@ param_days &lt;-
                 font_size = 9) %&gt;%
   column_spec(1, bold = TRUE) %&gt;%
   collapse_rows(columns = 1:1, valign = &quot;top&quot;)</code></pre>
-<pre><code>## Warning: `cols` is now required.
-## Please use `cols = c(training_data)`</code></pre>
 <table class="table" style="font-size: 9px; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -564,78 +562,6 @@ Lat Pull-Down
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left;font-weight: bold;vertical-align: top !important;" rowspan="3">
-Danny Rose
-</td>
-<td style="text-align:left;">
-2018-03-26
-</td>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:right;">
-13
-</td>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:right;">
-1
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-2018-03-27
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:right;">
-10
-</td>
-<td style="text-align:right;">
-10
-</td>
-<td style="text-align:right;">
-0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-2018-03-28
-</td>
-<td style="text-align:right;">
-16
-</td>
-<td style="text-align:right;">
-13
-</td>
-<td style="text-align:right;">
-10
-</td>
-<td style="text-align:right;">
-17
-</td>
-<td style="text-align:right;">
-19
-</td>
-<td style="text-align:right;">
-4
-</td>
-</tr>
 <tr>
 <td style="text-align:left;font-weight: bold;vertical-align: top !important;" rowspan="3">
 Jordan Pickford
@@ -780,6 +706,78 @@ Trent Alexander-Arnold
 11
 </td>
 </tr>
+<tr>
+<td style="text-align:left;font-weight: bold;vertical-align: top !important;" rowspan="3">
+Danny Rose
+</td>
+<td style="text-align:left;">
+2018-03-26
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2018-03-27
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2018-03-28
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
 </tbody>
 </table>
 <p>The following graph shows the cumulative repetitions by player and exercise over a timeline, highlighting the missed training sessions in red.</p>
@@ -836,7 +834,7 @@ plot_data &lt;-
   # Join the exercise log with the player data
   inner_join(
     tmp_exercise_data %&gt;% 
-      unnest() %&gt;% 
+      unnest(training_data) %&gt;% 
       filter(Year == 2018) %&gt;%
       
       # Explicitly add in the missing days per player and add volume to plot it
@@ -844,10 +842,9 @@ plot_data &lt;-
     by = &quot;No&quot;) %&gt;% 
   
   # Convert the exercises into levelled factors to retain the order of the exercises when plotting
-  mutate_at(&quot;Exercise&quot;, factor, levels = param_exercises_factored, ordered = TRUE)</code></pre>
-<pre><code>## Warning: `cols` is now required.
-## Please use `cols = c(training_data)`</code></pre>
-<pre class="r"><code># Now plot the data
+  mutate_at(vars(Exercise), factor, levels = param_exercises_factored, ordered = TRUE)
+
+# Now plot the data
 plot_data %&gt;%
   
   # Remove the `Day Off` from the tibble and plot the volume of exercises over
@@ -957,21 +954,20 @@ saveWorkbook(
 df_exercise_tab &lt;-
   df %&gt;%
   inner_join(tmp_exercise_data %&gt;%
-               unnest(),
+               unnest(cols = c(training_data)),
              by = &quot;No&quot;) %&gt;% 
   
   # Filter to retain the max year only (2018)
-  filter_at(&quot;Year&quot;, all_vars(. == max(.))) %&gt;% 
+  filter_at(vars(Year), all_vars(. == max(.))) %&gt;% 
   
   # Create a duplicate variable for Exercise and group by it
   mutate(Exercise_csv = Exercise) %&gt;% 
   group_by(Exercise_csv) %&gt;% 
   
   # Nest the data within each exercise 
-  nest()</code></pre>
-<pre><code>## Warning: `cols` is now required.
-## Please use `cols = c(training_data)`</code></pre>
-<pre class="r"><code># IO: Out: csv
+  nest()
+
+# IO: Out: csv
 list(
   df_exercise_tab$Exercise_csv,
   df_exercise_tab$data
@@ -1023,14 +1019,14 @@ list(
         
         # unnest the list of tabs for each file and import columns with detault
         # `text` datatype
-        unnest() %&gt;%
-        mutate(file = map2(file_path, file_tab, function(file_path, file_tab) {
+        unnest(file_tab) %&gt;%
+        mutate(file = purrr::map2(file_path, file_tab, function(file_path, file_tab) {
           read_excel(path = file_path,
                      col_types = &quot;text&quot;,
                      sheet = file_tab, 
                      guess_max = 100000)
         })) %&gt;%
-        unnest() %&gt;%
+        unnest(file) %&gt;%
         return()
     } else {
       
@@ -1060,26 +1056,19 @@ list(
   rename(file_name = value) %&gt;% 
   
   # exclude the football file from the results
-  filter(! grepl(&quot;football\\.csv$&quot;, file_name, ignore.case = TRUE)) %&gt;% 
+  filter(! grepl(file_name, pattern = &quot;football\\.csv$&quot;, ignore.case = TRUE)) %&gt;% 
   
   # extract the file type for future processing
-  mutate_at(&quot;file_name&quot;, list(file_source = str_extract), pattern = &quot;\\.(csv|xlsx)$&quot;) %&gt;% 
+  mutate_at(vars(file_name), list(file_source = str_extract), pattern = &quot;\\.(csv|xlsx)$&quot;) %&gt;% 
   
   # dynamically import the files and nest the file column
-  mutate_at(&quot;file_name&quot;, list(file = map), func_get_file_dynamic) %&gt;% 
+  mutate_at(vars(file_name), list(file = purrr::map), func_get_file_dynamic) %&gt;% 
   
   # Unnest all files and consolidate columns, then only guess the data type.
   # This prevents any errors if there are columns with the same file-names but
   # have different datatypes.
-  unnest() %&gt;% 
+  unnest(file) %&gt;% 
   mutate_all(parse_guess)</code></pre>
-<pre><code>## Warning: `cols` is now required.
-## Please use `cols = c()`</code></pre>
-<pre><code>## Warning: `cols` is now required.
-## Please use `cols = c(file)`
-
-## Warning: `cols` is now required.
-## Please use `cols = c(file)`</code></pre>
 <p>Let’s check the first few rows of the imported data.</p>
 <pre class="r"><code># Inspect the first 6 rows of the newly imported files
 files_expanded %&gt;% 
@@ -1370,7 +1359,7 @@ files_expanded %&gt;%
   # filter to retain exercises with volume &gt; 0 only, including removing those
   # with NA
   filter(Volume &gt; 0) %&gt;% 
-  mutate_at(&quot;file_tab&quot;, ~coalesce(., &quot;None&quot;)) %&gt;% 
+  mutate_at(vars(file_tab), ~coalesce(., &quot;None&quot;)) %&gt;% 
   
   # This creates a count of rows for combination of file_name, file_tab and
   # file_source
@@ -1380,7 +1369,7 @@ files_expanded %&gt;%
   # With CSV files:  remove .csv and 2018 from the file name
   # With Excel file: show the tabs only
   mutate(file_tab = case_when(
-    grepl(&quot;csv&quot;, file_name, ignore.case = TRUE) ~ 
+    grepl(file_name, pattern = &quot;csv&quot;, ignore.case = TRUE) ~ 
       file_name %&gt;%
       str_remove(&quot;\\.csv&quot;) %&gt;% 
       str_remove(&quot;\\_2018&quot;),
@@ -1392,7 +1381,7 @@ files_expanded %&gt;%
   
   # Turn file_tab into factor and order the descending count (n)
   arrange(desc(n)) %&gt;% 
-  mutate_at(&quot;file_tab&quot;, fct_inorder) %&gt;% 
+  mutate_at(vars(file_tab), fct_inorder) %&gt;% 
   ggplot(aes(x = file_tab, y = n, fill = file_source)) +
   geom_col() +
   theme_classic() +
@@ -1416,14 +1405,14 @@ param_player_file_source_ave &lt;-
   
 files_expanded %&gt;% 
   filter(Volume &gt; 0) %&gt;% 
-  mutate_at(&quot;file_tab&quot;, ~coalesce(., &quot;None&quot;)) %&gt;% 
+  mutate_at(vars(file_tab), ~coalesce(., &quot;None&quot;)) %&gt;% 
   count(Player, Year, file_source) %&gt;% 
   mutate_if(is.character, str_replace_all, pattern = &quot;_&quot;, replacement = &quot; &quot;) %&gt;% 
   group_by(Player) %&gt;% 
   mutate(total_score = sum(n)) %&gt;% 
   arrange(desc(total_score)) %&gt;% 
   ungroup() %&gt;% 
-  mutate_at(&quot;Player&quot;, fct_inorder) %&gt;% 
+  mutate_at(vars(Player), fct_inorder) %&gt;% 
   ggplot(aes(x = Player, y = n, fill = n)) +
   geom_col() +
   geom_hline(yintercept = param_player_file_source_ave,
