@@ -272,7 +272,7 @@ Trent Alexander-Arnold
 1998-10-07
 </td>
 <td style="text-align:right;background-color: lightgreen !important;">
-20
+21
 </td>
 </tr>
 <tr>
@@ -289,7 +289,7 @@ Danny Rose
 1990-07-02
 </td>
 <td style="text-align:right;background-color: lightgreen !important;">
-28
+29
 </td>
 </tr>
 <tr>
@@ -306,7 +306,7 @@ Kyle Walker
 1990-05-28
 </td>
 <td style="text-align:right;background-color: lightgreen !important;">
-28
+29
 </td>
 </tr>
 <tr>
@@ -323,7 +323,7 @@ James Tarkowski
 1992-11-19
 </td>
 <td style="text-align:right;background-color: lightgreen !important;">
-26
+27
 </td>
 </tr>
 <tr>
@@ -368,7 +368,7 @@ Harry Maguire
 <h3>Simulation Process</h3>
 <p>The graph shows the simulation data process flow cycle.<br><br></p>
 <div class="figure">
-<img src="/post/2018-09-24-simulated_data_files/simulation_process.png" alt="Simulation Process Cycle" />
+<img src="/post/2018-09-24-simulated_data_files/simulation_process.png" alt="" />
 <p class="caption">Simulation Process Cycle</p>
 </div>
 <p>Between 15 and 22 players train daily, represented by the <code>Sampled Players</code> in the above graph. Days during the two months where no exercises are simulated are coded those as <code>Day Off</code>.</p>
@@ -484,9 +484,9 @@ param_days &lt;-
   
   # The unnest() function returns all iteratively nested cycled data to a top
   # param_days level
-  unnest() %&gt;%
-  unnest() %&gt;%
-  unnest() %&gt;% 
+  unnest(data) %&gt;%
+  unnest(data) %&gt;%
+  unnest(data) %&gt;% 
   
   # Complete the data for all combinations of the player no, date and exercise,
   # creating explicit entries for the missing combinations
@@ -498,7 +498,8 @@ param_days &lt;-
   # Group by Player Number and nest the simulated data in the `training_data`
   # column
   group_by(No) %&gt;%
-  nest(.key = training_data)</code></pre>
+  nest() %&gt;% 
+  rename(training_data = data)</code></pre>
 </div>
 <div id="explore-the-simulated-data" class="section level3">
 <h3>Explore the Simulated Data</h3>
@@ -531,6 +532,8 @@ param_days &lt;-
                 font_size = 9) %&gt;%
   column_spec(1, bold = TRUE) %&gt;%
   collapse_rows(columns = 1:1, valign = &quot;top&quot;)</code></pre>
+<pre><code>## Warning: `cols` is now required.
+## Please use `cols = c(training_data)`</code></pre>
 <table class="table" style="font-size: 9px; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -569,22 +572,22 @@ Danny Rose
 2018-03-26
 </td>
 <td style="text-align:right;">
-2
+7
 </td>
 <td style="text-align:right;">
-10
+13
 </td>
 <td style="text-align:right;">
-18
+6
 </td>
 <td style="text-align:right;">
-20
+5
 </td>
 <td style="text-align:right;">
-14
+5
 </td>
 <td style="text-align:right;">
-12
+1
 </td>
 </tr>
 <tr>
@@ -592,22 +595,22 @@ Danny Rose
 2018-03-27
 </td>
 <td style="text-align:right;">
-15
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-6
+12
 </td>
 <td style="text-align:right;">
 12
 </td>
 <td style="text-align:right;">
-6
+7
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
 </td>
 </tr>
 <tr>
@@ -615,22 +618,22 @@ Danny Rose
 2018-03-28
 </td>
 <td style="text-align:right;">
-3
+16
 </td>
 <td style="text-align:right;">
-0
+13
+</td>
+<td style="text-align:right;">
+10
 </td>
 <td style="text-align:right;">
 17
 </td>
 <td style="text-align:right;">
-3
+19
 </td>
 <td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-7
+4
 </td>
 </tr>
 <tr>
@@ -638,48 +641,48 @@ Danny Rose
 Jordan Pickford
 </td>
 <td style="text-align:left;">
-2018-03-26
-</td>
-<td style="text-align:right;">
-19
+2018-03-25
 </td>
 <td style="text-align:right;">
 11
 </td>
 <td style="text-align:right;">
-8
+9
 </td>
 <td style="text-align:right;">
 15
 </td>
 <td style="text-align:right;">
-14
+16
 </td>
 <td style="text-align:right;">
-4
+17
+</td>
+<td style="text-align:right;">
+19
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-2018-03-27
+2018-03-26
 </td>
 <td style="text-align:right;">
-18
+0
 </td>
 <td style="text-align:right;">
-11
+0
 </td>
 <td style="text-align:right;">
-2
+20
 </td>
 <td style="text-align:right;">
-12
+9
 </td>
 <td style="text-align:right;">
-2
+16
 </td>
 <td style="text-align:right;">
-10
+9
 </td>
 </tr>
 <tr>
@@ -687,19 +690,19 @@ Jordan Pickford
 2018-03-28
 </td>
 <td style="text-align:right;">
-9
+18
 </td>
 <td style="text-align:right;">
-5
+13
 </td>
 <td style="text-align:right;">
-7
+11
 </td>
 <td style="text-align:right;">
-6
+10
 </td>
 <td style="text-align:right;">
-7
+15
 </td>
 <td style="text-align:right;">
 3
@@ -710,48 +713,25 @@ Jordan Pickford
 Trent Alexander-Arnold
 </td>
 <td style="text-align:left;">
-2018-03-25
-</td>
-<td style="text-align:right;">
-17
-</td>
-<td style="text-align:right;">
-20
-</td>
-<td style="text-align:right;">
-2
+2018-03-26
 </td>
 <td style="text-align:right;">
 1
 </td>
 <td style="text-align:right;">
-12
+1
 </td>
 <td style="text-align:right;">
-17
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-2018-03-26
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-18
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-19
-</td>
-<td style="text-align:right;">
-10
+14
 </td>
 <td style="text-align:right;">
 13
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+16
 </td>
 </tr>
 <tr>
@@ -759,22 +739,45 @@ Trent Alexander-Arnold
 2018-03-27
 </td>
 <td style="text-align:right;">
-5
+16
 </td>
 <td style="text-align:right;">
-14
+3
 </td>
 <td style="text-align:right;">
-2
+4
 </td>
 <td style="text-align:right;">
-17
-</td>
-<td style="text-align:right;">
-14
+20
 </td>
 <td style="text-align:right;">
 9
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2018-03-28
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+11
 </td>
 </tr>
 </tbody>
@@ -841,9 +844,10 @@ plot_data &lt;-
     by = &quot;No&quot;) %&gt;% 
   
   # Convert the exercises into levelled factors to retain the order of the exercises when plotting
-  mutate_at(&quot;Exercise&quot;, factor, levels = param_exercises_factored, ordered = TRUE)
-
-# Now plot the data
+  mutate_at(&quot;Exercise&quot;, factor, levels = param_exercises_factored, ordered = TRUE)</code></pre>
+<pre><code>## Warning: `cols` is now required.
+## Please use `cols = c(training_data)`</code></pre>
+<pre class="r"><code># Now plot the data
 plot_data %&gt;%
   
   # Remove the `Day Off` from the tibble and plot the volume of exercises over
@@ -884,7 +888,7 @@ plot_data %&gt;%
 <p>The aim of this part is to output data into a variety of files to be consumed in <strong><a href="#part4">Part 4</a></strong>, which is to <em>Import Simulated Data</em>.</p>
 <p>The following image shows the process by which data is transformed, grouped and outputted into a variety of file types.</p>
 <div class="figure">
-<img src="/post/2018-09-24-simulated_data_files/export_process.png" alt="Data Export Process" />
+<img src="/post/2018-09-24-simulated_data_files/export_process.png" alt="" />
 <p class="caption">Data Export Process</p>
 </div>
 <p>The <em>training log data</em> is grouped by year, data nested and exported to two file-types, including <code>Excel</code> and <code>CSV</code>.</p>
@@ -964,9 +968,10 @@ df_exercise_tab &lt;-
   group_by(Exercise_csv) %&gt;% 
   
   # Nest the data within each exercise 
-  nest()
-
-# IO: Out: csv
+  nest()</code></pre>
+<pre><code>## Warning: `cols` is now required.
+## Please use `cols = c(training_data)`</code></pre>
+<pre class="r"><code># IO: Out: csv
 list(
   df_exercise_tab$Exercise_csv,
   df_exercise_tab$data
@@ -999,7 +1004,7 @@ list(
 <h3>Import Process</h3>
 <p>The aim is to dynamically import data into a common dataframe. With <code>Excel</code> files, the function lists and unnest all the tabs, and import each table back into the calling <code>files</code> tibble as is the case with <code>CSV</code> files.</p>
 <div class="figure">
-<img src="/post/2018-09-24-simulated_data_files/import_process.png" alt="Data Import Process" />
+<img src="/post/2018-09-24-simulated_data_files/import_process.png" alt="" />
 <p class="caption">Data Import Process</p>
 </div>
 </div>
@@ -1068,6 +1073,13 @@ list(
   # have different datatypes.
   unnest() %&gt;% 
   mutate_all(parse_guess)</code></pre>
+<pre><code>## Warning: `cols` is now required.
+## Please use `cols = c()`</code></pre>
+<pre><code>## Warning: `cols` is now required.
+## Please use `cols = c(file)`
+
+## Warning: `cols` is now required.
+## Please use `cols = c(file)`</code></pre>
 <p>Let’s check the first few rows of the imported data.</p>
 <pre class="r"><code># Inspect the first 6 rows of the newly imported files
 files_expanded %&gt;% 
@@ -1144,7 +1156,7 @@ Jordan Pickford
 Cable Biceps Bar
 </td>
 <td style="text-align:right;">
-13
+0
 </td>
 <td style="text-align:right;">
 2018
@@ -1182,7 +1194,7 @@ Jordan Pickford
 Cable Biceps Bar
 </td>
 <td style="text-align:right;">
-17
+NA
 </td>
 <td style="text-align:right;">
 2018
@@ -1220,7 +1232,7 @@ Jordan Pickford
 Cable Biceps Bar
 </td>
 <td style="text-align:right;">
-8
+3
 </td>
 <td style="text-align:right;">
 2018
@@ -1258,7 +1270,7 @@ Jordan Pickford
 Cable Biceps Bar
 </td>
 <td style="text-align:right;">
-12
+NA
 </td>
 <td style="text-align:right;">
 2018
@@ -1296,7 +1308,7 @@ Jordan Pickford
 Cable Biceps Bar
 </td>
 <td style="text-align:right;">
-13
+9
 </td>
 <td style="text-align:right;">
 2018
@@ -1334,7 +1346,7 @@ Jordan Pickford
 Cable Biceps Bar
 </td>
 <td style="text-align:right;">
-1
+9
 </td>
 <td style="text-align:right;">
 2018
@@ -1444,13 +1456,13 @@ files_expanded %&gt;%
 </div>
 <div id="session-info" class="section level2">
 <h2>Session Info</h2>
-<pre><code>## R version 3.5.3 (2019-03-11)
+<pre><code>## R version 3.6.2 (2019-12-12)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS Mojave 10.14.4
+## Running under: macOS Catalina 10.15.3
 ## 
 ## Matrix products: default
-## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8
@@ -1459,34 +1471,32 @@ files_expanded %&gt;%
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] openxlsx_4.1.0   kableExtra_1.1.0 knitr_1.22       readxl_1.3.1    
-##  [5] lubridate_1.7.4  forcats_0.4.0    stringr_1.4.0    dplyr_0.8.0.1   
-##  [9] purrr_0.3.2      readr_1.3.1      tidyr_0.8.3      tibble_2.1.1    
-## [13] ggplot2_3.1.1    tidyverse_1.2.1 
+##  [1] openxlsx_4.1.4   kableExtra_1.1.0 knitr_1.28       readxl_1.3.1    
+##  [5] lubridate_1.7.4  forcats_0.4.0    stringr_1.4.0    dplyr_0.8.4     
+##  [9] purrr_0.3.3      readr_1.3.1      tidyr_1.0.2      tibble_2.1.3    
+## [13] ggplot2_3.2.1    tidyverse_1.3.0 
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] tidyselect_0.2.5  xfun_0.6          reshape2_1.4.3   
-##  [4] haven_2.1.0       lattice_0.20-38   colorspace_1.4-1 
-##  [7] generics_0.0.2    htmltools_0.3.6   viridisLite_0.3.0
-## [10] yaml_2.2.0        rlang_0.3.4       pillar_1.3.1     
-## [13] glue_1.3.1        withr_2.1.2.9000  selectr_0.4-1    
-## [16] modelr_0.1.4      plyr_1.8.4        munsell_0.5.0    
-## [19] blogdown_0.12     gtable_0.3.0      cellranger_1.1.0 
-## [22] zip_2.0.1         rvest_0.3.3       evaluate_0.13    
-## [25] labeling_0.3      highr_0.8         broom_0.5.2      
-## [28] Rcpp_1.0.1.2      scales_1.0.0      backports_1.1.4  
-## [31] webshot_0.5.1     jsonlite_1.6      gridExtra_2.3    
-## [34] hms_0.4.2         digest_0.6.18     stringi_1.4.3    
-## [37] bookdown_0.9      grid_3.5.3        cli_1.1.0        
-## [40] tools_3.5.3       magrittr_1.5      lazyeval_0.2.2   
-## [43] crayon_1.3.4      pkgconfig_2.0.2   xml2_1.2.0       
-## [46] viridis_0.5.1     assertthat_0.2.1  rmarkdown_1.12   
-## [49] httr_1.4.0        rstudioapi_0.10   R6_2.4.0         
-## [52] nlme_3.1-139      compiler_3.5.3</code></pre>
+##  [1] Rcpp_1.0.3        lattice_0.20-40   assertthat_0.2.1  digest_0.6.24    
+##  [5] plyr_1.8.5        R6_2.4.1          cellranger_1.1.0  backports_1.1.5  
+##  [9] reprex_0.3.0      evaluate_0.14     httr_1.4.1        highr_0.8        
+## [13] blogdown_0.17     pillar_1.4.3      rlang_0.4.4       lazyeval_0.2.2   
+## [17] rstudioapi_0.11   rmarkdown_2.1     labeling_0.3      webshot_0.5.2    
+## [21] selectr_0.4-2     munsell_0.5.0     broom_0.5.4       compiler_3.6.2   
+## [25] modelr_0.1.5      xfun_0.12         pkgconfig_2.0.3   htmltools_0.4.0  
+## [29] tidyselect_1.0.0  gridExtra_2.3     bookdown_0.17     fansi_0.4.1      
+## [33] viridisLite_0.3.0 crayon_1.3.4      dbplyr_1.4.2      withr_2.1.2      
+## [37] grid_3.6.2        nlme_3.1-144      jsonlite_1.6.1    gtable_0.3.0     
+## [41] lifecycle_0.1.0   DBI_1.1.0         magrittr_1.5      scales_1.1.0     
+## [45] zip_2.0.4         cli_2.0.1         stringi_1.4.6     reshape2_1.4.3   
+## [49] farver_2.0.3      viridis_0.5.1     fs_1.3.1          xml2_1.2.2       
+## [53] ellipsis_0.3.0    generics_0.0.2    vctrs_0.2.3       tools_3.6.2      
+## [57] glue_1.3.1        hms_0.5.3         yaml_2.2.1        colorspace_1.4-1 
+## [61] rvest_0.3.5       haven_2.2.0</code></pre>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p><sub><em>IO:</em> in/ out or input and output for data</sub><a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p><sub><em>IO:</em> in/ out or input and output for data</sub><a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>

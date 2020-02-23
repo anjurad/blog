@@ -208,7 +208,11 @@ df_resources_grouped <-
   group_by(Process_or_Skill) %>%
   arrange(Process_or_Skill, Area, Language, Source) %>% 
   rename(`#` = row_id) %>%
-  mutate_if(is.character, ~ coalesce(., "")) %>%
+  mutate_at(df_resources %>% 
+              select(!!!quos_select_fields) %>% 
+              select(- Process_or_Skill, - row_id) %>% 
+              names(),
+            ~ coalesce(., "")) %>%
   nest() %>% 
   mutate(Section = case_when(
     Process_or_Skill %in% c("Programming", "Visualisation", "Model") ~ "Process",
@@ -217,6 +221,7 @@ df_resources_grouped <-
     TRUE ~ "Other"
   )) %>% 
   mutate_at("Section", factor, ordered = TRUE, levels = c("Process", "Statistics", "Mathematics")) %>% 
+  ungroup() %>% 
   mutate_at("Process_or_Skill", factor, ordered = TRUE, levels = c("Programming", "Visualisation", "Model", "Probability", "Statistics", "Linear Algebra", "Calculus", "PCA")) %>% 
   arrange(Section, Process_or_Skill)
 

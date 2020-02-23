@@ -87,7 +87,13 @@ Let's set up the environment, import and have a look at the data.
 ### Library
 
 ```{r library}
-package_list <- c("tidyverse", "lubridate", "readxl", "knitr", "ggrepel")
+package_list <-
+  c("tidyverse",
+    "lubridate",
+    "readxl",
+    "knitr",
+    "ggrepel",
+    "mapdata")
 
 invisible(
   suppressPackageStartupMessages(
@@ -166,13 +172,8 @@ A polygon from the [mapdata](https://cran.r-project.org/web/packages/mapdata/ind
 
 
 ```{r eda_map, eval=FALSE, include=TRUE}
-library(mapdata)
-
 # Import the South African polygon from the mapdata package
-polygon_zar <-
-  map_data("world2Hires") %>% 
-  filter(grepl("south africa", region, ignore.case = TRUE)) %>% 
-  filter(is.na(subregion))
+polygon_zar <- map_data("worldHires", region = "South Africa")
 
 df %>% 
   filter_at("Report", all_vars(. == max(.))) %>% 
@@ -189,7 +190,8 @@ df %>%
       "Soweto", 27.85849, -26.26781,
       "Khayelitsha", 18.666667,-34.05,
       "Umlazi", 30.8833298, -29.9666628
-    )
+    ),
+    by = "Township"
   ) %>% 
   ggplot(aes(x = long,
              y = lat,
@@ -203,6 +205,10 @@ df %>%
     color = "grey",
     fill = NA
   ) +
+  
+  # cut out extra bits
+  ylim(-35,-22) +
+  xlim(16, 33) +
   
   # plot each township, adjusting the size of the point/ shape based on the
   # relative volume of underlying projects
@@ -290,8 +296,8 @@ df %>%
   head(1) %>% 
   
   # map each field's data class
-  mutate_all(map, class) %>% 
-  unnest() %>% 
+  mutate_all(purrr::map, class) %>% 
+  unnest(cols = everything()) %>% 
   
   # return the latest report only
   filter_at("Report", all_vars(. == max(.))) %>%
@@ -299,7 +305,7 @@ df %>%
   # select all fields containing the regex shown below, namely all fields to do
   # with the major project milestones
   select(names(.) %>%
-           as_tibble() %>%
+           enframe(name = NULL) %>%
            filter(grepl(
              "contract|install|man", value, ignore.case = TRUE
            )) %>%
@@ -316,7 +322,7 @@ df %>%
   
   # create a comma delim list of the values, in this case the field variants
   # (suffix) of the Milestone
-  summarise_at("values", toString) %>% 
+  summarise_at(vars(values), toString) %>% 
   
   # set presentation options when outputting as table
   kable(format = "html") %>% 
@@ -368,7 +374,7 @@ func_add_milestone_matrix <-
   function(df) {
     df %>%
       names() %>%
-      as_data_frame() %>%
+      enframe(name=NULL) %>%
       filter(grepl("_Forecast$|_Actual$", value, ignore.case = TRUE)) %>%
       mutate(Milestone = str_remove(
         string = value,
@@ -389,18 +395,20 @@ func_add_ms_long <-
     fun_create_status <-
       function(milestone_date) {
         df %>%
-          select_("row_id", Milestone_Date = milestone_date) %>%
-          mutate_at("Milestone_Date", func_general_date_conversion) %>%
+          select(row_id, Milestone_Date = all_of(milestone_date)) %>%
+          mutate_at(vars(Milestone_Date), func_general_date_conversion) %>%
           return()
       }
     
     milestone_matrix %>%
-      gather(Milestone_Status, Milestone_Status_Field, Actual:Forecast) %>%
+      pivot_longer(cols = Actual:Forecast,
+                   names_to = "Milestone_Status",
+                   values_to = "Milestone_Status_Field") %>%
       filter(!is.na(Milestone_Status_Field)) %>%
-      mutate(data = map(Milestone_Status_Field, fun_create_status)) %>%
+      mutate(data = purrr::map(Milestone_Status_Field, fun_create_status)) %>%
       select(-Milestone_Status_Field) %>%
-      unnest() %>%
-      spread(Milestone_Status, Milestone_Date) %>%
+      unnest(data) %>%
+      pivot_wider(names_from = Milestone_Status, values_from = Milestone_Date) %>%
       mutate(
         Milestone_Status = case_when(
           !is.na(Actual) ~ "Actual",
@@ -429,7 +437,7 @@ func_add_ms_wide <-
         ms_long %>%
           ungroup() %>%
           select(Milestone, row_id,!!milestone_attribute) %>%
-          mutate_at("Milestone",
+          mutate_at(vars(Milestone),
                     ~ paste(., milestone_attribute_sub_name, sep = "_")) %>%
           spread(Milestone,!!milestone_attribute) %>%
           return()
@@ -458,23 +466,24 @@ The source data is passed through the functions listed above, resulting in the c
 df_enhanced <-
   df %>% 
   
-  # create a row identifyer for each observation
+  # create a row identifier for each observation
   mutate(row_id = row_number()) %>% 
   
   # group by Report and nest associated data within the file column
   group_by(Report) %>% 
-  nest(.key = file) %>% 
+  nest() %>% 
+  rename(file = data) %>% 
   
   # map the file tibble for each report to the func_add_milestone_matrix
   # function to extract Milestones and associated fields
-  mutate(milestone_matrix = map(file, func_add_milestone_matrix)) %>%
+  mutate(milestone_matrix = purrr::map(file, func_add_milestone_matrix)) %>%
   
   # map newly created milestone matrix to the file and extract new milestone
   # features for each milestone
   mutate(ms_long = pmap(list(Report, milestone_matrix, file), func_add_ms_long)) %>%
   
   # transform elongated ms_long to ms_wide
-  mutate(ms_wide = map(ms_long, func_add_ms_wide))
+  mutate(ms_wide = purrr::map(ms_long, func_add_ms_wide))
 ```
 
 
@@ -495,8 +504,9 @@ df_enhanced %>%
   head(1) %>% 
   
   # select and unnest the milestone_matrix
+  ungroup() %>% 
   select(milestone_matrix) %>% 
-  unnest() %>% 
+  unnest(milestone_matrix) %>% 
   
   # set presentation options for the table
   kable(format = "html") %>% 
@@ -538,8 +548,9 @@ df_enhanced %>%
   tail(1) %>% 
   
   # select and unnest the ms_long tibble
+  ungroup() %>% 
   select(ms_long) %>% 
-  unnest() %>% 
+  unnest(ms_long) %>% 
   
   # return the head of the unnested tibble
   head() %>% 
@@ -570,24 +581,25 @@ func_order_by_ms <-
     tmp <-
       df %>%
       names() %>%
-      as_tibble() %>%
+      enframe(name = NULL) %>% 
       mutate(field = value) %>%
-      mutate_at("value", str_remove, pattern = "_Status|_Completed|_Date") %>%
-      mutate_at("value", func_set_milestone_levels) %>%
+      mutate_at(vars(value), str_remove, pattern = "_Status|_Completed|_Date") %>%
+      mutate_at(vars(value), func_set_milestone_levels) %>%
       arrange(value) %>%
       pull(field) %>%
       return()
     
     df %>%
-      select(row_id, tmp) %>%
+      select(row_id, all_of(tmp)) %>%
       return()
   }
 
 # return the table tail, grouping features for each Milestone
 df_enhanced %>%
   tail(1) %>%
+  ungroup() %>% 
   select(ms_wide) %>%
-  unnest() %>%
+  unnest(ms_wide) %>%
   head() %>%
   
   # pass df through function to ensure that fields are ordered by Milestone
@@ -614,12 +626,12 @@ The wide table is very useful for users wishing to analyse data using Excel pivo
 ```{r}
 df_enhanced %>%
   tail(1) %>%
+  ungroup() %>%
   select(ms_wide) %>%
-  unnest() %>%
+  unnest(ms_wide) %>%
   
   # pass df through function to ensure that fields are ordered by Milestone
   func_order_by_ms() %>%
-  ungroup() %>%
   group_by_at(c(
     "Contract_Completed",
     "Manufacture_Completed",
@@ -650,6 +662,7 @@ The next code block gets this going by creating a very simple tally of completed
 
 ```{r eda table}
 df_enhanced %>% 
+  ungroup() %>% 
   unnest(ms_long) %>%
   
   # coerce Milestone to factor to ensure the reported order follows the process
@@ -664,7 +677,7 @@ df_enhanced %>%
   group_by(Milestone, Report) %>%
   
   # create a tally of the completed activities
-  summarise_at("Milestone_Completed", sum) %>%
+  summarise_at(vars(Milestone_Completed), sum) %>%
   
   # spread the Milestone complete count
   spread(Milestone, Milestone_Completed) %>% 
@@ -690,6 +703,7 @@ plot_data <-
   df_enhanced %>% 
   
   # unnest the ms_long tibble for each report
+  ungroup() %>% 
   unnest(ms_long) %>%
   
   # coerce the Milestones as factors to ensure order 
@@ -703,10 +717,10 @@ plot_data <-
   # create a tally for each Milestone/ Report, automatically coercing the
   # boolean `Milestone_Completed` value to numeric
   group_by(Milestone, Report) %>% 
-  summarise_at("Milestone_Completed", sum) %>% 
+  summarise_at(vars(Milestone_Completed), sum) %>% 
   
   # extract the lagged value of the Milestone Completed
-  mutate_if(is.numeric, funs(lag = lag)) %>% 
+  mutate_if(is.numeric, list(lag = lag)) %>% 
   
   # calculate tally change from one report to the next
   mutate(Change = Milestone_Completed - lag) %>% 
@@ -719,10 +733,10 @@ plot_data <-
   rename(Completed = Milestone_Completed) %>% 
   
   # gather the newly created values into a single column 
-  gather(Metric, value, Completed:Change) %>% 
+  pivot_longer(cols = Completed:Change, names_to = "Metric", values_to = "value") %>% 
   
   # order the newly created Metric values by coercing as factor
-  mutate_at("Metric", factor, levels = c("Completed", "Change"), ordered = TRUE)
+  mutate_at(vars(Metric), factor, levels = c("Completed", "Change"), ordered = TRUE)
 
 ```
 
@@ -805,21 +819,21 @@ plot_data <-
   df_enhanced %>%
   unnest(ms_long) %>%
   mutate_at(
-    "Milestone",
+    vars(Milestone),
     factor,
     levels = c("Contract", "Manufacture", "Installation"),
     ordered = TRUE
   ) %>%
   
   # filter to include data from the latest Report only
-  filter_at("Report", all_vars(. == max(.))) %>%
+  filter_at(vars(Report), all_vars(. == max(.))) %>%
   
   # filter where milestones had been claimed as Actual
   filter(Milestone_Completed) %>%
   select(Milestone, Milestone_Date, row_id) %>%
   
   # transform dates to the start of the week
-  mutate_at("Milestone_Date",
+  mutate_at(vars(Milestone_Date),
             floor_date,
             unit = "week",
             
@@ -830,7 +844,7 @@ plot_data <-
   group_by(Milestone, Milestone_Date) %>%
   summarise(Jobs = n_distinct(row_id)) %>%
   arrange(Milestone_Date) %>%
-  mutate_at("Jobs", cumsum) %>%
+  mutate_at(vars(Jobs), cumsum) %>%
   
   # filter to keep Jobs delivered after 2005 only 
   filter(year(Milestone_Date) > 2005) %>%
@@ -840,15 +854,15 @@ plot_data <-
   
   # calculate the rolling mean, spread over 4 weeks
   mutate_at(
-    "Change",
-    funs(Change_rm4 = zoo::rollmean),
+    vars(Change),
+    list(Change_rm4 = zoo::rollmean),
     k = 4,
     align = "right",
     fill = NA
   ) %>%
   
   # create a variable to represent the scaled tally
-  mutate_if(is.numeric, funs(scale = scale)) %>%
+  mutate_if(is.numeric, list(scale = scale)) %>%
   
   # filter to retain rows where all columns are populated
   filter_if(is.numeric, all_vars(! is.na(.)))
@@ -926,28 +940,38 @@ Creating this streamlines subsequent analysis.
 
 
 ```{r join}
-df_enhanced_long <-
+df_enhanced_file <-
   df_enhanced %>% 
+  ungroup() %>% 
   
   # unnest file
-  unnest(file) %>% 
+  select(file, Report) %>% 
+  unnest(file)
+
+df_enhanced_ms_long <-
+  df_enhanced %>% 
+  ungroup() %>% 
   
+  # unnest file
+  select(ms_long, Report) %>% 
+  unnest(ms_long)
+
+df_enhanced_long <-
+  df_enhanced_file %>%
   # join unnested ms_long
-  inner_join(
-    df_enhanced %>% 
-      unnest(ms_long),
-    by = c("Report", "row_id")
-  ) %>% 
+  inner_join(df_enhanced_ms_long, by = c("Report", "row_id")) %>%
   
   # create new feature to map supplier to relevant Milestone
-  mutate(Milestone_Supplier = case_when(
-    Milestone == "Contract" ~ Contract_Supplier,
-    Milestone == "Installation" ~ Installation_Supplier,
-    TRUE ~ "Internal"
-  ) %>% 
-    
-    # make missing Milestone_Supplier explicit
-    coalesce(., "Unknown"))
+  mutate(
+    Milestone_Supplier = case_when(
+      Milestone == "Contract" ~ Contract_Supplier,
+      Milestone == "Installation" ~ Installation_Supplier,
+      TRUE ~ "Internal"
+    ) %>%
+      
+      # make missing Milestone_Supplier explicit
+      coalesce(., "Unknown")
+  )
 
 ```
 
@@ -973,14 +997,8 @@ plot_data_viridis <-
     plot_data %>%
       distinct(Supplier) %>%
       mutate_all(as.character) %>%
-      nest() %>%
-      summarise_at("data", map,   function(df) {
-        df %>%
-          left_join(param_supplier_viridis, by = "Supplier") %>%
-          return()
-      }) %>%
-      unnest() %>%
-      mutate_at("Supplier", fct_inorder)
+      left_join(param_supplier_viridis, by = "Supplier") %>%
+      mutate_at(vars(Supplier), fct_inorder)
   }
 
 ```
@@ -1026,16 +1044,14 @@ plot_data <-
   ungroup()
 
 plot_data %>%
-  mutate_at("Scenario", str_remove, pattern = "Milestone_") %>%
+  mutate_at(vars(Scenario), str_remove, pattern = "Milestone_") %>%
   group_by(Report, Milestone, Scenario, Report) %>%
   summarise(n = n_distinct(Job_Number)) %>%
   group_by(Scenario) %>%
   
   # create variable nn to change the scale of reporting between Scenarios to
   # improve visualisation
-  mutate(nn = map(n, function(n) {
-    (n - min(n)) / (max(n) - min(n))
-  }) %>% unlist()) %>%
+  mutate(nn = (n - min(n)) / (max(n) - min(n))) %>% 
   mutate(nn = if_else(Scenario == "Pulled", (nn * -1) + 0.1, nn + 0.1)) %>%
   
   ggplot(aes(x = Report, y = nn, fill = Scenario)) +
@@ -1077,23 +1093,23 @@ Here we identify jobs that are removed from delivery, using the approach describ
 plot_data <-
   df_enhanced_long %>%
   
-  # select job_numnber and report
+  # select job_number and report
   select(Job_Number, Report) %>%
   
   # create new features showing the first and last report
-  mutate_at("Report", funs(
-    Report_first = first(., order_by = .),
-    Report_last = last(., order_by = .)
+  mutate_at(vars(Report), list(
+    Report_first = ~ first(., order_by = .),
+    Report_last = ~ last(., order_by = .)
   )) %>%
   
   # group by job_number
   group_by(Job_Number) %>%
   
   # now create features showing the first and last report for each job_number
-  mutate_at("Report",
-            funs(
-              Job_Report_first = first(., order_by = .),
-              Job_Report_last = last(., order_by = .)
+  mutate_at(vars(Report),
+            list(
+              Job_Report_first = ~ first(., order_by = .),
+              Job_Report_last = ~ last(., order_by = .)
             )) %>%
   ungroup() %>%
   
@@ -1136,16 +1152,17 @@ The next section explores the progress to date and the forecast for each milesto
 ```{r prognosis_plot_data}
 plot_data <-
   df_enhanced_long %>% 
+  ungroup() %>% 
   
   # filter to retain data from the last report only
   filter(Report == max(Report)) %>%
   
-  # filter to retain forecast and actual Milestone Statussus only
+  # filter to retain forecast and actual Milestone Statusses only
   filter(Milestone_Status %in% c("Forecast", "Actual")) %>% 
   select(Report, Job_Number, Milestone, Milestone_Status, Milestone_Date) %>%
   
   # create a hard floor and ceiling for the dates outside the reporting range
-  mutate_at("Milestone_Date",
+  mutate_at(vars(Milestone_Date),
             ~ case_when(
               . < ymd("2009-01-01") ~ ymd("2009-01-01"),
               . > ymd("2011-12-31") ~ ymd("2011-12-31"),
@@ -1153,44 +1170,26 @@ plot_data <-
             )) %>% 
   
   # transform dates to the start of a month
-  mutate_at("Milestone_Date", floor_date, week_start = 1, unit = "month") %>% 
+  mutate_at(vars(Milestone_Date), floor_date, week_start = 1, unit = "month") %>% 
   
   # calculate a tally for groups of Milestone, Status and Month
   group_by(Report, Milestone, Milestone_Status, Milestone_Date) %>% 
   summarise(net = n_distinct(Job_Number)) %>%
   
-  # nest the data by group
-  group_by(Report, Milestone, Milestone_Date) %>% 
-  nest() %>% 
-  
-  # pass the nested data to the function and combine forecast and actual to
-  # create a starting tally for forecasted observations to follow on where
-  # actuals had completed
-  mutate_at("data", map, function(df) {
-    df %>% 
-      filter(Milestone_Status == "Actual") %>%
-      union_all(
-        df %>%
-          mutate(Milestone_Status = "Forecast") %>% 
-          group_by(Milestone_Status) %>% 
-          summarise_if(is.numeric, sum, na.rm = TRUE)
-      ) %>%
-      return()
-  }) %>% 
-  unnest() %>% 
-  
   # group and create a cumulative tally of net
-  group_by(Milestone, Milestone_Status) %>% 
-  mutate_at("net", funs(cum = cumsum)) %>% 
+  group_by(Milestone) %>% 
+  mutate_at(vars(net), list(cum = cumsum)) %>%
   
   # filter data to start at a year's worth of data before the last report
   filter(Milestone_Date > Report - years(1)) %>% 
   
   # gather net and cum into one column, making it easier to visualise
-  gather(Metric, Value, net:cum) %>% 
+  pivot_longer(cols = net:cum,
+               names_to = "Metric",
+               values_to = "Value") %>% 
   ungroup() %>% 
   mutate_at(
-    "Milestone",
+    vars(Milestone),
     factor,
     levels = c("Contract", "Manufacture", "Installation"),
     ordered = TRUE
@@ -1292,17 +1291,17 @@ plot_data <-
   rename(Supplier = Installation_Supplier) %>%
   
   # code missing Supplier with `unknown`
-  mutate_at("Supplier", ~ coalesce(., "Unknown")) %>% 
+  mutate_at(vars(Supplier), ~ coalesce(., "Unknown")) %>% 
   
   # filter to keep latest report, completed Manufacture milestone
-  filter_at("Report", all_vars(. == max(.))) %>%
+  filter_at(vars(Report), all_vars(. == max(.))) %>%
   filter(Milestone == "Manufacture",
          Milestone_Completed) %>%
   select(Milestone_Date, row_id, Supplier) %>%
   
   # transform the date to the start of a quarter
-  mutate_at("Milestone_Date",
-            funs(floor_date),
+  mutate_at(vars(Milestone_Date),
+            list(floor_date),
             week_start = 1,
             unit = "quarter") %>%
   
@@ -1310,10 +1309,10 @@ plot_data <-
   count(Milestone_Date, Supplier) %>% 
   
   # scale the count
-  mutate_at("n", scale) %>% 
+  mutate_at(vars(n), scale) %>% 
   
   # order the suppliers
-  mutate_at("Supplier", fct_inorder)
+  mutate_at(vars(Supplier), fct_inorder)
 
 plot_data %>%
   ggplot(aes(x = Milestone_Date, y = n, col = Supplier)) +
@@ -1323,11 +1322,19 @@ plot_data %>%
     data =
       plot_data %>%
       group_by(Supplier) %>%
-      summarise_at("Milestone_Date", funs(min, max)) %>%
-      gather(Approach, Milestone_Date, -Supplier),
-    aes(label = format(Milestone_Date, "%b-%y"), y = 0, fill = Supplier),
+      summarise_at(vars(Milestone_Date), list(min = min, max = max)) %>%
+      pivot_longer(
+        cols = -Supplier,
+        names_to = "Approach",
+        values_to = "Milestone_Date"
+      ),
+    aes(
+      label = format(Milestone_Date, "%b-%y"),
+      y = 0,
+      fill = Supplier
+    ),
     col = "white",
-    size = 3, 
+    size = 3,
     show.legend = FALSE
   ) +
   geom_label(
@@ -1337,7 +1344,10 @@ plot_data %>%
       # group by Supplier and summarise the minimum, median and maximum dates
       # for each
       group_by(Supplier) %>%
-      summarise_at("Milestone_Date", funs(min, median, max)) %>%
+      summarise_at(vars(Milestone_Date), 
+                   list(min = min, 
+                        median = median, 
+                        max = max)) %>%
       
       # calculate the duration in weeks between the min and max dates
       mutate(Interval = difftime(
@@ -1399,16 +1409,16 @@ df_duration <-
   df_enhanced_long %>%
   
   # filter to keep completed milestones for the last report only
-  filter_at("Report", all_vars(. == max(.))) %>% 
+  filter_at(vars(Report), all_vars(. == max(.))) %>% 
   filter(Milestone_Completed) %>%
   select(row_id, Milestone, Milestone_Date) %>%
   
   # set milestone levels to preserve ordering for reporting
-  mutate_at("Milestone", func_set_milestone_levels) %>%
+  mutate_at(vars(Milestone), func_set_milestone_levels) %>%
   
   # spread the milestone dates for each Job/ row_id and calculate the difference
   # in start and end in days - for both Installation and Manufacture
-  spread(Milestone, Milestone_Date) %>%
+  pivot_wider(names_from = Milestone, values_from = Milestone_Date) %>%
   transmute(
     row_id = row_id,
     Installation = difftime(
@@ -1425,11 +1435,12 @@ df_duration <-
   
   # gather the newly calculated durations for each of the Milestones in one
   # column
-  gather(Milestone, Duration, -row_id) %>% 
+  # gather(Milestone, Duration, -row_id) %>% 
+  pivot_longer(cols = -row_id, names_to = "Milestone", values_to = "Duration") %>%
   
   # filter to keep durations that are not negative, ignoring where there are
   # issues with the quality of the data
-  filter_at("Duration", all_vars(. > -1)) %>% 
+  filter_at(vars(Duration), all_vars(. > -1)) %>% 
   
   # join the Supplier name to allow further analysis
   left_join(
@@ -1462,17 +1473,17 @@ df_duration_stat_summary <-
       str_remove_all(pattern = "~")
     
     df_duration %>%
-      mutate_at("Duration", as.integer) %>%
+      mutate_at(vars(Duration), as.integer) %>%
       select(!!!grouping, Duration) %>%
       mutate(Group = grouping_name) %>%
-      mutate_at("Group", ~na_if(., "")) %>%
+      mutate_at(vars(Group), ~na_if(., "")) %>%
       group_by(Group, !!!grouping) %>%
       
       # apply the psych::describe function to create summary statistics by group
       do(Description = describe(.$Duration)) %>%
       
       # unnest the output produced by iteration
-      unnest()
+      unnest(Description)
   }
 
 # the tibble contains a list of the grouping variables that will iteratively
@@ -1486,8 +1497,8 @@ tribble(
   
   # take the grouping variable and map it to the df_duration_stat_summary
   # function
-  mutate_at("grouping", map, df_duration_stat_summary) %>% 
-  unnest() %>% 
+  mutate_at(vars(grouping), purrr::map, df_duration_stat_summary) %>% 
+  unnest(grouping) %>% 
   
   # coalesce and NA values to All, specifically where we did not pass any
   # grouping values but still wanted summary statistics
@@ -1528,48 +1539,47 @@ plot_data <-
   df_duration %>%
   
   # filter to exclude unknown suppliers
-  filter(Supplier != "Unknown") %>% 
+  filter(Supplier != "Unknown") %>%
   
   # coerce duration data-type to integer
-  mutate_at("Duration", parse_integer) %>% 
+  mutate_at(vars(Duration), as.integer) %>%
   
   # nest data and pass to function, creating a tally for all installation
   # suppliers in addition to each supplier
-  nest() %>% 
-  mutate_at("data", map, function(df) {
+  nest(data = everything()) %>%
+  mutate_at(vars(data), purrr::map, function(df) {
     df %>%
-      union_all(
-        df %>%
-          filter(Milestone == "Installation") %>% 
-          mutate(Supplier = "All Installation")
-      ) %>% 
-      group_by(Supplier, Milestone) %>% 
-      mutate_at("Duration", funs(median = median)) %>% 
-      arrange(Milestone, median) %>% 
-      ungroup() %>% 
-      mutate_at("Supplier", fct_inorder) %>% 
+      union_all(df %>%
+                  filter(Milestone == "Installation") %>%
+                  mutate(Supplier = "All Installation")) %>%
+      group_by(Supplier, Milestone) %>%
+      mutate_at(vars(Duration), list(median = median)) %>%
+      arrange(Milestone, median) %>%
+      ungroup() %>%
+      mutate_at(vars(Supplier), fct_inorder) %>%
       return()
-  }) %>% 
-  unnest()
+  }) %>%
+  unnest(data)
 
 plot_data_text <-
-  plot_data %>% 
-  group_by(Milestone, Supplier) %>% 
-  select(-row_id) %>% 
+  plot_data %>%
+  group_by(Milestone, Supplier) %>%
+  select(-row_id) %>%
   
   # apply the summary function to extract the fivenum statistics
-  do(fivenum = summary(.$Duration)) %>% 
+  do(fivenum = summary(.$Duration)) %>%
   head(10) %>%
+  ungroup() %>%
   
   # tidy the output
-  mutate_at("fivenum", map, broom::tidy) %>%
+  mutate_at(vars(fivenum), purrr::map, broom::tidy) %>%
   
   # gather the results
-  mutate_at("fivenum", map, gather) %>% 
-  unnest() %>% 
+  mutate_at(vars(fivenum), purrr::map, gather) %>%
+  unnest(fivenum) %>%
   
   # retain inter quartile range values/ boundaries only
-  filter(key %in% c("q1", "median","q3")) %>% 
+  filter(key %in% c("q1", "median", "q3")) %>%
   rename(Measure = key, Duration = value)
 
 plot_data %>%
@@ -1670,9 +1680,9 @@ In the next code block, we are calculating [confidence intervals](https://en.wik
 model_data <-
   df_duration %>%
   filter(Supplier != "Unknown") %>% 
-  mutate_at("Duration", parse_integer) %>% 
-  nest() %>% 
-  mutate_at("data", map, function(df) {
+  mutate_at(vars(Duration), as.integer) %>% 
+  nest(data = everything()) %>%
+  mutate_at(vars(data), purrr::map, function(df) {
     df %>%
       
       # create a union of all installation suppliers & milestones to calculate
@@ -1686,15 +1696,15 @@ model_data <-
       group_by(Supplier, Milestone) %>% 
       
       # return the median per Supplier and for all Installation suppliers
-      mutate_at("Duration", funs(median = median)) %>% 
+      mutate_at(vars(Duration), list(median = median)) %>% 
       arrange(Milestone, median) %>% 
       ungroup() %>% 
       
       # order Suppliers by the ranked median
-      mutate_at("Supplier", fct_inorder) %>% 
+      mutate_at(vars(Supplier), fct_inorder) %>% 
       return()
   }) %>% 
-  unnest()
+  unnest(data)
 
 library(rcompanion)
 
@@ -1727,7 +1737,7 @@ plot_data <-
   
   # arrange by median, ascending order
   arrange(Median) %>%
-  mutate_at("Supplier", fct_inorder, ordered = TRUE) %>%
+  mutate_at(vars(Supplier), fct_inorder, ordered = TRUE) %>%
   filter(Supplier != "Unknown")
 
 plot_data %>% 

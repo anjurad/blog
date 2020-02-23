@@ -286,9 +286,9 @@ tmp_exercise_data <-
   
   # The unnest() function returns all iteratively nested cycled data to a top
   # param_days level
-  unnest() %>%
-  unnest() %>%
-  unnest() %>% 
+  unnest(data) %>%
+  unnest(data) %>%
+  unnest(data) %>% 
   
   # Complete the data for all combinations of the player no, date and exercise,
   # creating explicit entries for the missing combinations
@@ -300,7 +300,8 @@ tmp_exercise_data <-
   # Group by Player Number and nest the simulated data in the `training_data`
   # column
   group_by(No) %>%
-  nest(.key = training_data)
+  nest() %>% 
+  rename(training_data = data)
 ```
 
 ### Explore the Simulated Data

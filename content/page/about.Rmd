@@ -1,12 +1,10 @@
 ---
 title: About me
-subtitle: management consultant & data scientist
+subtitle: data scientist
 comments: false
 ---
 
-My name is **Gerhard Groenewald**.  
+I am [**Gerhard Groenewald**](https://www.linkedin.com/in/gerhardgroenewald/), a perpetual student with a passion for all things data.
 
-I am a management consultant in the UK telecommunications industry, specialising in data science.
-
-My [résumé](../../page/resume) provides more detail about my career.
+Check out my [résumé](../../page/resume) for more detail about my career.
 <br><br><hl>

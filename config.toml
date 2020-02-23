@@ -16,7 +16,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 [Params]
 # homeTitle = "Gerhard Groenewald" # Set a different text for the header on the home page
-  subtitle = "management consultant & data scientist"
+  subtitle = "data scientist"
   logo = "img/beard_icon.jpg"
   favicon = "img/favicon.ico"
   dateFormat = "2 Jan 2006"
