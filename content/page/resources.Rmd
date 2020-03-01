@@ -203,7 +203,7 @@ df_resources_grouped <-
   mutate_at("Process_or_Skill",
             ~ str_split(., pattern = ",") %>%
               map(., str_trim)) %>%
-  unnest() %>%
+  unnest(Process_or_Skill) %>%
   select(!!!quos_select_fields) %>%
   group_by(Process_or_Skill) %>%
   arrange(Process_or_Skill, Area, Language, Source) %>% 
@@ -236,7 +236,7 @@ func_df_resources_grouped_section <-
     df_resources_grouped %>%
       select(-Section) %>% 
       filter(Process_or_Skill == param_Process_or_Skill) %>%
-      unnest() %>%
+      unnest(data) %>%
       ungroup() %>%
       select(-Process_or_Skill) %>%
       mutate(`#` = row_number()) %>%
